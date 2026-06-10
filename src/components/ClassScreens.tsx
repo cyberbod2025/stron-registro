@@ -1,6 +1,6 @@
 import { ScreenId, TransitionType, ClassRegistration, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { ArrowLeft, CheckCircle, Calendar, MapPin, QrCode, AlertTriangle, AlertCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Calendar, MapPin, QrCode, AlertTriangle, AlertCircle, Navigation, MessageCircle } from "lucide-react";
 import React, { useState } from "react";
 
 interface ClassScreensProps {
@@ -166,7 +166,7 @@ export function RegistroDeClaseScreen({
   );
 }
 
-export function ConfirmadaScreen({ onNavigate, classSession }: ClassScreensProps) {
+export function ConfirmadaScreen({ onNavigate, onShowToast, classSession }: ClassScreensProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.96 }}
@@ -207,12 +207,64 @@ export function ConfirmadaScreen({ onNavigate, classSession }: ClassScreensProps
 
         <div className="space-y-2 py-1 text-xs text-[#e2bdc6]">
           <p className="flex items-center gap-2"><Calendar className="w-4 h-4 text-emerald-400" /> {classSession?.dateStr} a las {classSession?.timeStr}</p>
-          <p className="flex items-center gap-2"><MapPin className="w-4 h-4 text-emerald-400" /> {classSession?.location}</p>
+          <div className="flex flex-col gap-1">
+            <p className="flex items-center gap-2"><MapPin className="w-4 h-4 text-emerald-400" /> {classSession?.location}</p>
+            {classSession?.address && (
+              <p className="pl-6 text-[10px] text-emerald-400/80 italic">{classSession.address}</p>
+            )}
+          </div>
         </div>
 
-        <div className="border-t border-dashed border-white/20 pt-4 text-center">
-          <QrCode className="w-24 h-24 text-emerald-400 mx-auto mb-2 opacity-80" />
-          <p className="text-[9px] text-white/50 font-mono">Presenta este código al llegar</p>
+        <div className="border-t border-dashed border-white/20 pt-4 text-center space-y-4">
+          <div>
+            <QrCode className="w-24 h-24 text-emerald-400 mx-auto mb-2 opacity-80" />
+            <p className="text-[9px] text-white/50 font-mono">Presenta este código al llegar</p>
+          </div>
+          
+          <div className="space-y-2">
+            {classSession?.mapsUrl && (
+              <button
+                onClick={() => window.open(classSession.mapsUrl, '_blank')}
+                className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-[10px] uppercase tracking-wider hover:bg-white/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                Abrir ubicación en Maps
+              </button>
+            )}
+            {classSession?.wazeUrl && (
+              <button
+                onClick={() => window.open(classSession.wazeUrl, '_blank')}
+                className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-[10px] uppercase tracking-wider hover:bg-white/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Navigation className="w-3.5 h-3.5 text-blue-400" />
+                Abrir en Waze
+              </button>
+            )}
+            <button
+              onClick={() => {
+                const title = "Strong Nation Iztacalco";
+                const details = "Clase confirmada. Llegar 10 minutos antes.";
+                const location = classSession?.location || "";
+                const calendarUrl = classSession?.calendarUrl || `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`;
+                window.open(calendarUrl, '_blank');
+                onShowToast?.("Al agregarlo a tu calendario, activa recordatorio 1 hora antes.");
+              }}
+              className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-[10px] uppercase tracking-wider hover:bg-white/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Calendar className="w-3.5 h-3.5 text-amber-400" />
+              Agregar a calendario
+            </button>
+            <button
+              onClick={() => {
+                const whatsappText = `¡Hola! Ya confirmé mi asistencia a la clase de Strong Nation Iztacalco el ${classSession?.dateStr} a las ${classSession?.timeStr} en ${classSession?.location}. ¿Te animas a venir?`;
+                window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, '_blank');
+              }}
+              className="w-full py-2.5 rounded-xl bg-[#25D366]/20 border border-[#25D366]/40 text-white font-bold text-[10px] uppercase tracking-wider hover:bg-[#25D366]/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+              Compartir con una amiga
+            </button>
+          </div>
         </div>
       </div>
 

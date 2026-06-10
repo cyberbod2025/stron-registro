@@ -1,7 +1,7 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { ArrowLeft, Copy, Check, MessageCircle } from "lucide-react";
-import React, { useState } from "react";
+import { ArrowLeft, MessageCircle, MapPin, Navigation, Calendar } from "lucide-react";
+import React from "react";
 
 interface InviteProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -10,13 +10,6 @@ interface InviteProps {
 }
 
 export function InviteScreen({ onNavigate, onShowToast, classSession }: InviteProps) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    setCopied(true);
-    onShowToast("¡Enlace copiado! Compártelo por WhatsApp");
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const missing = classSession ? Math.max(0, classSession.minRequired - classSession.confirmedCount) : 1;
 
@@ -65,23 +58,60 @@ export function InviteScreen({ onNavigate, onShowToast, classSession }: InvitePr
           </p>
         </div>
 
-        {/* Core Link Sharing box */}
-        <div className="glass-card rounded-2xl p-4 space-y-3 border border-white/5 bg-[#1e0f14]">
-          <label className="text-[9px] font-black uppercase text-[#ffb1c7] tracking-widest leading-none">Enlace de la Clase</label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              readOnly
-              value={`https://strong.iztacalco.fit/class/${classSession?.id || "c1"}`}
-              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none font-mono"
-            />
-            <button
-              onClick={handleCopy}
-              className="px-3.5 py-2 rounded-xl bg-[#ff4994] text-white hover:bg-[#ff4994]/90 transition-all flex items-center justify-center cursor-pointer"
-            >
-              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            </button>
-          </div>
+        {/* Core Actions */}
+        <div className="space-y-3">
+          <button
+            onClick={() => {
+              const whatsappText = `Hola, estamos por confirmar la clase de Strong Nation Iztacalco.\nSolo falta ${missing} persona${missing !== 1 ? 's' : ''} para completar el mínimo de ${classSession?.minRequired || 5}.\nClase: ${classSession?.dateStr} ${classSession?.timeStr}\nSede: ${classSession?.location}.\n¿Te animas a venir?`;
+              window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, '_blank');
+            }}
+            className="w-full py-3.5 rounded-xl bg-[#25D366] text-white font-black text-xs uppercase tracking-widest shadow-md hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <MessageCircle className="w-5 h-5" />
+            Compartir por WhatsApp
+          </button>
+          
+          {!classSession?.isPrivateLocation && (
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => {
+                  if (classSession?.mapsUrl) {
+                    window.open(classSession.mapsUrl, '_blank');
+                  } else {
+                    onShowToast("Ubicación pendiente por configurar");
+                  }
+                }}
+                className={`py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-[10px] uppercase tracking-wider hover:bg-white/10 active:scale-95 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer ${!classSession?.wazeUrl ? 'col-span-2' : ''}`}
+              >
+                <MapPin className="w-4 h-4 text-[#ff4994]" />
+                Abrir ubicación
+              </button>
+              {classSession?.wazeUrl && (
+                <button
+                  onClick={() => window.open(classSession.wazeUrl, '_blank')}
+                  className="py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-[10px] uppercase tracking-wider hover:bg-white/10 active:scale-95 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Navigation className="w-4 h-4 text-blue-400" />
+                  Abrir en Waze
+                </button>
+              )}
+            </div>
+          )}
+
+          <button
+            onClick={() => {
+              const title = "Strong Nation Iztacalco";
+              const details = "Clase confirmada con mínimo de 5 alumnas. Llegar 10 minutos antes.";
+              const location = classSession?.location || "";
+              const calendarUrl = classSession?.calendarUrl || `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`;
+              window.open(calendarUrl, '_blank');
+              onShowToast("Al agregarlo a tu calendario, activa recordatorio 1 hora antes.");
+            }}
+            className="w-full py-3.5 rounded-xl bg-white/5 border border-white/10 text-white font-black text-[11px] uppercase tracking-widest shadow-md hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Calendar className="w-4 h-4 text-amber-400" />
+            Agregar a calendario
+          </button>
         </div>
 
         {/* Quick lists */}

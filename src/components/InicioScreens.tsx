@@ -113,9 +113,16 @@ export function InicioScreen({ onNavigate, classes }: InicioProps) {
                 {c.dateStr} {c.timeStr}
               </h3>
               
-              <div className="flex items-center gap-1.5 text-xs text-[#e2bdc6] mb-5">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>Sede: {c.location}</span>
+              <div className="flex flex-col gap-0.5 text-xs text-[#e2bdc6] mb-5">
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span className="font-bold">Sede: {c.location}</span>
+                </div>
+                {c.address && (
+                  <span className={`pl-5 text-[10px] ${c.isPrivateLocation ? 'text-[#ffb1c7] italic' : 'text-white/50'}`}>
+                    {c.address}
+                  </span>
+                )}
               </div>
 
               {/* Progress Bar & Stats */}

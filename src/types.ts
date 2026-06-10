@@ -26,10 +26,15 @@ export interface ClassSession {
   dateStr: string; // e.g. "Jueves"
   timeStr: string; // e.g. "9:00 a.m."
   location: string;
+  address?: string;
+  isPrivateLocation?: boolean;
   status: ClassStatus;
   confirmedCount: number;
   minRequired: number;
   deadlineStr: string; // e.g. "miércoles 8:00 p.m."
+  mapsUrl?: string;
+  wazeUrl?: string;
+  calendarUrl?: string;
 }
 
 export interface ClassRegistration {

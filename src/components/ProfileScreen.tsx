@@ -14,7 +14,7 @@ export function ProfileScreen({ onNavigate, userEmail }: ProfileProps) {
   // Mock student registration records
   const [history] = useState([
     { id: 1, name: "Strong Nation", venue: "Iztacalco Domo", date: "Hoy, 7:00 PM", status: "Confirmado", color: "text-emerald-400" },
-    { id: 2, name: "Strong Nation", venue: "Casa de Viri", date: "Ayer", status: "Asistido", color: "text-white/60" },
+    { id: 2, name: "Strong Nation", venue: "Casa de Nidia", date: "Ayer", status: "Asistido", color: "text-white/60" },
     { id: 3, name: "Strong Nation", venue: "Day Cardio", date: "Hace 4 días", status: "Cancelado", color: "text-rose-400" },
     { id: 4, name: "Strong Nation", venue: "Iztacalco Domo", date: "Hace 1 semana", status: "Asistido", color: "text-white/60" },
   ]);

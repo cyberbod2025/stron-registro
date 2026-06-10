@@ -32,22 +32,30 @@ export default function App() {
       title: "Strong Nation",
       dateStr: "Martes",
       timeStr: "9:00 a.m.",
-      location: "Casa de Viri",
+      location: "Casa de Nidia",
+      isPrivateLocation: true,
+      address: "Ubicación compartida solo a alumnas registradas",
       status: "confirmada",
       confirmedCount: 6,
       minRequired: 5,
       deadlineStr: "lunes 8:00 p.m.",
+      mapsUrl: "https://maps.app.goo.gl/DPtUq6P3PiWHNB5u7",
+      wazeUrl: "WAZE_URL_CASA_DE_VIRI",
     },
     {
       id: "c2",
       title: "Strong Nation",
       dateStr: "Jueves",
       timeStr: "9:00 a.m.",
-      location: "Casa de Viri",
+      location: "Casa de Nidia",
+      isPrivateLocation: true,
+      address: "Ubicación compartida solo a alumnas registradas",
       status: "pendiente",
       confirmedCount: 3,
       minRequired: 5,
       deadlineStr: "miércoles 8:00 p.m.",
+      mapsUrl: "https://maps.app.goo.gl/DPtUq6P3PiWHNB5u7",
+      wazeUrl: "WAZE_URL_CASA_DE_VIRI",
     },
     {
       id: "c3",
@@ -55,10 +63,14 @@ export default function App() {
       dateStr: "Domingo",
       timeStr: "8:30 a.m.",
       location: "Day Cardio",
+      isPrivateLocation: false,
+      address: "Dirección Pública Day Cardio",
       status: "suspendida",
       confirmedCount: 3,
       minRequired: 5,
       deadlineStr: "sábado 8:00 p.m.",
+      mapsUrl: "https://maps.app.goo.gl/wDKZqsd9wULqMp5S6",
+      wazeUrl: "WAZE_URL_DAY_CARDIO",
     }
   ]);
 
@@ -136,6 +148,7 @@ export default function App() {
         return (
           <ConfirmadaScreen
             onNavigate={handleNavigate}
+            onShowToast={onShowToast}
             classSession={classes.find(c => c.status === "confirmada") || classes[0]}
           />
         );
