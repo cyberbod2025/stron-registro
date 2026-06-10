@@ -1,0 +1,6 @@
+{
+  "name": "Strong Nation Iztacalco",
+  "description": "Prototipo interactivo multipantalla con flujo de navegación completo para el equipo de rendición de cuentas y entrenamientos de Strong Nation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

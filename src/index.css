@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ffb1c7;
+  --color-primary-container: #ff4994;
+  --color-on-primary-container: #59002b;
+  --color-background: #1e0f14;
+  --color-surface: #1e0f14;
+  --color-secondary: #d3bbff;
+  --color-secondary-container: #582ea2;
+  --color-tertiary: #5de151;
+  --color-error: #ffb4ab;
+  --color-on-background: #f9dbe2;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Montserrat", "Inter", sans-serif;
+}
+
+@layer utilities {
+  .glass-card {
+    background: rgba(75, 29, 149, 0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .neon-glow {
+    filter: drop-shadow(0 0 10px rgba(255, 73, 148, 0.4));
+  }
+  .neon-glow-pink {
+    box-shadow: 0 0 20px rgba(255, 73, 148, 0.3);
+  }
+  .neon-text-glow {
+    text-shadow: 0 0 8px rgba(255, 73, 148, 0.6);
+  }
+  .progress-gradient {
+    background: linear-gradient(90deg, #ff4994 0%, #ba0061 100%);
+  }
+}
+
+/* Base resets & layout settings */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
