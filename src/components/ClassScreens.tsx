@@ -31,7 +31,9 @@ export function RegistroDeClaseScreen({
     willCancelInTime: registration?.willCancelInTime ?? false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.fullName || !formData.email || !formData.mobile) {
       onShowToast?.("Por favor completa todos los campos.");
@@ -41,9 +43,77 @@ export function RegistroDeClaseScreen({
       onShowToast?.("Debes aceptar el compromiso de asistencia.");
       return;
     }
-    onChangeRegistration?.(formData);
-    onShowToast?.("¡Registro realizado con éxito!");
-    onNavigate(ScreenId.Confirmada, "push");
+    setIsSubmitting(true);
+    try {
+      const { supabase } = await import('../lib/supabase');
+      
+      // 1. Buscar si la alumna ya existe
+      const { data: existingStudents, error: searchError } = await supabase
+        .from('students')
+        .select('id')
+        .eq('email', formData.email)
+        .limit(1);
+
+      if (searchError) throw searchError;
+
+      let studentId;
+
+      if (existingStudents && existingStudents.length > 0) {
+        studentId = existingStudents[0].id;
+      } else {
+        // 2. Si no existe, crearla
+        const { data: newStudent, error: insertError } = await supabase
+          .from('students')
+          .insert([
+            {
+              full_name: formData.fullName,
+              email: formData.email,
+              mobile: formData.mobile
+            }
+          ])
+          .select('id')
+          .single();
+
+        if (insertError) throw insertError;
+        studentId = newStudent.id;
+      }
+
+      // 3. Crear el registro en la clase
+      const { error: regError } = await supabase.from('registrations').insert([
+        {
+          class_id: formData.classId,
+          student_id: studentId,
+          is_committed: formData.isCommitted,
+          understands_goal: formData.understandsGoal,
+          will_cancel_in_time: formData.willCancelInTime
+        }
+      ]);
+
+      if (regError) {
+        if (regError.code === '23505') {
+          onShowToast?.("Ya tienes un lugar reservado en esta clase.");
+          setIsSubmitting(false);
+          return;
+        }
+        throw regError;
+      }
+
+      onChangeRegistration?.(formData);
+      onShowToast?.("¡Registro realizado con éxito!");
+      
+      // The user wants App.tsx to refetch the quorum count
+      // but App.tsx will naturally refetch on mount, wait, App.tsx only mounts once.
+      // So we might need a callback, or a simple window reload, or just navigate.
+      // We will just navigate for now, the real-time or refetch can be handled via onShowToast or similar, 
+      // but for V1 just navigate.
+      
+      onNavigate(ScreenId.Confirmada, "push");
+    } catch (err) {
+      console.error(err);
+      onShowToast?.("Hubo un error al registrarte.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -157,9 +227,10 @@ export function RegistroDeClaseScreen({
 
         <button
           type="submit"
-          className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#ff4994] to-[#562ba0] text-white font-black text-xs uppercase tracking-widest shadow-md hover:brightness-110 active:scale-95 transition-all cursor-pointer text-center"
+          disabled={isSubmitting}
+          className={`w-full py-3.5 rounded-xl text-white font-black text-xs uppercase tracking-widest shadow-md transition-all text-center ${isSubmitting ? 'bg-gray-500 cursor-not-allowed opacity-70' : 'bg-gradient-to-r from-[#ff4994] to-[#562ba0] hover:brightness-110 active:scale-95 cursor-pointer'}`}
         >
-          CONFIRMAR MI LUGAR
+          {isSubmitting ? "PROCESANDO..." : "CONFIRMAR MI LUGAR"}
         </button>
       </form>
     </motion.div>

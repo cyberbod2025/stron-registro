@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScreenId, TransitionType, AlertNotification, ClassRegistration, ClassSession } from "./types";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, Command, RefreshCw } from "lucide-react";
@@ -25,65 +25,77 @@ export default function App() {
   // Dev mode drawer toggle
   const [showDevBar, setShowDevBar] = useState(true);
 
-  // Mock Classes State
-  const [classes, setClasses] = useState<ClassSession[]>([
-    {
-      id: "c1",
-      title: "Strong Nation",
-      dateStr: "Martes",
-      timeStr: "9:00 a.m.",
-      location: "Casa de Nidia",
-      isPrivateLocation: true,
-      address: "Ubicación compartida solo a alumnas registradas",
-      status: "confirmada",
-      confirmedCount: 6,
-      minRequired: 5,
-      deadlineStr: "lunes 8:00 p.m.",
-      mapsUrl: "https://maps.app.goo.gl/DPtUq6P3PiWHNB5u7",
-      wazeUrl: "WAZE_URL_CASA_DE_VIRI",
-    },
-    {
-      id: "c2",
-      title: "Strong Nation",
-      dateStr: "Jueves",
-      timeStr: "9:00 a.m.",
-      location: "Casa de Nidia",
-      isPrivateLocation: true,
-      address: "Ubicación compartida solo a alumnas registradas",
-      status: "pendiente",
-      confirmedCount: 3,
-      minRequired: 5,
-      deadlineStr: "miércoles 8:00 p.m.",
-      mapsUrl: "https://maps.app.goo.gl/DPtUq6P3PiWHNB5u7",
-      wazeUrl: "WAZE_URL_CASA_DE_VIRI",
-    },
-    {
-      id: "c3",
-      title: "Strong Nation",
-      dateStr: "Domingo",
-      timeStr: "8:30 a.m.",
-      location: "Day Cardio",
-      isPrivateLocation: false,
-      address: "Dirección Pública Day Cardio",
-      status: "suspendida",
-      confirmedCount: 3,
-      minRequired: 5,
-      deadlineStr: "sábado 8:00 p.m.",
-      mapsUrl: "https://maps.app.goo.gl/wDKZqsd9wULqMp5S6",
-      wazeUrl: "WAZE_URL_DAY_CARDIO",
-    }
-  ]);
+  // Classes State
+  const [classes, setClasses] = useState<ClassSession[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Registration data state
+  // Fetch from Supabase
   const [registration, setRegistration] = useState<ClassRegistration>({
-    classId: "c2",
-    fullName: "Valeria Gómez",
-    email: "valeria@example.com",
-    mobile: "55 1234 5678",
+    classId: "",
+    fullName: "",
+    email: "",
+    mobile: "",
     isCommitted: false,
     understandsGoal: false,
     willCancelInTime: false,
   });
+
+  const fetchClasses = async () => {
+    setIsLoading(true);
+    try {
+      const { supabase } = await import('./lib/supabase');
+      
+      const { data: classesData, error: classesError } = await supabase
+        .from('classes')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (classesError) throw classesError;
+
+      const { data: regData, error: regError } = await supabase
+        .from('registrations')
+        .select('class_id');
+
+      if (regError) throw regError;
+
+      const regCounts = (regData || []).reduce((acc: Record<string, number>, reg: any) => {
+        acc[reg.class_id] = (acc[reg.class_id] || 0) + 1;
+        return acc;
+      }, {});
+
+      const loadedClasses: ClassSession[] = (classesData || []).map((c: any) => ({
+        id: c.id,
+        title: c.title,
+        dateStr: c.date_str,
+        timeStr: c.time_str,
+        location: c.location,
+        address: c.address,
+        isPrivateLocation: c.is_private_location,
+        status: c.status,
+        confirmedCount: regCounts[c.id] || 0,
+        minRequired: c.min_required,
+        deadlineStr: c.deadline_str,
+        mapsUrl: c.maps_url,
+        wazeUrl: c.waze_url,
+        calendarUrl: c.calendar_url
+      }));
+
+      setClasses(loadedClasses);
+      if (loadedClasses.length > 0) {
+        setRegistration(prev => ({ ...prev, classId: loadedClasses[0].id }));
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClasses();
+  }, []);
+
+
 
   // Notifications State
   const [notifications, setNotifications] = useState<AlertNotification[]>([]);

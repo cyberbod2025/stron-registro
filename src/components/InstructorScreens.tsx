@@ -13,20 +13,64 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
   // Find next pending class
   const nextClass = classes?.find(c => c.status === "pendiente") || classes?.[0];
 
-  const [students, setStudents] = useState([
-    { id: 1, name: "Valeria Gómez", status: "Confirmada", phone: "+52 55 9876 5432" },
-    { id: 2, name: "Sofía Martínez", status: "Confirmada", phone: "+52 55 1234 5678" },
-    { id: 3, name: "Camila Ruiz", status: "Confirmada", phone: "+52 55 4567 8901" },
-    { id: 4, name: "Jessica Rivas", status: "Confirmada", phone: "+52 55 2345 6789" },
-  ]);
+  const [students, setStudents] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  React.useEffect(() => {
+    if (!nextClass?.id) {
+      setIsLoading(false);
+      return;
+    }
+    
+    const fetchStudents = async () => {
+      try {
+        const { supabase } = await import('../lib/supabase');
+        const { data, error } = await supabase
+          .from('registrations')
+          .select('*, students(full_name, mobile)')
+          .eq('class_id', nextClass.id)
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        
+        const mapped = data.map((s: any) => ({
+          id: s.id,
+          name: s.students?.full_name || "Desconocido",
+          status: s.attended ? "Asistió" : "Confirmada",
+          phone: s.students?.mobile || ""
+        }));
+        setStudents(mapped);
+      } catch (err) {
+        console.error(err);
+        onShowToast?.("Error al cargar alumnas");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStudents();
+  }, [nextClass?.id]);
 
   const confirmedCount = nextClass?.confirmedCount ?? 4;
   const minRequired = nextClass?.minRequired ?? 5;
   const missingCount = Math.max(0, minRequired - confirmedCount);
 
-  const handleMarkAttendance = (id: number, name: string) => {
-    setStudents(students.map(s => s.id === id ? { ...s, status: "Asistió" } : s));
-    onShowToast?.(`${name} marcada como Asistió.`);
+  const handleMarkAttendance = async (id: string, name: string) => {
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const { error } = await supabase
+        .from('registrations')
+        .update({ attended: true })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      setStudents(students.map(s => s.id === id ? { ...s, status: "Asistió" } : s));
+      onShowToast?.(`${name} marcada como Asistió.`);
+    } catch (err) {
+      console.error(err);
+      onShowToast?.("Error al marcar asistencia.");
+    }
   };
 
   return (
