@@ -1,6 +1,6 @@
 import { ScreenId, TransitionType } from "../types";
 import { motion } from "motion/react";
-import { ArrowLeft, Award, Calendar, Shield, Users, Verified, CheckCircle, Flame } from "lucide-react";
+import { ArrowLeft, Calendar, Users, Verified } from "lucide-react";
 import React, { useState } from "react";
 
 interface ProfileProps {
@@ -13,10 +13,10 @@ export function ProfileScreen({ onNavigate, userEmail }: ProfileProps) {
 
   // Mock student registration records
   const [history] = useState([
-    { id: 1, name: "HIIT - Fuerza & Cardio", venue: "Iztacalco Domo", date: "Hoy, 7:00 PM", status: "Confirmado", color: "text-emerald-400" },
-    { id: 2, name: "HIIT - Strong Crew", venue: "Sede Centro", date: "Ayer", status: "Asistido", color: "text-white/60" },
-    { id: 3, name: "HIIT - Fuerza & Resistencia", venue: "Iztacalco Domo", date: "Hace 4 días", status: "Cancelado", color: "text-rose-400" },
-    { id: 4, name: "HIIT - Strong Nation", venue: "Iztacalco Domo", date: "Hace 1 semana", status: "Asistido", color: "text-white/60" },
+    { id: 1, name: "Strong Nation", venue: "Iztacalco Domo", date: "Hoy, 7:00 PM", status: "Confirmado", color: "text-emerald-400" },
+    { id: 2, name: "Strong Nation", venue: "Casa de Viri", date: "Ayer", status: "Asistido", color: "text-white/60" },
+    { id: 3, name: "Strong Nation", venue: "Day Cardio", date: "Hace 4 días", status: "Cancelado", color: "text-rose-400" },
+    { id: 4, name: "Strong Nation", venue: "Iztacalco Domo", date: "Hace 1 semana", status: "Asistido", color: "text-white/60" },
   ]);
 
   return (
@@ -75,43 +75,16 @@ export function ProfileScreen({ onNavigate, userEmail }: ProfileProps) {
                 <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#ff4994] to-[#582ea2] p-1 flex items-center justify-center font-black text-2xl text-white shadow-md">
                   H
                 </div>
-                <span className="absolute -bottom-1 -right-1 bg-green-500 text-white p-1 rounded-full text-[9px] border-2 border-[#1e0f14] font-black">
-                  LIVE
-                </span>
               </div>
 
               <div>
-                <h2 className="text-base font-black text-white leading-tight">Hugo Watson Primero</h2>
+                <h2 className="text-base font-black text-white leading-tight">Valeria Gómez</h2>
                 <p className="text-xs text-[#e2bdc6] font-mono truncate max-w-[200px]">
-                  {userEmail || "hugo.watson.primero@gmail.com"}
+                  {userEmail || "valeria@example.com"}
                 </p>
                 <span className="inline-flex mt-1.5 px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest bg-[#ff4994]/20 border border-[#ff4994]/50 text-[#ffb1c7] uppercase">
-                  Atleta Elite
+                  Alumna Registrada
                 </span>
-              </div>
-            </div>
-
-            {/* Level of Trust Interactive Indicator */}
-            <div
-              onClick={() => onNavigate(ScreenId.Leaderboard, "push")}
-              className="mt-6 p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-[#ff4994]/50 hover:bg-white/10 transition-all cursor-pointer group"
-              role="button"
-            >
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-bold text-[#e2bdc6] flex items-center gap-1">
-                  <Shield className="w-3.5 h-3.5 text-primary-container" />
-                  Nivel de Confianza
-                </span>
-                <span className="text-xs font-black text-white group-hover:text-primary transition-colors">
-                  98% (Excelente)
-                </span>
-              </div>
-              <div className="w-full bg-white/10 rounded-full h-2.5 overflow-hidden">
-                <div className="bg-[#ff4994] h-full rounded-full transition-all" style={{ width: "98%" }}></div>
-              </div>
-              <div className="flex justify-between text-[10px] text-white/50 mt-1 font-semibold">
-                <span>Rendición de Cuentas: Estricta</span>
-                <span className="text-primary tracking-wider uppercase font-black">Ver Tabla &rarr;</span>
               </div>
             </div>
           </div>
@@ -123,7 +96,7 @@ export function ProfileScreen({ onNavigate, userEmail }: ProfileProps) {
             >
               <Users className="w-6 h-6 text-purple-400 mb-2 group-hover:scale-110 transition-transform" />
               <span className="text-xs font-black text-white uppercase tracking-wider">Invitar Amiga</span>
-              <span className="text-[9px] text-[#e2bdc6] mt-1 font-semibold">Meta 5 Activa</span>
+              <span className="text-[9px] text-[#e2bdc6] mt-1 font-semibold">Cuidar el Quórum</span>
             </button>
 
             <button
@@ -132,39 +105,8 @@ export function ProfileScreen({ onNavigate, userEmail }: ProfileProps) {
             >
               <Calendar className="w-6 h-6 text-[#ff4994] mb-2 group-hover:scale-110 transition-transform" />
               <span className="text-xs font-black text-white uppercase tracking-wider">Registros</span>
-              <span className="text-[9px] text-[#e2bdc6] mt-1 font-semibold">4 Entrenamientos</span>
+              <span className="text-[9px] text-[#e2bdc6] mt-1 font-semibold">Ver mi historial</span>
             </button>
-          </div>
-
-          {/* Badges and Log */}
-          <div className="glass-card rounded-2xl p-4 border border-white/5 space-y-4">
-            <h3 className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-1.5">
-              <Award className="w-4 h-4 text-[#ff4994]" /> Logros de Comunidad Strong
-            </h3>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">🔥</span>
-                  <div>
-                    <p className="text-xs font-black text-white uppercase">Súper Compromiso</p>
-                    <p className="text-[10px] text-[#e2bdc6]">Sostén asistencia 5 clases seguidas</p>
-                  </div>
-                </div>
-                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider">Asignado</span>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">🤝</span>
-                  <div>
-                    <p className="text-xs font-black text-white uppercase">Líder de Confianza</p>
-                    <p className="text-[10px] text-[#e2bdc6]">0 cancelaciones no justificadas</p>
-                  </div>
-                </div>
-                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider">98% Elite</span>
-              </div>
-            </div>
           </div>
         </div>
       ) : (

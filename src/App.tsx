@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScreenId, TransitionType, AlertNotification, ClassRegistration } from "./types";
+import { ScreenId, TransitionType, AlertNotification, ClassRegistration, ClassSession } from "./types";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, Command, RefreshCw } from "lucide-react";
 
@@ -7,12 +7,10 @@ import { Sparkles, Command, RefreshCw } from "lucide-react";
 import { Splash } from "./components/SplashScreens";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { NotificationsScreen } from "./components/NotificationsScreen";
-import { Leaderboard } from "./components/LeaderboardScreens";
 import { InviteScreen } from "./components/InviteScreens";
 import {
   RegistroDeClaseScreen,
   ConfirmadaScreen,
-  SuccessClassConfirmedScreen,
   ClaseCanceladaIztacalcoScreen
 } from "./components/ClassScreens";
 import { InicioScreen } from "./components/InicioScreens";
@@ -27,57 +25,59 @@ export default function App() {
   // Dev mode drawer toggle
   const [showDevBar, setShowDevBar] = useState(true);
 
+  // Mock Classes State
+  const [classes, setClasses] = useState<ClassSession[]>([
+    {
+      id: "c1",
+      title: "Strong Nation",
+      dateStr: "Martes",
+      timeStr: "9:00 a.m.",
+      location: "Casa de Viri",
+      status: "confirmada",
+      confirmedCount: 6,
+      minRequired: 5,
+      deadlineStr: "lunes 8:00 p.m.",
+    },
+    {
+      id: "c2",
+      title: "Strong Nation",
+      dateStr: "Jueves",
+      timeStr: "9:00 a.m.",
+      location: "Casa de Viri",
+      status: "pendiente",
+      confirmedCount: 3,
+      minRequired: 5,
+      deadlineStr: "miércoles 8:00 p.m.",
+    },
+    {
+      id: "c3",
+      title: "Strong Nation",
+      dateStr: "Domingo",
+      timeStr: "8:30 a.m.",
+      location: "Day Cardio",
+      status: "suspendida",
+      confirmedCount: 3,
+      minRequired: 5,
+      deadlineStr: "sábado 8:00 p.m.",
+    }
+  ]);
+
   // Registration data state
   const [registration, setRegistration] = useState<ClassRegistration>({
-    fullName: "Hugo Watson Primero",
-    email: "hugo.watson.primero@gmail.com",
+    classId: "c2",
+    fullName: "Valeria Gómez",
+    email: "valeria@example.com",
     mobile: "55 1234 5678",
-    isCommitted: true,
+    isCommitted: false,
+    understandsGoal: false,
+    willCancelInTime: false,
   });
 
   // Notifications State
-  const [notifications, setNotifications] = useState<AlertNotification[]>([
-    {
-      id: "alert-iztacalco-crisis",
-      title: "🔴 ALERTA DE COOPERACIÓN - IZTACALCO",
-      message: "La clase de hoy corre peligro de cancelarse. ¡Faltan alumnas para llegar al mínimo! Recomienda a una amiga ahora.",
-      time: "Hace 5m",
-      type: "warning",
-      unread: true,
-    },
-    {
-      id: "alert-iztacalco-cancelada",
-      title: "💔 SESIÓN SUSPENDIDA - IZTACALCO",
-      message: "La clase programada fue cancelada por falta de compromiso. Haz clic para ver detalles de compensación.",
-      time: "Hace 1d",
-      type: "error",
-      unread: true,
-    },
-    {
-      id: "alert-meta-5",
-      title: "👑 RETO DE COMPROMISO ACTIVE",
-      message: "¡Excelente! 3 amigas han respondido con éxito. Completa 5 invitadas registradas para obtener tu Pase VIP.",
-      time: "Hace 2h",
-      type: "success",
-      unread: true,
-    },
-  ]);
+  const [notifications, setNotifications] = useState<AlertNotification[]>([]);
 
-  // Alert click simulation helper - triggers from instructor panel
-  const handleTriggerCancelationAlert = () => {
-    onShowToast("⚠️ ¡Alerta mundial de cancelación enviada!");
-    setNotifications((prev) => [
-      {
-        id: "alert-new-crisis",
-        title: "⚠️ ALERTA: CLASE EN AMENAZA",
-        message: "Atención: La sesión nocturna corre peligro por baja asistencia. ¡Ayuda compartiendo el enlace!",
-        time: "Justo ahora",
-        type: "warning",
-        unread: true,
-      },
-      ...prev,
-    ]);
-  };
+  // Toggle user role
+  const [isInstructor, setIsInstructor] = useState(false);
 
   const onShowToast = (msg: string) => {
     setToastMessage(msg);
@@ -99,22 +99,21 @@ export default function App() {
 
   const handleClearNotifications = () => {
     setNotifications([]);
-    onShowToast("Centro de Alertas vaciado.");
+    onShowToast("Notificaciones vaciadas.");
   };
 
   // Screen description lookup dictionary for the user/developer picker
   const screenDescriptions: Record<ScreenId, string> = {
     [ScreenId.Splash]: "1. Pantalla de Bienvenida (Intro)",
-    [ScreenId.Inicio]: "2. Inicio / Dashboard General",
+    [ScreenId.Inicio]: "2. Inicio / Próxima Clase (Quórum)",
     [ScreenId.RegistroDeClase]: "3. Formulario de Inscripción",
-    [ScreenId.Confirmada]: "4. Pase Digital QR Reservado",
-    [ScreenId.SuccessClassConfirmed]: "5. Premio: Invitación Meta 5",
-    [ScreenId.ClaseCancelada]: "6. Estado de Clase Suspendida",
-    [ScreenId.Notificaciones]: "7. Centro de Alertas y Mensajes",
-    [ScreenId.Leaderboard]: "8. Rankings: Confianza y Fuerza",
-    [ScreenId.MiPerfil]: "9. Mi Perfil e Historial",
-    [ScreenId.InvitarAmiga]: "10. Compartir y Salvar Quórum",
-    [ScreenId.PanelInstructor]: "11. Mandos y Consola del Instructor"
+    [ScreenId.Confirmada]: "4. Estado: Clase Confirmada",
+    [ScreenId.ClaseCancelada]: "5. Estado: Clase Suspendida",
+    [ScreenId.InvitarAmiga]: "6. Salvar Quórum (Compartir)",
+    [ScreenId.MisRegistros]: "7. Mis Registros",
+    [ScreenId.MiPerfil]: "8. Mi Perfil y Nivel de Confianza",
+    [ScreenId.Notificaciones]: "9. Notificaciones",
+    [ScreenId.PanelInstructor]: "10. Panel de Instructor"
   };
 
   const renderActiveScreen = () => {
@@ -122,7 +121,7 @@ export default function App() {
       case ScreenId.Splash:
         return <Splash onNavigate={handleNavigate} />;
       case ScreenId.Inicio:
-        return <InicioScreen onNavigate={handleNavigate} unreadNotificationsCount={notifications.filter(n => n.unread).length} />;
+        return <InicioScreen onNavigate={handleNavigate} classes={classes} />;
       case ScreenId.RegistroDeClase:
         return (
           <RegistroDeClaseScreen
@@ -130,21 +129,18 @@ export default function App() {
             onShowToast={onShowToast}
             registration={registration}
             onChangeRegistration={setRegistration}
+            classes={classes}
           />
         );
       case ScreenId.Confirmada:
         return (
           <ConfirmadaScreen
             onNavigate={handleNavigate}
-            onShowToast={onShowToast}
-            registration={registration}
-            onChangeRegistration={setRegistration}
+            classSession={classes.find(c => c.status === "confirmada") || classes[0]}
           />
         );
-      case ScreenId.SuccessClassConfirmed:
-        return <SuccessClassConfirmedScreen onNavigate={handleNavigate} />;
       case ScreenId.ClaseCancelada:
-        return <ClaseCanceladaIztacalcoScreen onNavigate={handleNavigate} />;
+        return <ClaseCanceladaIztacalcoScreen onNavigate={handleNavigate} classSession={classes.find(c => c.status === "suspendida") || classes[0]} />;
       case ScreenId.Notificaciones:
         return (
           <NotificationsScreen
@@ -154,20 +150,21 @@ export default function App() {
             onMarkRead={handleMarkAsRead}
           />
         );
-      case ScreenId.Leaderboard:
-        return <Leaderboard onNavigate={handleNavigate} />;
       case ScreenId.MiPerfil:
         return <ProfileScreen onNavigate={handleNavigate} userEmail={registration.email} />;
       case ScreenId.InvitarAmiga:
-        return <InviteScreen onNavigate={handleNavigate} onShowToast={onShowToast} />;
+        return <InviteScreen onNavigate={handleNavigate} onShowToast={onShowToast} classSession={classes.find(c => c.status === "pendiente") || classes[0]} />;
       case ScreenId.PanelInstructor:
         return (
           <PanelInstructor
             onNavigate={handleNavigate}
             onShowToast={onShowToast}
-            onTriggerCancelationAlert={handleTriggerCancelationAlert}
+            classes={classes}
           />
         );
+      case ScreenId.MisRegistros:
+        // Temporal fallback to Inicio if MisRegistros is not fully built yet
+        return <InicioScreen onNavigate={handleNavigate} classes={classes} />;
       default:
         return <Splash onNavigate={handleNavigate} />;
     }
@@ -201,7 +198,7 @@ export default function App() {
         <div className="flex justify-between items-center pb-2 border-b border-white/5">
           <div className="flex items-center gap-2 text-white">
             <Command className="w-4 h-4 text-[#ff4994]" />
-            <h2 className="text-xs font-black tracking-widest uppercase">Mapeo de Pantallas</h2>
+            <h2 className="text-xs font-black tracking-widest uppercase">Mapeo de Pantallas (V1)</h2>
           </div>
           <button
             onClick={() => setShowDevBar(false)}
@@ -212,7 +209,7 @@ export default function App() {
         </div>
 
         <p className="text-[10px] text-[#e2bdc6] leading-relaxed">
-          Navegación unificada y depurada. Hemos consolidado las pantallas duplicadas en <strong>11 vistas esenciales</strong> interactivas.
+          Navegación centrada en el sistema de Quórum. Rankigns ocultos para V2.
         </p>
 
         {/* List of screens */}
@@ -232,14 +229,20 @@ export default function App() {
                     : "text-white/60 hover:text-white/90 hover:bg-white/5"
                 }`}
               >
-                <span className="truncate">{screenDescriptions[scrName] || scrName}</span>
+                <span className="truncate">{screenDescriptions[scrName as ScreenId] || scrName}</span>
                 {isActive && <span className="h-1.5 w-1.5 rounded-full bg-[#ff4994]"></span>}
               </button>
             );
           })}
         </div>
 
-        <div className="border-t border-white/5 pt-3">
+        <div className="border-t border-white/5 pt-3 space-y-2">
+          <button
+            onClick={() => setIsInstructor(!isInstructor)}
+            className="w-full flex items-center justify-center gap-1 py-2 rounded-xl bg-purple-900/20 border border-purple-500/30 text-[10px] text-purple-200 hover:text-white hover:bg-purple-900/40 font-bold uppercase tracking-widest transition-all cursor-pointer"
+          >
+            Rol actual: {isInstructor ? "INSTRUCTOR" : "ALUMNA"}
+          </button>
           <button
             onClick={() => {
               setTransition("none");
@@ -262,7 +265,7 @@ export default function App() {
           className="md:hidden mb-4 px-4 py-2 border border-white/10 rounded-full text-[10px] font-black text-[#ffb1c7] bg-neutral-900 uppercase tracking-widest flex items-center gap-1.5 self-center shadow cursor-pointer"
         >
           <Command className="w-3.5 h-3.5" />
-          {showDevBar ? "Ocultar Mando Dev" : "Mostrar Mando Dev (11 pantallas)"}
+          {showDevBar ? "Ocultar Mando Dev" : "Mostrar Mando Dev"}
         </button>
 
         {/* Mock SmartPhone Container Frame */}
@@ -308,33 +311,58 @@ export default function App() {
 
           {/* Active bottom navigation strip indicator */}
           <div className="py-2.5 bg-[#150a0e] flex justify-around border-t border-white/5 relative z-40">
-            <button
-              onClick={() => handleNavigate(ScreenId.Inicio, "none")}
-              className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
-                currentScreen === ScreenId.Inicio ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
-              }`}
-            >
-              <span>🏠</span>
-              <span>Inicio</span>
-            </button>
-            <button
-              onClick={() => handleNavigate(ScreenId.Leaderboard, "none")}
-              className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
-                currentScreen === ScreenId.Leaderboard ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
-              }`}
-            >
-              <span>🏆</span>
-              <span>Tablas</span>
-            </button>
-            <button
-              onClick={() => handleNavigate(ScreenId.MiPerfil, "none")}
-              className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
-                currentScreen === ScreenId.MiPerfil ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
-              }`}
-            >
-              <span>👤</span>
-              <span>Perfil</span>
-            </button>
+            {isInstructor ? (
+              <>
+                <button
+                  onClick={() => handleNavigate(ScreenId.PanelInstructor, "none")}
+                  className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
+                    currentScreen === ScreenId.PanelInstructor ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
+                  }`}
+                >
+                  <span>📊</span>
+                  <span>Dashboard</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => handleNavigate(ScreenId.Inicio, "none")}
+                  className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
+                    currentScreen === ScreenId.Inicio ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
+                  }`}
+                >
+                  <span>🏠</span>
+                  <span>Inicio</span>
+                </button>
+                <button
+                  onClick={() => handleNavigate(ScreenId.RegistroDeClase, "none")}
+                  className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
+                    currentScreen === ScreenId.RegistroDeClase ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
+                  }`}
+                >
+                  <span>📝</span>
+                  <span>Registrarme</span>
+                </button>
+                <button
+                  onClick={() => handleNavigate(ScreenId.MisRegistros, "none")}
+                  className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
+                    currentScreen === ScreenId.MisRegistros ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
+                  }`}
+                >
+                  <span>📅</span>
+                  <span>Registros</span>
+                </button>
+                <button
+                  onClick={() => handleNavigate(ScreenId.MiPerfil, "none")}
+                  className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
+                    currentScreen === ScreenId.MiPerfil ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
+                  }`}
+                >
+                  <span>👤</span>
+                  <span>Perfil</span>
+                </button>
+              </>
+            )}
           </div>
 
         </div>

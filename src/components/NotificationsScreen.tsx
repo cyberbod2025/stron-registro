@@ -142,7 +142,7 @@ export function NotificationsScreen({
       <div className="mt-8 text-center bg-white/5 border border-white/10 rounded-2xl p-4">
         <p className="text-xs text-white/80 font-black uppercase tracking-wider mb-2">💡 Tips de Rendición de Cuentas</p>
         <p className="text-[10px] text-[#e2bdc6] leading-relaxed">
-          Las clases con menos de <strong className="text-white">5 alumnas confirmadas</strong> a las 10:00 PM del día anterior se cancelan automáticamente en la red Strong. ¡Trabaja junto a tu equipo para evitarlo!
+          Las clases con menos de <strong className="text-white">5 alumnas confirmadas</strong> a las 8:00 p.m. del día anterior se cancelan automáticamente en la red Strong. ¡Trabaja junto a tu equipo para evitarlo!
         </p>
       </div>
     </motion.div>

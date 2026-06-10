@@ -3,12 +3,11 @@ export enum ScreenId {
   Inicio = "Inicio",
   RegistroDeClase = "Registro de Clase",
   Confirmada = "Confirmada",
-  SuccessClassConfirmed = "SuccessClassConfirmed",
   ClaseCancelada = "Clase Cancelada",
   Notificaciones = "Notificaciones",
-  Leaderboard = "Leaderboard",
+  MisRegistros = "Mis Registros",
   MiPerfil = "Mi Perfil",
-  InvitarAmiga = "Invitar Amiga",
+  InvitarAmiga = "Salvar Quórum",
   PanelInstructor = "Panel Instructor"
 }
 
@@ -19,11 +18,28 @@ export interface NavigationState {
   transitionType: TransitionType;
 }
 
+export type ClassStatus = "pendiente" | "confirmada" | "suspendida";
+
+export interface ClassSession {
+  id: string;
+  title: string;
+  dateStr: string; // e.g. "Jueves"
+  timeStr: string; // e.g. "9:00 a.m."
+  location: string;
+  status: ClassStatus;
+  confirmedCount: number;
+  minRequired: number;
+  deadlineStr: string; // e.g. "miércoles 8:00 p.m."
+}
+
 export interface ClassRegistration {
+  classId: string;
   fullName: string;
   email: string;
   mobile: string;
   isCommitted: boolean;
+  understandsGoal: boolean;
+  willCancelInTime: boolean;
 }
 
 export interface AlertNotification {
