@@ -59,9 +59,22 @@ export function RegistroDeClaseScreen({
       if (searchError) throw searchError;
 
       let studentId;
+      
+      // Intentar obtener el ID de OneSignal
+      let playerId = null;
+      try {
+        if (window.OneSignal && window.OneSignal.User && window.OneSignal.User.PushSubscription) {
+          playerId = window.OneSignal.User.PushSubscription.id;
+        }
+      } catch (e) {
+        console.log("OneSignal not ready", e);
+      }
 
       if (existingStudents && existingStudents.length > 0) {
         studentId = existingStudents[0].id;
+        if (playerId) {
+          await supabase.from('students').update({ onesignal_player_id: playerId }).eq('id', studentId);
+        }
       } else {
         // 2. Si no existe, crearla
         const { data: newStudent, error: insertError } = await supabase
@@ -70,7 +83,8 @@ export function RegistroDeClaseScreen({
             {
               full_name: formData.fullName,
               email: formData.email,
-              mobile: formData.mobile
+              mobile: formData.mobile,
+              onesignal_player_id: playerId
             }
           ])
           .select('id')

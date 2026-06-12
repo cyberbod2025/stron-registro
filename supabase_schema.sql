@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS public.students (
     full_name TEXT NOT NULL,
     email TEXT NOT NULL,
     mobile TEXT NOT NULL,
+    onesignal_player_id TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
