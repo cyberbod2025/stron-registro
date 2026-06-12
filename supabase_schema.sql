@@ -30,9 +30,10 @@ CREATE TABLE IF NOT EXISTS public.registrations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     class_id UUID NOT NULL REFERENCES public.classes(id) ON DELETE CASCADE,
     student_id UUID NOT NULL REFERENCES public.students(id) ON DELETE CASCADE,
-    is_committed BOOLEAN NOT NULL DEFAULT false,
-    understands_goal BOOLEAN NOT NULL DEFAULT false,
-    will_cancel_in_time BOOLEAN NOT NULL DEFAULT false,
+    is_committed BOOLEAN DEFAULT false,
+    understands_goal BOOLEAN DEFAULT false,
+    will_cancel_in_time BOOLEAN DEFAULT false,
+    referred_by_email TEXT,
     attended BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     UNIQUE(class_id, student_id)

@@ -1,7 +1,8 @@
 import { ScreenId, TransitionType, ClassRegistration, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { ArrowLeft, CheckCircle, Calendar, MapPin, QrCode, AlertTriangle, AlertCircle, Navigation, MessageCircle } from "lucide-react";
-import React, { useState } from "react";
+import { ArrowLeft, CheckCircle, Calendar, MapPin, AlertTriangle, AlertCircle, MessageCircle, Clock } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import confetti from "canvas-confetti";
 
 interface ClassScreensProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -29,18 +30,19 @@ export function RegistroDeClaseScreen({
     isCommitted: registration?.isCommitted ?? false,
     understandsGoal: registration?.understandsGoal ?? false,
     willCancelInTime: registration?.willCancelInTime ?? false,
+    whatsappOptIn: true,
+    referredByEmail: new URLSearchParams(window.location.search).get('ref') || undefined,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState(formData.classId);
+
+  const selectedClass = classes?.find(c => c.id === selectedClassId) || pendingClass;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.fullName || !formData.email || !formData.mobile) {
-      onShowToast?.("Por favor completa todos los campos.");
-      return;
-    }
-    if (!formData.isCommitted || !formData.understandsGoal || !formData.willCancelInTime) {
-      onShowToast?.("Debes aceptar el compromiso de asistencia.");
+    if (!formData.fullName || !formData.email) {
+      onShowToast?.("Por favor completa tu nombre y correo.");
       return;
     }
     setIsSubmitting(true);
@@ -81,11 +83,12 @@ export function RegistroDeClaseScreen({
       // 3. Crear el registro en la clase
       const { error: regError } = await supabase.from('registrations').insert([
         {
-          class_id: formData.classId,
+          class_id: selectedClassId || formData.classId,
           student_id: studentId,
-          is_committed: formData.isCommitted,
-          understands_goal: formData.understandsGoal,
-          will_cancel_in_time: formData.willCancelInTime
+          is_committed: true,
+          understands_goal: true,
+          will_cancel_in_time: true,
+          referred_by_email: formData.referredByEmail
         }
       ]);
 
@@ -100,13 +103,6 @@ export function RegistroDeClaseScreen({
 
       onChangeRegistration?.(formData);
       onShowToast?.("¡Registro realizado con éxito!");
-      
-      // The user wants App.tsx to refetch the quorum count
-      // but App.tsx will naturally refetch on mount, wait, App.tsx only mounts once.
-      // So we might need a callback, or a simple window reload, or just navigate.
-      // We will just navigate for now, the real-time or refetch can be handled via onShowToast or similar, 
-      // but for V1 just navigate.
-      
       onNavigate(ScreenId.Confirmada, "push");
     } catch (err) {
       console.error(err);
@@ -118,233 +114,237 @@ export function RegistroDeClaseScreen({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 35 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      className="p-4 md:p-6 max-w-lg mx-auto pb-24"
+      className="min-h-screen pb-24"
     >
-      <div className="flex items-center justify-between mb-6">
+      {/* Header */}
+      <div className="sticky top-0 z-20 bg-[#1e0f14]/90 backdrop-blur-xl px-4 py-4 flex items-center justify-between border-b border-white/5">
         <button
           onClick={() => onNavigate(ScreenId.Splash, "push_back")}
-          className="p-2 rounded-lg bg-white/5 border border-white/10 text-white cursor-pointer"
+          className="p-2 rounded-xl bg-white/5 border border-white/10 text-white cursor-pointer active:scale-95 transition-all"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <span className="text-xs font-black text-rose-300 tracking-wider uppercase">Inscripción</span>
-        <div className="w-10" />
+        <h1 className="text-sm font-black text-white uppercase tracking-wider">Registro de clase</h1>
+        <div className="w-9" />
       </div>
 
-      <div className="text-center mb-6">
-        <h1 className="text-xl font-black italic text-white uppercase tracking-tight">Registro de Clase</h1>
-        <p className="text-xs text-[#e2bdc6] mt-1">Completa tus datos para garantizar tu lugar</p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="glass-card rounded-2xl p-5 border border-white/5 space-y-4">
-          <div className="flex gap-2.5 items-center p-3 rounded-lg bg-white/5 text-xs text-white">
-            <MapPin className="w-4 h-4 text-[#ff4994]" />
+      <form onSubmit={handleSubmit} className="px-5 pt-6 space-y-6">
+        {/* Selected Class Info */}
+        <div className="rounded-2xl p-4 bg-[#2a1520]/40 border border-[#ff4994]/20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#ff4994]/15 flex items-center justify-center">
+              <span className="material-symbols-outlined text-[#ff4994]">event</span>
+            </div>
             <div>
-              <p className="font-extrabold text-white uppercase">{pendingClass?.title || "Strong Nation"}</p>
-              <p className="text-[10px] text-white/50">
-                Sede: {pendingClass?.location} • {pendingClass?.dateStr} {pendingClass?.timeStr}
+              <p className="text-base font-extrabold text-white">
+                {selectedClass?.dateStr} {selectedClass?.timeStr}
               </p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <MapPin className="w-3 h-3 text-[#ff4994]" />
+                <span className="text-xs text-[#e2bdc6]">{selectedClass?.location}</span>
+              </div>
             </div>
-          </div>
-
-          <div>
-            <label className="block text-[9px] font-black uppercase text-[#ffb1c7] tracking-widest mb-1">Nombre Completo</label>
-            <input
-              type="text"
-              required
-              className="w-full bg-[#1e0f14] border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-[#ff4994]"
-              placeholder="Tu nombre completo"
-              value={formData.fullName}
-              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="block text-[9px] font-black uppercase text-[#ffb1c7] tracking-widest mb-1">Correo Electrónico</label>
-            <input
-              type="email"
-              required
-              className="w-full bg-[#1e0f14] border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-[#ff4994]"
-              placeholder="tu@email.com"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="block text-[9px] font-black uppercase text-[#ffb1c7] tracking-widest mb-1">Teléfono</label>
-            <input
-              type="tel"
-              required
-              className="w-full bg-[#1e0f14] border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-[#ff4994]"
-              placeholder="55 1234 5678"
-              value={formData.mobile}
-              onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-            />
           </div>
         </div>
 
-        {/* Commitment Agreement Checkpoint */}
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-[#2b172a] to-[#120614] border border-[#ff4994]/30 space-y-3">
-          <label className="flex items-start gap-3 cursor-pointer">
+        {/* Class selector if multiple */}
+        {classes && classes.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+            {classes.filter(c => c.status !== "suspendida").map(c => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setSelectedClassId(c.id)}
+                className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  selectedClassId === c.id 
+                    ? "bg-[#ff4994] text-white" 
+                    : "bg-white/5 border border-white/10 text-white/60 hover:text-white"
+                }`}
+              >
+                {c.dateStr} {c.timeStr}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Form Fields */}
+        <div className="space-y-5">
+          <p className="text-xs font-black text-[#ffb1c7] uppercase tracking-widest">Tus datos</p>
+          
+          <div>
+            <label className="block text-[10px] font-bold uppercase text-white/50 tracking-wider mb-1.5">Nombre completo</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/20 text-lg">person</span>
+              <input
+                type="text"
+                required
+                className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/20"
+                placeholder="Viridiana López"
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold uppercase text-white/50 tracking-wider mb-1.5">Correo electrónico</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/20 text-lg">mail</span>
+              <input
+                type="email"
+                required
+                className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/20"
+                placeholder="viri.lopez@gmail.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold uppercase text-white/50 tracking-wider mb-1.5">Teléfono (opcional)</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/20 text-lg">call</span>
+              <input
+                type="tel"
+                className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/20"
+                placeholder="55 1234 5678"
+                value={formData.mobile}
+                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+              />
+            </div>
+          </div>
+
+          {/* WhatsApp opt-in */}
+          <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-[#25D366]/10 border border-[#25D366]/20">
             <input
               type="checkbox"
-              className="mt-0.5 rounded border-[#ff4994] text-primary focus:ring-0"
-              checked={formData.understandsGoal}
-              onChange={(e) => setFormData({ ...formData, understandsGoal: e.target.checked })}
+              className="w-5 h-5 rounded"
+              checked={formData.whatsappOptIn ?? true}
+              onChange={(e) => setFormData({ ...formData, whatsappOptIn: e.target.checked })}
             />
-            <div className="text-[11px] text-[#e2bdc6] leading-relaxed">
-              Entiendo que la clase requiere un mínimo de <strong>5 alumnas confirmadas</strong> para llevarse a cabo.
-            </div>
-          </label>
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              className="mt-0.5 rounded border-[#ff4994] text-primary focus:ring-0"
-              checked={formData.willCancelInTime}
-              onChange={(e) => setFormData({ ...formData, willCancelInTime: e.target.checked })}
-            />
-            <div className="text-[11px] text-[#e2bdc6] leading-relaxed">
-              Si no puedo asistir, me comprometo a <strong>cancelar con tiempo</strong> para no afectar al grupo y al quórum.
-            </div>
-          </label>
-          <label className="flex items-start gap-3 cursor-pointer border-t border-white/10 pt-3">
-            <input
-              type="checkbox"
-              className="mt-0.5 rounded border-[#ff4994] text-primary focus:ring-0"
-              checked={formData.isCommitted}
-              onChange={(e) => setFormData({ ...formData, isCommitted: e.target.checked })}
-            />
-            <div className="text-[11px] font-bold text-white leading-relaxed">
-              Confirmo mi asistencia y acepto el compromiso de comunidad.
-            </div>
+            <span className="text-sm text-white font-semibold">Quiero recibir avisos por WhatsApp 📱</span>
           </label>
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`w-full py-3.5 rounded-xl text-white font-black text-xs uppercase tracking-widest shadow-md transition-all text-center ${isSubmitting ? 'bg-gray-500 cursor-not-allowed opacity-70' : 'bg-gradient-to-r from-[#ff4994] to-[#562ba0] hover:brightness-110 active:scale-95 cursor-pointer'}`}
+          className={`w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] transition-all text-center ${
+            isSubmitting 
+              ? 'bg-gray-600 cursor-not-allowed opacity-70' 
+              : 'bg-gradient-to-r from-[#ff4994] to-[#c91f6b] hover:brightness-110 active:scale-[0.97] cursor-pointer'
+          }`}
         >
-          {isSubmitting ? "PROCESANDO..." : "CONFIRMAR MI LUGAR"}
+          {isSubmitting ? "PROCESANDO..." : "CONFIRMAR ASISTENCIA 💪"}
         </button>
+
+        <p className="text-[11px] text-center text-white/40 leading-relaxed">
+          Recibirás un correo con la confirmación
+        </p>
       </form>
     </motion.div>
   );
 }
 
-export function ConfirmadaScreen({ onNavigate, onShowToast, classSession }: ClassScreensProps) {
+export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, registration }: ClassScreensProps) {
+  useEffect(() => {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#ff4994', '#10b981', '#562ba0']
+    });
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0 }}
-      className="p-4 md:p-6 max-w-lg mx-auto pb-24 text-center"
+      className="min-h-screen flex flex-col items-center px-6 pt-16 pb-24"
     >
-      <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={() => onNavigate(ScreenId.Inicio, "push_back")}
-          className="p-2 rounded-lg bg-white/5 border border-white/10 text-white cursor-pointer"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <span className="text-xs font-black text-emerald-300 tracking-wider uppercase">Clase Confirmada</span>
-        <div className="w-10" />
-      </div>
-
-      <div className="flex flex-col items-center space-y-3 mb-6">
-        <div className="w-12 h-12 rounded-full bg-emerald-500/20 border-2 border-emerald-400 p-2 text-emerald-400 flex items-center justify-center animate-pulse">
-          <CheckCircle className="w-8 h-8" />
-        </div>
-        <h1 className="text-xl font-black italic text-white uppercase tracking-tight">
-          ¡Lugar Reservado!
-        </h1>
-        <p className="text-xs text-[#e2bdc6] max-w-sm leading-relaxed">
-          Tu lugar está asegurado. Gracias por confirmar a tiempo y apoyar al quórum del grupo.
-        </p>
-      </div>
-
-      <div className="bg-[#1e0f14] rounded-3xl p-5 border border-emerald-500/30 space-y-4 max-w-sm mx-auto text-left relative overflow-hidden shadow-[0_0_30px_rgba(16,185,129,0.1)]">
-        <div className="flex justify-between items-center border-b border-white/10 pb-3">
-          <div>
-            <p className="text-[8px] font-black uppercase text-emerald-400 tracking-wider leading-none mb-1">Clase</p>
-            <p className="text-xs font-black text-white">{classSession?.title || "Strong Nation"}</p>
-          </div>
-        </div>
-
-        <div className="space-y-2 py-1 text-xs text-[#e2bdc6]">
-          <p className="flex items-center gap-2"><Calendar className="w-4 h-4 text-emerald-400" /> {classSession?.dateStr} a las {classSession?.timeStr}</p>
-          <div className="flex flex-col gap-1">
-            <p className="flex items-center gap-2"><MapPin className="w-4 h-4 text-emerald-400" /> {classSession?.location}</p>
-            {classSession?.address && (
-              <p className="pl-6 text-[10px] text-emerald-400/80 italic">{classSession.address}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="border-t border-dashed border-white/20 pt-4 text-center space-y-4">
-          <div>
-            <QrCode className="w-24 h-24 text-emerald-400 mx-auto mb-2 opacity-80" />
-            <p className="text-[9px] text-white/50 font-mono">Presenta este código al llegar</p>
-          </div>
-          
-          <div className="space-y-2">
-            {classSession?.mapsUrl && (
-              <button
-                onClick={() => window.open(classSession.mapsUrl, '_blank')}
-                className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-[10px] uppercase tracking-wider hover:bg-white/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                Abrir ubicación en Maps
-              </button>
-            )}
-            {classSession?.wazeUrl && (
-              <button
-                onClick={() => window.open(classSession.wazeUrl, '_blank')}
-                className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-[10px] uppercase tracking-wider hover:bg-white/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Navigation className="w-3.5 h-3.5 text-blue-400" />
-                Abrir en Waze
-              </button>
-            )}
-            <button
-              onClick={() => {
-                const title = "Strong Nation Iztacalco";
-                const details = "Clase confirmada. Llegar 10 minutos antes.";
-                const location = classSession?.location || "";
-                const calendarUrl = classSession?.calendarUrl || `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`;
-                window.open(calendarUrl, '_blank');
-                onShowToast?.("Al agregarlo a tu calendario, activa recordatorio 1 hora antes.");
-              }}
-              className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-[10px] uppercase tracking-wider hover:bg-white/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Calendar className="w-3.5 h-3.5 text-amber-400" />
-              Agregar a calendario
-            </button>
-            <button
-              onClick={() => {
-                const whatsappText = `¡Hola! Ya confirmé mi asistencia a la clase de Strong Nation Iztacalco el ${classSession?.dateStr} a las ${classSession?.timeStr} en ${classSession?.location}. ¿Te animas a venir?`;
-                window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, '_blank');
-              }}
-              className="w-full py-2.5 rounded-xl bg-[#25D366]/20 border border-[#25D366]/40 text-white font-bold text-[10px] uppercase tracking-wider hover:bg-[#25D366]/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
-              Compartir con una amiga
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <button
-        onClick={() => onNavigate(ScreenId.Inicio, "none")}
-        className="w-full max-w-sm py-3.5 rounded-xl bg-white text-[#1e0f14] font-black text-xs uppercase tracking-widest shadow-md hover:bg-gray-200 active:scale-95 transition-all cursor-pointer mt-6"
+      {/* Success Icon */}
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
+        className="w-24 h-24 rounded-full bg-emerald-500/15 border-2 border-emerald-400 flex items-center justify-center mb-6"
       >
-        IR A INICIO
-      </button>
+        <CheckCircle className="w-14 h-14 text-emerald-400" />
+      </motion.div>
+
+      <h1 className="text-2xl font-black italic text-white uppercase tracking-tight text-center mb-2">
+        ¡Registro exitoso!
+      </h1>
+      <p className="text-sm text-[#e2bdc6] text-center mb-8">
+        Te anotaste para:
+      </p>
+
+      {/* Class details card */}
+      <div className="w-full max-w-sm rounded-2xl p-5 bg-[#2a1520]/40 border border-emerald-500/20 space-y-4 mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+            <Calendar className="w-5 h-5 text-emerald-400" />
+          </div>
+          <div>
+            <p className="text-base font-extrabold text-white">
+              {classSession?.dateStr} {classSession?.timeStr}
+            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <MapPin className="w-3 h-3 text-emerald-400" />
+              <span className="text-xs text-[#e2bdc6]">{classSession?.location}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-white/5 pt-4 space-y-3">
+          <div className="flex items-center gap-2 text-xs text-[#e2bdc6]">
+            <Clock className="w-4 h-4 text-amber-400" />
+            <span>Fecha límite: <strong className="text-white">{classSession?.deadlineStr}</strong></span>
+          </div>
+          <p className="text-[11px] text-white/50 leading-relaxed pl-6">
+            Te avisaremos si la clase se CONFIRMA o se CANCELA después de las 8:00 PM.
+          </p>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="w-full max-w-sm space-y-3">
+        <button
+          onClick={() => onNavigate(ScreenId.MisRegistros, "push")}
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#ff4994] to-[#c91f6b] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] active:scale-[0.97] transition-all cursor-pointer"
+        >
+          VER MIS REGISTROS
+        </button>
+
+        {classSession?.calendarUrl && (
+          <button
+            onClick={() => window.open(classSession.calendarUrl, '_blank')}
+            className="w-full py-3.5 rounded-2xl bg-white/10 border border-white/20 text-white font-bold text-xs uppercase tracking-widest hover:bg-white/20 active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Calendar className="w-4 h-4" />
+            Agendar en mi calendario
+          </button>
+        )}
+
+        <button
+          onClick={() => {
+            const refParam = registration?.email ? `?ref=${encodeURIComponent(registration.email)}` : "";
+            const shareUrl = `https://stron-registro.vercel.app/${refParam}`;
+            const whatsappText = `¡Hola! Ya confirmé mi asistencia a la clase de Strong Nation el ${classSession?.dateStr} a las ${classSession?.timeStr}. ¡Vamos juntas! 💪 ${shareUrl}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, '_blank');
+          }}
+          className="w-full py-3.5 rounded-2xl bg-[#25D366]/15 border border-[#25D366]/30 text-white font-bold text-xs uppercase tracking-widest hover:bg-[#25D366]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <MessageCircle className="w-4 h-4 text-[#25D366]" />
+          Compartir con una amiga
+        </button>
+      </div>
     </motion.div>
   );
 }
@@ -355,44 +355,54 @@ export function ClaseCanceladaIztacalcoScreen({ onNavigate, classSession }: Clas
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="p-4 md:p-6 max-w-lg mx-auto pb-24 text-center"
+      className="min-h-screen flex flex-col items-center px-6 pt-16 pb-24"
     >
-      <div className="flex items-center justify-between mb-4">
+      {/* Header */}
+      <div className="w-full flex items-center justify-between mb-8">
         <button
-          onClick={() => onNavigate(ScreenId.Inicio, "push_back")}
-          className="p-2 rounded-lg bg-white/5 border border-white/10 text-white cursor-pointer"
+          onClick={() => onNavigate(ScreenId.Splash, "push_back")}
+          className="p-2 rounded-xl bg-white/5 border border-white/10 text-white cursor-pointer active:scale-95 transition-all"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <span className="text-xs font-black text-rose-300 tracking-wider uppercase">Estado</span>
-        <div className="w-10" />
+        <span className="text-xs font-black text-rose-300 tracking-wider uppercase">Clase cancelada</span>
+        <div className="w-9" />
       </div>
 
-      <div className="flex flex-col items-center space-y-4 my-8">
-        <div className="w-14 h-14 rounded-full bg-rose-500/10 border-2 border-rose-400 p-2 text-rose-400 flex items-center justify-center">
-          <AlertTriangle className="w-8 h-8" />
-        </div>
+      {/* Icon */}
+      <div className="w-20 h-20 rounded-full bg-rose-500/10 border-2 border-rose-400 flex items-center justify-center mb-6">
+        <AlertTriangle className="w-12 h-12 text-rose-400" />
+      </div>
 
-        <h1 className="text-xl font-black italic text-rose-400 uppercase tracking-tight">
-          CLASE SUSPENDIDA
-        </h1>
-        <p className="text-xs text-[#e2bdc6] max-w-sm px-4 leading-relaxed">
-          Para la clase de {classSession?.dateStr} en {classSession?.location}, no logramos alcanzar el mínimo de <strong className="text-white">{classSession?.minRequired || 5} alumnas confirmadas</strong> antes de la hora de cierre.
+      <h1 className="text-2xl font-black italic text-white uppercase tracking-tight text-center mb-3">
+        Clase cancelada
+      </h1>
+
+      <div className="w-full max-w-sm rounded-2xl p-5 bg-rose-950/20 border border-rose-500/20 space-y-4 mb-6 text-center">
+        <p className="text-sm text-[#e2bdc6] leading-relaxed">
+          Hola, lamentablemente no se alcanzó el mínimo de{" "}
+          <strong className="text-white">{classSession?.minRequired || 5} personas</strong>.
         </p>
+        <div className="border-t border-white/5 pt-4">
+          <p className="text-base font-extrabold text-white">
+            {classSession?.dateStr} {classSession?.timeStr}
+          </p>
+          <p className="text-xs text-[#e2bdc6] mt-1">{classSession?.location}</p>
+        </div>
       </div>
 
-      <div className="glass-card rounded-2xl p-4 border border-white/10 text-left max-w-sm mx-auto space-y-2 mb-6 bg-[#1e0f14]">
+      <div className="w-full max-w-sm glass-card rounded-2xl p-4 border border-white/10 mb-6">
         <div className="flex items-start gap-2 text-xs text-[#e2bdc6]">
           <AlertCircle className="w-4 h-4 text-white/50 shrink-0 mt-0.5" />
           <p className="leading-relaxed">
-            Nuestra regla de quórum es clave: así cuidamos el tiempo de todas. Te invitamos a registrarte en las próximas sesiones.
+            Te avisaremos para la próxima clase. ¡No te desanimes!
           </p>
         </div>
       </div>
 
       <button
-        onClick={() => onNavigate(ScreenId.Inicio, "push")}
-        className="w-full max-w-sm py-3.5 rounded-xl bg-white/10 text-white font-black text-xs uppercase tracking-widest hover:bg-white/20 shadow-md cursor-pointer"
+        onClick={() => onNavigate(ScreenId.Splash, "push")}
+        className="w-full max-w-sm py-4 rounded-2xl bg-white/10 text-white font-black text-sm uppercase tracking-widest hover:bg-white/20 active:scale-[0.97] transition-all cursor-pointer"
       >
         VER PRÓXIMAS CLASES
       </button>

@@ -37,12 +37,115 @@
 }
 
 /* Base resets & layout settings */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--color-background);
   color: var(--color-on-background);
+  overscroll-behavior-y: contain;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
 }
 
+/* Safe area padding for iOS notch/home indicator */
+.safe-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 73, 148, 0.3);
+  border-radius: 4px;
+}
+
+/* Status pills */
+.status-confirmed {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+.status-pending {
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  color: #fcd34d;
+}
+.status-cancelled {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  color: #fda4af;
+}
+
+/* Class card hover effect */
+.class-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.class-card:active {
+  transform: scale(0.97);
+}
+
+/* Bottom nav active indicator */
+.nav-active {
+  color: #ff4994;
+}
+.nav-active::after {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #ff4994;
+  margin: 2px auto 0;
+}
+
+/* Input focus ring */
+input:focus, select:focus {
+  outline: none;
+  border-color: #ff4994 !important;
+  box-shadow: 0 0 0 2px rgba(255, 73, 148, 0.2);
+}
+
+/* Checkbox custom */
+input[type="checkbox"] {
+  accent-color: #ff4994;
+}
+
+/* Animated gradient border */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animated-border {
+  background: linear-gradient(270deg, #ff4994, #582ea2, #ff4994);
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* Pulse glow animation */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(255, 73, 148, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(255, 73, 148, 0.6); }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}

@@ -8,7 +8,8 @@ export enum ScreenId {
   MisRegistros = "Mis Registros",
   MiPerfil = "Mi Perfil",
   InvitarAmiga = "Salvar Quórum",
-  PanelInstructor = "Panel Instructor"
+  PanelInstructor = "Panel Instructor",
+  Reglas = "Reglas"
 }
 
 export type TransitionType = "slide_up" | "push" | "push_back" | "none";
@@ -45,6 +46,8 @@ export interface ClassRegistration {
   isCommitted: boolean;
   understandsGoal: boolean;
   willCancelInTime: boolean;
+  referredByEmail?: string;
+  whatsappOptIn?: boolean;
 }
 
 export interface AlertNotification {

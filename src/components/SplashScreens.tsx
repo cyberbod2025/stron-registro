@@ -1,110 +1,146 @@
-import { ScreenId, TransitionType } from "../types";
+import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { Bolt, Dumbbell, MapPin, Users } from "lucide-react";
+import { MapPin, ChevronRight } from "lucide-react";
 
 interface SplashProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
 }
 
-export function Splash({ onNavigate }: SplashProps) {
+interface HomeProps {
+  onNavigate: (screen: ScreenId, transition: TransitionType) => void;
+  classes: ClassSession[];
+  isLoading: boolean;
+}
+
+/* Full-featured Home Screen matching mockup */
+export function HomeScreen({ onNavigate, classes, isLoading }: HomeProps) {
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "confirmada": return "CONFIRMADA";
+      case "suspendida": return "CANCELADA";
+      default: return "PENDIENTE";
+    }
+  };
+
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case "confirmada": return "status-confirmed";
+      case "suspendida": return "status-cancelled";
+      default: return "status-pending";
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="relative min-h-[90vh] flex flex-col items-center justify-between overflow-hidden py-10"
+      className="min-h-screen flex flex-col"
     >
-      {/* Background with Athlete Image */}
-      <div className="absolute inset-0 z-0">
-        <img
-          className="w-full h-full object-cover opacity-45 mix-blend-luminosity filter brightness-75 scale-105 animate-pulse"
-          alt="Athlete background"
-          referrerPolicy="no-referrer"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQ7XwRYnnArs6d3cgHQrK7pGergvJWVEfTNvfJgmAzQ5lguEDVKvfXGhRIqLmGiV_clrtjL41_U7DtQzDw5z8vfXNRfE5fKHK5tyFNP3LQCRZIt0T6otuJWjXEsDWAYMEgDsGGxNTm9L-lE0Hud0fRufBLprP3mjZkTzF5W9gTX_tSGrtPjSVR4C_9fjeHC6G60GBcd3Acg-TvAEicb1ga_FKm85LM5oZsJS3TzUvRc8w5AZYWxRbQRTLsDyFCFDQeI7zhBWgl0MEW"
-          style={{ animationDuration: "8s" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1e0f14] via-[#1e0f14]/80 to-transparent"></div>
-        <div className="absolute inset-0 bg-purple-950/20 mix-blend-color"></div>
-      </div>
-
-      {/* Brand Header */}
-      <div className="relative z-10 text-center px-6 pt-6 flex flex-col items-center">
-        <motion.div
-          animate={{ y: [0, -8, 0], scale: [1, 1.03, 1] }}
-          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-          className="mb-5 inline-flex"
-        >
-          <div className="w-16 h-16 rounded-full border-2 border-[#ffb1c7]/40 bg-gradient-to-r from-[#ff4994] to-[#562ba0] flex items-center justify-center shadow-[0_0_25px_rgba(255,73,148,0.4)]">
-            <Dumbbell className="w-8 h-8 text-white" />
-          </div>
-        </motion.div>
-
-        <p className="text-[10px] font-black tracking-[0.25em] text-[#ffb1c7] mb-1.5 uppercase">
-          HUGO SÁNCHEZ • SEDE IZTACALCO
-        </p>
-        <h1 className="text-4xl font-black italic tracking-tighter text-white leading-none uppercase">
-          STRONG <br />
-          <span className="text-[#ff4994] drop-shadow-[0_0_15px_rgba(255,73,148,0.5)]">
-            NATION
-          </span>
-        </h1>
-        <p className="text-xs font-bold tracking-widest text-[#e2bdc6] mt-3 uppercase opacity-90">
-          RESPONSABILIDAD Y COMPROMISO 💪👥
-        </p>
-      </div>
-
-      {/* Action Buttons & Quick card */}
-      <div className="relative z-10 w-full max-w-sm px-6 space-y-4 mt-auto">
-        <div className="glass-card rounded-2xl p-4 border border-white/5 space-y-3 mb-2 bg-[#2a1723]/30">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-[#ff4994]/20 flex items-center justify-center">
-              <Users className="w-4 h-4 text-[#ff4994]" />
+      {/* Hero Section */}
+      <div className="relative px-6 pt-14 pb-8">
+        {/* Brand Logo */}
+        <div className="flex flex-col items-center text-center mb-8">
+          {/* S Logo */}
+          <motion.div
+            animate={{ y: [0, -5, 0] }}
+            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+            className="mb-4"
+          >
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#ff4994] via-[#c91f6b] to-[#582ea2] flex items-center justify-center shadow-[0_0_40px_rgba(255,73,148,0.4)] relative">
+              <span className="text-3xl font-black italic text-white" style={{ fontFamily: 'Montserrat' }}>S</span>
+              <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#5de151] flex items-center justify-center">
+                <span className="text-[8px]">🔥</span>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-bold text-[#ffb1c7] leading-none uppercase tracking-wide">Más fuertes juntas</p>
-              <p className="text-[10px] text-[#e2bdc6] mt-1">Conecta con tu equipo y mantén las rachas de asistencia intactas.</p>
-            </div>
-          </div>
+          </motion.div>
+
+          <h1 className="text-3xl font-black italic tracking-tight text-white uppercase leading-none">
+            STRONG{" "}
+            <span className="text-[#ff4994] drop-shadow-[0_0_15px_rgba(255,73,148,0.5)]">
+              NATION
+            </span>
+          </h1>
+          <p className="text-xs font-semibold text-[#ffb1c7] mt-2 tracking-wider italic">
+            Más fuertes juntas 💪
+          </p>
         </div>
 
-        <button
-          onClick={() => onNavigate(ScreenId.Inicio, "push")}
-          className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#ff4994] to-[#562ba0] text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-[#ff4994]/20 active:scale-95 transition-all duration-300 transform hover:brightness-110 cursor-pointer text-center"
+        {/* Description */}
+        <p className="text-sm text-[#e2bdc6] text-center leading-relaxed max-w-xs mx-auto mb-8">
+          Regístrate para tus clases y seamos más fuertes juntas 💪
+        </p>
+
+        {/* Class Cards */}
+        <div className="space-y-3 mb-8">
+          {isLoading ? (
+            // Loading skeleton
+            <>
+              {[1, 2, 3].map(i => (
+                <div key={i} className="rounded-2xl p-4 bg-white/5 border border-white/5 animate-pulse">
+                  <div className="h-5 bg-white/10 rounded w-40 mb-2"></div>
+                  <div className="h-3 bg-white/5 rounded w-28"></div>
+                </div>
+              ))}
+            </>
+          ) : (
+            classes.map((c, index) => (
+              <motion.button
+                key={c.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                onClick={() => onNavigate(ScreenId.RegistroDeClase, "push")}
+                className="class-card w-full text-left rounded-2xl p-4 bg-[#2a1520]/60 border border-white/8 hover:border-[#ff4994]/30 transition-all cursor-pointer group flex items-center justify-between"
+              >
+                <div className="flex items-center gap-4">
+                  {/* Day indicator */}
+                  <div className="w-12 h-12 rounded-xl bg-[#ff4994]/15 border border-[#ff4994]/25 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[#ff4994] text-xl">event</span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-extrabold text-white leading-tight">
+                      {c.dateStr} {c.timeStr}
+                    </h3>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <MapPin className="w-3 h-3 text-[#ff4994]" />
+                      <span className="text-xs text-[#e2bdc6]">{c.location}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full ${getStatusClass(c.status)}`}>
+                    {getStatusLabel(c.status)}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-white/30 group-hover:text-[#ff4994] transition-colors" />
+                </div>
+              </motion.button>
+            ))
+          )}
+        </div>
+
+        {/* CTA Button */}
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          onClick={() => onNavigate(ScreenId.MisRegistros, "push")}
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#ff4994] to-[#c91f6b] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] active:scale-[0.97] transition-all cursor-pointer"
         >
-          INGRESAR AL PANEL DE ATLETA
-        </button>
-
-        <button
-          onClick={() => onNavigate(ScreenId.RegistroDeClase, "push")}
-          className="w-full py-3.5 px-6 rounded-xl glass-card text-white text-xs font-black uppercase tracking-widest border border-white/15 hover:bg-white/5 transition-all duration-300 active:scale-95 cursor-pointer text-center"
-        >
-          REGISTRARME EN NUEVA CLASE
-        </button>
-      </div>
-
-      {/* Stats Indicator Footer */}
-      <div className="relative z-10 mt-6 flex gap-6 items-center justify-center opacity-85 px-6 font-mono">
-        <div className="flex flex-col items-center">
-          <span className="text-lg font-black text-white">500+</span>
-          <span className="text-[8px] font-bold tracking-widest text-[#ffb1c7] uppercase">
-            Atletas
-          </span>
-        </div>
-        <div className="w-[1px] h-6 bg-white/10"></div>
-        <div className="flex flex-col items-center">
-          <span className="text-lg font-black text-white">100%</span>
-          <span className="text-[8px] font-bold tracking-widest text-[#ffb1c7] uppercase">
-            Compromiso
-          </span>
-        </div>
-        <div className="w-[1px] h-6 bg-white/10"></div>
-        <div className="flex flex-col items-center">
-          <span className="text-lg font-black text-white">CDMX</span>
-          <span className="text-[8px] font-bold tracking-widest text-[#ffb1c7] uppercase">
-            Iztacalco
-          </span>
-        </div>
+          MIS REGISTROS
+        </motion.button>
       </div>
     </motion.div>
+  );
+}
+
+/* Splash is just a quick loader that auto-advances to Home */
+export function Splash({ onNavigate }: SplashProps) {
+  return (
+    <HomeScreen 
+      onNavigate={onNavigate} 
+      classes={[]} 
+      isLoading={true} 
+    />
   );
 }
