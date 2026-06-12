@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { ScreenId, TransitionType, AlertNotification, ClassRegistration, ClassSession } from "./types";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, Command, RefreshCw } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import bgImage from "./assets/strong_nation_bg.png";
 
-// Import consolidated components
-import { Splash } from "./components/SplashScreens";
+// Import components
+import { Splash, HomeScreen } from "./components/SplashScreens";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { NotificationsScreen } from "./components/NotificationsScreen";
 import { InviteScreen } from "./components/InviteScreens";
@@ -15,6 +16,8 @@ import {
 } from "./components/ClassScreens";
 import { InicioScreen } from "./components/InicioScreens";
 import { PanelInstructor } from "./components/InstructorScreens";
+import { ReglasScreen } from "./components/ReglasScreen";
+import { MisRegistrosScreen } from "./components/MisRegistrosScreen";
 
 export default function App() {
   // Navigation State
@@ -22,14 +25,11 @@ export default function App() {
   const [transition, setTransition] = useState<TransitionType>("none");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Dev mode drawer toggle
-  const [showDevBar, setShowDevBar] = useState(true);
-
   // Classes State
   const [classes, setClasses] = useState<ClassSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch from Supabase
+  // Registration State
   const [registration, setRegistration] = useState<ClassRegistration>({
     classId: "",
     fullName: "",
@@ -95,13 +95,30 @@ export default function App() {
     fetchClasses();
   }, []);
 
-
-
   // Notifications State
   const [notifications, setNotifications] = useState<AlertNotification[]>([]);
 
   // Toggle user role
-  const [isInstructor, setIsInstructor] = useState(false);
+  const [isInstructor, setIsInstructor] = useState(() => {
+    return window.location.search.includes('admin=true') || localStorage.getItem('isInstructor') === 'true';
+  });
+
+  const handleInstructorLogin = (password: string) => {
+    if (password === 'strog.hsr.52') {
+      setIsInstructor(true);
+      localStorage.setItem('isInstructor', 'true');
+      return true;
+    }
+    return false;
+  };
+
+  const handleInstructorLogout = () => {
+    setIsInstructor(false);
+    localStorage.removeItem('isInstructor');
+    if (window.location.search.includes('admin=true')) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  };
 
   const onShowToast = (msg: string) => {
     setToastMessage(msg);
@@ -126,24 +143,34 @@ export default function App() {
     onShowToast("Notificaciones vaciadas.");
   };
 
-  // Screen description lookup dictionary for the user/developer picker
-  const screenDescriptions: Record<ScreenId, string> = {
-    [ScreenId.Splash]: "1. Pantalla de Bienvenida (Intro)",
-    [ScreenId.Inicio]: "2. Inicio / Próxima Clase (Quórum)",
-    [ScreenId.RegistroDeClase]: "3. Formulario de Inscripción",
-    [ScreenId.Confirmada]: "4. Estado: Clase Confirmada",
-    [ScreenId.ClaseCancelada]: "5. Estado: Clase Suspendida",
-    [ScreenId.InvitarAmiga]: "6. Salvar Quórum (Compartir)",
-    [ScreenId.MisRegistros]: "7. Mis Registros",
-    [ScreenId.MiPerfil]: "8. Mi Perfil y Nivel de Confianza",
-    [ScreenId.Notificaciones]: "9. Notificaciones",
-    [ScreenId.PanelInstructor]: "10. Panel de Instructor"
+  // Determine which tab is active for bottom nav highlighting
+  const getActiveTab = (): string => {
+    switch (currentScreen) {
+      case ScreenId.Splash:
+      case ScreenId.Inicio:
+        return "inicio";
+      case ScreenId.RegistroDeClase:
+      case ScreenId.Confirmada:
+      case ScreenId.ClaseCancelada:
+      case ScreenId.MisRegistros:
+        return "clases";
+      case ScreenId.Reglas:
+        return "reglas";
+      case ScreenId.MiPerfil:
+        return "perfil";
+      case ScreenId.PanelInstructor:
+        return "dashboard";
+      default:
+        return "inicio";
+    }
   };
+
+  const activeTab = getActiveTab();
 
   const renderActiveScreen = () => {
     switch (currentScreen) {
       case ScreenId.Splash:
-        return <Splash onNavigate={handleNavigate} />;
+        return <HomeScreen onNavigate={handleNavigate} classes={classes} isLoading={isLoading} />;
       case ScreenId.Inicio:
         return <InicioScreen onNavigate={handleNavigate} classes={classes} />;
       case ScreenId.RegistroDeClase:
@@ -162,6 +189,7 @@ export default function App() {
             onNavigate={handleNavigate}
             onShowToast={onShowToast}
             classSession={classes.find(c => c.status === "confirmada") || classes[0]}
+            registration={registration}
           />
         );
       case ScreenId.ClaseCancelada:
@@ -176,7 +204,18 @@ export default function App() {
           />
         );
       case ScreenId.MiPerfil:
-        return <ProfileScreen onNavigate={handleNavigate} userEmail={registration.email} />;
+        return (
+          <ProfileScreen
+            onNavigate={handleNavigate}
+            userEmail={registration.email}
+            userName={registration.fullName}
+            userPhone={registration.mobile}
+            isInstructor={isInstructor}
+            onInstructorLogin={handleInstructorLogin}
+            onInstructorLogout={handleInstructorLogout}
+            onShowToast={onShowToast}
+          />
+        );
       case ScreenId.InvitarAmiga:
         return <InviteScreen onNavigate={handleNavigate} onShowToast={onShowToast} classSession={classes.find(c => c.status === "pendiente") || classes[0]} />;
       case ScreenId.PanelInstructor:
@@ -188,10 +227,11 @@ export default function App() {
           />
         );
       case ScreenId.MisRegistros:
-        // Temporal fallback to Inicio if MisRegistros is not fully built yet
-        return <InicioScreen onNavigate={handleNavigate} classes={classes} />;
+        return <MisRegistrosScreen onNavigate={handleNavigate} classes={classes} />;
+      case ScreenId.Reglas:
+        return <ReglasScreen onNavigate={handleNavigate} />;
       default:
-        return <Splash onNavigate={handleNavigate} />;
+        return <HomeScreen onNavigate={handleNavigate} classes={classes} isLoading={isLoading} />;
     }
   };
 
@@ -211,188 +251,97 @@ export default function App() {
 
   const animStyle = getTransitionStyle();
 
+  // Bottom nav items
+  const navItems = isInstructor
+    ? [
+        { id: "dashboard", icon: "dashboard", label: "Dashboard", screen: ScreenId.PanelInstructor },
+        { id: "clases", icon: "event", label: "Clases", screen: ScreenId.MisRegistros },
+        { id: "reglas", icon: "gavel", label: "Reglas", screen: ScreenId.Reglas },
+        { id: "perfil", icon: "person", label: "Perfil", screen: ScreenId.MiPerfil },
+      ]
+    : [
+        { id: "inicio", icon: "home", label: "Inicio", screen: ScreenId.Splash },
+        { id: "clases", icon: "event_note", label: "Mis clases", screen: ScreenId.MisRegistros },
+        { id: "reglas", icon: "gavel", label: "Reglas", screen: ScreenId.Reglas },
+        { id: "perfil", icon: "person", label: "Perfil", screen: ScreenId.MiPerfil },
+      ];
+
   return (
-    <div className="min-h-screen flex flex-col md:flex-row justify-center items-start md:items-stretch bg-neutral-950 font-sans antialiased overflow-x-hidden md:p-6 lg:p-10 gap-6">
-      
+    <div className="min-h-screen flex flex-col bg-[#1e0f14] font-sans antialiased overflow-x-hidden relative">
+      {/* Background Image */}
+      <div 
+        className="fixed inset-0 z-0 opacity-40 pointer-events-none mix-blend-overlay"
+        style={{ 
+          backgroundImage: `url(${bgImage})`, 
+          backgroundSize: 'cover', 
+          backgroundPosition: 'center' 
+        }}
+      ></div>
       {/* Decorative ambient spots */}
-      <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#ff4994]/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
-      <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-950/20 rounded-full blur-[140px] pointer-events-none z-0"></div>
+      <div className="fixed top-[-15%] left-[-15%] w-[55%] h-[55%] bg-[#ff4994]/8 rounded-full blur-[120px] pointer-events-none z-0"></div>
+      <div className="fixed bottom-[-15%] right-[-15%] w-[55%] h-[55%] bg-purple-950/15 rounded-full blur-[140px] pointer-events-none z-0"></div>
 
-      {/* Dev Navigation Sidebar (Visible of Desktop, expandable on mobile) */}
-      <div className={`w-full md:w-80 shrink-0 bg-neutral-900/90 border border-white/10 rounded-3xl p-5 flex flex-col gap-4 self-start relative z-20 ${showDevBar ? "block" : "hidden md:block"}`}>
-        <div className="flex justify-between items-center pb-2 border-b border-white/5">
-          <div className="flex items-center gap-2 text-white">
-            <Command className="w-4 h-4 text-[#ff4994]" />
-            <h2 className="text-xs font-black tracking-widest uppercase">Mapeo de Pantallas (V1)</h2>
-          </div>
-          <button
-            onClick={() => setShowDevBar(false)}
-            className="md:hidden text-xs text-[#e2bdc6] border border-white/10 px-2 py-0.5 rounded uppercase cursor-pointer"
+      {/* Main Content Area */}
+      <main className="flex-1 w-full max-w-lg mx-auto relative z-10 overflow-y-auto pb-20">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentScreen}
+            initial={animStyle.initial}
+            animate={animStyle.animate}
+            exit={animStyle.exit}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="w-full min-h-full"
           >
-            Ocultar ✕
-          </button>
+            {renderActiveScreen()}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+
+      {/* Bottom Navigation Bar */}
+      <nav className="fixed bottom-0 inset-x-0 z-50 bg-[#150a0e]/95 backdrop-blur-xl border-t border-white/5 safe-bottom">
+        <div className="max-w-lg mx-auto flex justify-around items-center py-2">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleNavigate(item.screen, "none")}
+              className={`flex flex-col items-center gap-0.5 py-1.5 px-4 rounded-xl transition-all duration-200 cursor-pointer ${
+                activeTab === item.id
+                  ? "text-[#ff4994]"
+                  : "text-white/40 hover:text-white/60"
+              }`}
+            >
+              <span className={`material-symbols-outlined text-[22px] ${activeTab === item.id ? 'font-bold' : ''}`} style={activeTab === item.id ? { fontVariationSettings: "'FILL' 1" } : {}}>
+                {item.icon}
+              </span>
+              <span className={`text-[10px] font-bold tracking-wide ${activeTab === item.id ? 'font-extrabold' : ''}`}>
+                {item.label}
+              </span>
+              {activeTab === item.id && (
+                <motion.div 
+                  layoutId="activeTab"
+                  className="w-1 h-1 rounded-full bg-[#ff4994]"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              )}
+            </button>
+          ))}
         </div>
+      </nav>
 
-        <p className="text-[10px] text-[#e2bdc6] leading-relaxed">
-          Navegación centrada en el sistema de Quórum. Rankigns ocultos para V2.
-        </p>
-
-        {/* List of screens */}
-        <div className="flex-1 max-h-[420px] md:max-h-[580px] overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
-          {Object.values(ScreenId).map((scrName) => {
-            const isActive = currentScreen === scrName;
-            return (
-              <button
-                key={scrName}
-                onClick={() => {
-                  setTransition("none");
-                  setCurrentScreen(scrName);
-                }}
-                className={`w-full text-left py-2 px-3 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer flex items-center justify-between ${
-                  isActive
-                    ? "bg-[#ff4994]/25 text-[#ffb1c7] border border-[#ff4994]/50 font-black"
-                    : "text-white/60 hover:text-white/90 hover:bg-white/5"
-                }`}
-              >
-                <span className="truncate">{screenDescriptions[scrName as ScreenId] || scrName}</span>
-                {isActive && <span className="h-1.5 w-1.5 rounded-full bg-[#ff4994]"></span>}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="border-t border-white/5 pt-3 space-y-2">
-          <button
-            onClick={() => setIsInstructor(!isInstructor)}
-            className="w-full flex items-center justify-center gap-1 py-2 rounded-xl bg-purple-900/20 border border-purple-500/30 text-[10px] text-purple-200 hover:text-white hover:bg-purple-900/40 font-bold uppercase tracking-widest transition-all cursor-pointer"
+      {/* Floating Toast */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-24 left-4 right-4 z-[60] max-w-lg mx-auto p-3.5 rounded-xl bg-neutral-900/95 backdrop-blur-lg border border-[#ff4994]/30 text-xs text-white shadow-xl flex items-center gap-2"
           >
-            Rol actual: {isInstructor ? "INSTRUCTOR" : "ALUMNA"}
-          </button>
-          <button
-            onClick={() => {
-              setTransition("none");
-              setCurrentScreen(ScreenId.Splash);
-              onShowToast("Flujo Restablecido.");
-            }}
-            className="w-full flex items-center justify-center gap-1 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] text-white/80 hover:text-white hover:bg-white/10 font-bold uppercase tracking-widest transition-all cursor-pointer"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            Reiniciar Flujo
-          </button>
-        </div>
-      </div>
-
-      {/* Main Simulation Sandbox */}
-      <div className="flex-1 max-w-sm sm:max-w-md w-full mx-auto relative z-10 flex flex-col items-center">
-        {/* Toggle dev bar button on mobile */}
-        <button
-          onClick={() => setShowDevBar(!showDevBar)}
-          className="md:hidden mb-4 px-4 py-2 border border-white/10 rounded-full text-[10px] font-black text-[#ffb1c7] bg-neutral-900 uppercase tracking-widest flex items-center gap-1.5 self-center shadow cursor-pointer"
-        >
-          <Command className="w-3.5 h-3.5" />
-          {showDevBar ? "Ocultar Mando Dev" : "Mostrar Mando Dev"}
-        </button>
-
-        {/* Mock SmartPhone Container Frame */}
-        <div className="relative w-full max-w-sm sm:max-w-md bg-[#1e0f14] border-[7px] border-neutral-800 rounded-[35px] shadow-[0_0_60px_rgba(255,73,148,0.15)] overflow-hidden flex flex-col justify-between" style={{ minHeight: "840px" }}>
-          
-          {/* Phone Top Speaker/Camera notch cut */}
-          <div className="absolute top-0 inset-x-0 h-5 bg-neutral-800 rounded-b-xl z-50 flex justify-center items-center">
-            <div className="w-16 h-3.5 bg-neutral-950 rounded-full flex items-center justify-center">
-              <span className="block w-2.5 h-2.5 rounded-full bg-blue-900/40"></span>
-            </div>
-          </div>
-
-          {/* Core App View Stage with AnimatePresence */}
-          <div className="flex-1 pt-6 pb-4 overflow-y-auto px-1">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentScreen}
-                initial={animStyle.initial}
-                animate={animStyle.animate}
-                exit={animStyle.exit}
-                transition={{ duration: 0.35, ease: "easeInOut" }}
-                className="w-full h-full"
-              >
-                {renderActiveScreen()}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Dynamic Floating Toast */}
-          <AnimatePresence>
-            {toastMessage && (
-              <motion.div
-                initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                className="absolute bottom-6 inset-x-6 z-50 p-3.5 rounded-xl bg-neutral-900 border border-[#ff4994]/30 text-xs text-white shadow-xl flex items-center gap-2"
-              >
-                <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="font-bold">{toastMessage}</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Active bottom navigation strip indicator */}
-          <div className="py-2.5 bg-[#150a0e] flex justify-around border-t border-white/5 relative z-40">
-            {isInstructor ? (
-              <>
-                <button
-                  onClick={() => handleNavigate(ScreenId.PanelInstructor, "none")}
-                  className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
-                    currentScreen === ScreenId.PanelInstructor ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
-                  }`}
-                >
-                  <span>📊</span>
-                  <span>Dashboard</span>
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => handleNavigate(ScreenId.Inicio, "none")}
-                  className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
-                    currentScreen === ScreenId.Inicio ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
-                  }`}
-                >
-                  <span>🏠</span>
-                  <span>Inicio</span>
-                </button>
-                <button
-                  onClick={() => handleNavigate(ScreenId.RegistroDeClase, "none")}
-                  className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
-                    currentScreen === ScreenId.RegistroDeClase ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
-                  }`}
-                >
-                  <span>📝</span>
-                  <span>Registrarme</span>
-                </button>
-                <button
-                  onClick={() => handleNavigate(ScreenId.MisRegistros, "none")}
-                  className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
-                    currentScreen === ScreenId.MisRegistros ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
-                  }`}
-                >
-                  <span>📅</span>
-                  <span>Registros</span>
-                </button>
-                <button
-                  onClick={() => handleNavigate(ScreenId.MiPerfil, "none")}
-                  className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] cursor-pointer ${
-                    currentScreen === ScreenId.MiPerfil ? "text-[#ffb1c7] font-extrabold" : "text-white/40 hover:text-white/60"
-                  }`}
-                >
-                  <span>👤</span>
-                  <span>Perfil</span>
-                </button>
-              </>
-            )}
-          </div>
-
-        </div>
-      </div>
-
+            <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="font-bold">{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

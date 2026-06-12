@@ -1,6 +1,6 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { ArrowLeft, Users, Calendar, AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { ArrowLeft, Users, CheckCircle, Clock, X } from "lucide-react";
 import React, { useState } from "react";
 
 interface InstructorProps {
@@ -10,25 +10,33 @@ interface InstructorProps {
 }
 
 export function PanelInstructor({ onNavigate, onShowToast, classes }: InstructorProps) {
-  // Find next pending class
-  const nextClass = classes?.find(c => c.status === "pendiente") || classes?.[0];
-
   const [students, setStudents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+
+  // Set initial selected class
+  React.useEffect(() => {
+    if (classes && classes.length > 0 && !selectedClassId) {
+      setSelectedClassId(classes[0].id);
+    }
+  }, [classes]);
+
+  const selectedClass = classes?.find(c => c.id === selectedClassId);
 
   React.useEffect(() => {
-    if (!nextClass?.id) {
+    if (!selectedClassId) {
       setIsLoading(false);
       return;
     }
     
     const fetchStudents = async () => {
+      setIsLoading(true);
       try {
         const { supabase } = await import('../lib/supabase');
         const { data, error } = await supabase
           .from('registrations')
           .select('*, students(full_name, mobile)')
-          .eq('class_id', nextClass.id)
+          .eq('class_id', selectedClassId)
           .order('created_at', { ascending: true });
 
         if (error) throw error;
@@ -37,7 +45,8 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
           id: s.id,
           name: s.students?.full_name || "Desconocido",
           status: s.attended ? "Asistió" : "Confirmada",
-          phone: s.students?.mobile || ""
+          phone: s.students?.mobile || "",
+          time: new Date(s.created_at).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
         }));
         setStudents(mapped);
       } catch (err) {
@@ -49,11 +58,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
     };
 
     fetchStudents();
-  }, [nextClass?.id]);
-
-  const confirmedCount = nextClass?.confirmedCount ?? 4;
-  const minRequired = nextClass?.minRequired ?? 5;
-  const missingCount = Math.max(0, minRequired - confirmedCount);
+  }, [selectedClassId]);
 
   const handleMarkAttendance = async (id: string, name: string) => {
     try {
@@ -73,127 +78,195 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
     }
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "confirmada": return "text-emerald-400";
+      case "suspendida": return "text-rose-400";
+      default: return "text-amber-400";
+    }
+  };
+
+  const getStatusBg = (status: string) => {
+    switch (status) {
+      case "confirmada": return "bg-emerald-500/10 border-emerald-500/30";
+      case "suspendida": return "bg-rose-500/10 border-rose-500/30";
+      default: return "bg-amber-500/10 border-amber-500/30";
+    }
+  };
+
+  // Stats
+  const totalRegistrations = classes?.reduce((sum, c) => sum + c.confirmedCount, 0) || 0;
+  const confirmedClasses = classes?.filter(c => c.status === "confirmada").length || 0;
+  const cancelledClasses = classes?.filter(c => c.status === "suspendida").length || 0;
+  const totalClasses = classes?.length || 0;
+  const attendanceRate = totalClasses > 0 ? Math.round((confirmedClasses / totalClasses) * 100) : 0;
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="p-4 md:p-6 max-w-lg mx-auto pb-24"
+      className="min-h-screen pb-24"
     >
-      {/* Upper Unified Header on Instructor Panel */}
-      <div className="flex items-center justify-between mb-6">
-        <button
-          onClick={() => onNavigate(ScreenId.Inicio, "push_back")}
-          className="p-2.5 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-white"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <div className="text-center">
-          <p className="text-[10px] font-black text-orange-400 tracking-widest uppercase">CONSOLA INSTRUCTOR</p>
-          <h1 className="text-base font-black text-white uppercase tracking-tight">Próxima Clase</h1>
+      {/* Header */}
+      <div className="px-5 pt-14 pb-4 flex items-center justify-between">
+        <div>
+          <p className="text-[10px] font-black text-[#ff4994] tracking-widest uppercase">Panel del Instructor</p>
+          <h1 className="text-lg font-black italic text-white uppercase tracking-tight">Profe Hugo ✌️</h1>
         </div>
-        <div className="w-10" />
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff4994] to-[#582ea2] flex items-center justify-center">
+          <span className="text-sm font-black text-white">H</span>
+        </div>
       </div>
 
-      <div className="space-y-6">
-        {/* Class Info and Quorum Status */}
-        <div className="rounded-3xl p-5 bg-gradient-to-br from-[#251b17] to-[#130d0a] border border-orange-500/30 space-y-4 shadow-xl">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase text-orange-400 tracking-wider mb-1">
-                {nextClass?.title || "Strong Nation"}
-              </p>
-              <h2 className="text-lg font-black text-white uppercase leading-tight">
-                {nextClass?.dateStr} {nextClass?.timeStr}
-              </h2>
-              <p className="text-xs text-[#e2bdc6] mt-1">{nextClass?.location}</p>
-            </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/5 border border-white/10">
-              <Clock className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-[10px] font-bold text-white uppercase">Cierre: {nextClass?.deadlineStr || "8:00 p.m. (Ayer)"}</span>
-            </div>
-          </div>
-
-          <div className="pt-2">
-            <div className="flex justify-between items-end mb-2">
-              <div>
-                <p className="text-2xl font-black text-white leading-none">
-                  {confirmedCount} <span className="text-sm text-[#e2bdc6] font-normal uppercase tracking-widest">Confirmadas</span>
-                </p>
+      {/* Class Cards Summary */}
+      <div className="px-5 mb-6">
+        <h2 className="text-xs font-black text-white uppercase tracking-widest mb-3">Resumen de clases</h2>
+        <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+          {classes?.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => setSelectedClassId(c.id)}
+              className={`shrink-0 w-32 rounded-2xl p-4 border transition-all cursor-pointer ${
+                selectedClassId === c.id
+                  ? "border-[#ff4994]/50 bg-[#ff4994]/10"
+                  : "border-white/5 bg-[#2a1520]/30"
+              }`}
+            >
+              <p className="text-[10px] font-bold text-[#e2bdc6] truncate">{c.dateStr} {c.timeStr}</p>
+              <p className="text-[9px] text-white/40 truncate">{c.location}</p>
+              <div className="mt-3 flex items-end justify-between">
+                <span className="text-2xl font-black text-white leading-none">
+                  {c.confirmedCount}<span className="text-sm text-white/40">/{c.minRequired}</span>
+                </span>
               </div>
-              <div className="text-right">
-                {missingCount > 0 ? (
-                  <p className="text-sm font-black text-rose-400 leading-none">
-                    Faltan {missingCount}
-                  </p>
-                ) : (
-                  <p className="text-sm font-black text-emerald-400 leading-none">
-                    ¡Quórum Listo!
-                  </p>
-                )}
+              <div className={`mt-2 inline-flex px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border ${getStatusBg(c.status)} ${getStatusColor(c.status)}`}>
+                {c.status === "confirmada" ? "CONFIRMADA ✅" : c.status === "suspendida" ? "CANCELADA" : "EN PROGRESO"}
               </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Selected Class Detail */}
+      {selectedClass && (
+        <div className="px-5 mb-6">
+          <h2 className="text-xs font-black text-white uppercase tracking-widest mb-3">
+            Detalle de registros — {selectedClass.dateStr} {selectedClass.timeStr}
+          </h2>
+
+          {/* Students Table */}
+          <div className="rounded-2xl overflow-hidden border border-white/5">
+            {/* Table Header */}
+            <div className="grid grid-cols-12 bg-[#12080c] px-4 py-2 text-[9px] font-bold text-white/40 uppercase tracking-wider">
+              <span className="col-span-4">Alumna</span>
+              <span className="col-span-2">Hora</span>
+              <span className="col-span-3">Registro</span>
+              <span className="col-span-3 text-right">Acción</span>
             </div>
 
-            <div className="w-full bg-[#1e0f14] rounded-full h-3 overflow-hidden border border-white/5">
-              <div
-                className={`h-full rounded-full transition-all duration-1000 ${
-                  confirmedCount >= minRequired ? "bg-emerald-500" : "bg-gradient-to-r from-amber-500 to-rose-500"
-                }`}
-                style={{ width: `${Math.min(100, (confirmedCount / minRequired) * 100)}%` }}
-              />
-            </div>
-            
-            {missingCount > 0 && (
-              <p className="text-[10px] text-amber-300/80 mt-2 flex items-center gap-1 font-semibold uppercase tracking-wider">
-                <AlertTriangle className="w-3 h-3" />
-                Riesgo de suspensión si no se llega a {minRequired}.
-              </p>
+            {/* Table Rows */}
+            {isLoading ? (
+              <div className="p-6 text-center">
+                <span className="text-xs text-white/30">Cargando alumnas...</span>
+              </div>
+            ) : students.length === 0 ? (
+              <div className="p-6 text-center">
+                <span className="text-xs text-white/30 italic">Aún no hay alumnas confirmadas</span>
+              </div>
+            ) : (
+              students.map((student, index) => (
+                <div
+                  key={student.id}
+                  className={`grid grid-cols-12 items-center px-4 py-3 text-xs border-t border-white/5 ${
+                    index % 2 === 0 ? "bg-transparent" : "bg-white/[0.02]"
+                  }`}
+                >
+                  <div className="col-span-4">
+                    <p className="font-bold text-white truncate text-[11px]">{student.name}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-white/40 text-[10px] font-mono">{student.time}</p>
+                  </div>
+                  <div className="col-span-3">
+                    <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                      student.status === "Asistió"
+                        ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                        : "bg-[#ff4994]/15 text-[#ff4994] border border-[#ff4994]/30"
+                    }`}>
+                      {student.status}
+                    </span>
+                  </div>
+                  <div className="col-span-3 flex justify-end">
+                    <button
+                      disabled={student.status === "Asistió"}
+                      onClick={() => handleMarkAttendance(student.id, student.name)}
+                      className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                        student.status === "Asistió"
+                          ? "text-emerald-400 bg-emerald-500/10"
+                          : "text-white/50 bg-white/5 hover:bg-white/10 hover:text-white"
+                      }`}
+                    >
+                      {student.status === "Asistió" ? (
+                        <CheckCircle className="w-4 h-4" />
+                      ) : (
+                        <span className="material-symbols-outlined text-base">how_to_reg</span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </div>
+      )}
 
-        {/* Student Roster & Attendance */}
-        <div className="space-y-4">
-          <h3 className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2">
-            <Users className="w-4 h-4 text-orange-400" /> Lista de Alumnas
-          </h3>
-
-          <div className="space-y-3">
-            {students.map((student) => (
-              <div
-                key={student.id}
-                className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between"
-              >
-                <div>
-                  <p className="text-xs font-black text-white uppercase">{student.name}</p>
-                  <p className="text-[10px] text-[#e2bdc6] mt-0.5 font-mono">{student.phone}</p>
-                </div>
-
-                <button
-                  disabled={student.status === "Asistió"}
-                  onClick={() => handleMarkAttendance(student.id, student.name)}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1 transition-all cursor-pointer ${
-                    student.status === "Asistió"
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                      : "bg-white/10 hover:bg-white/20 text-white"
-                  }`}
-                >
-                  {student.status === "Asistió" ? (
-                    <>
-                      <CheckCircle className="w-3 h-3" /> Asistió
-                    </>
-                  ) : (
-                    "Marcar Asistencia"
-                  )}
-                </button>
+      {/* Statistics Panel */}
+      <div className="px-5">
+        <h2 className="text-xs font-black text-white uppercase tracking-widest mb-3">Estadísticas</h2>
+        <div className="rounded-2xl p-5 bg-[#2a1520]/40 border border-white/5">
+          {/* Circular Chart Placeholder */}
+          <div className="flex items-center gap-6 mb-4">
+            <div className="relative w-24 h-24 shrink-0">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                <circle className="stroke-white/5" fill="transparent" strokeWidth="3" r="15.9" cx="18" cy="18" />
+                <circle 
+                  className="stroke-[#ff4994]" 
+                  fill="transparent" 
+                  strokeWidth="3" 
+                  strokeLinecap="round"
+                  strokeDasharray={`${attendanceRate}, 100`}
+                  r="15.9" cx="18" cy="18" 
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-lg font-black text-white">{totalRegistrations}</span>
+                <span className="text-[7px] font-bold text-white/40 uppercase">Registros</span>
               </div>
-            ))}
-
-            {students.length === 0 && (
-              <p className="text-xs text-[#e2bdc6] text-center py-4 italic">
-                Aún no hay alumnas confirmadas para esta clase.
-              </p>
-            )}
+            </div>
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                  <span className="text-[11px] text-[#e2bdc6]">Clases confirmadas</span>
+                </div>
+                <span className="text-sm font-black text-white">{confirmedClasses}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-rose-400"></div>
+                  <span className="text-[11px] text-[#e2bdc6]">Clases canceladas</span>
+                </div>
+                <span className="text-sm font-black text-white">{cancelledClasses}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#ff4994]"></div>
+                  <span className="text-[11px] text-[#e2bdc6]">Asistencia promedio</span>
+                </div>
+                <span className="text-sm font-black text-white">{attendanceRate}%</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
