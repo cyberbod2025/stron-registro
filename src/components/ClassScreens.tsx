@@ -147,17 +147,17 @@ export function RegistroDeClaseScreen({
 
       <form onSubmit={handleSubmit} className="px-5 pt-6 space-y-6">
         {/* Selected Class Info */}
-        <div className="rounded-2xl p-4 bg-[#2a1520]/40 border border-[#ff4994]/20">
+        <div className="rounded-2xl p-4 bg-[#0a1020]/40 border border-[#00a2ff]/20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#ff4994]/15 flex items-center justify-center">
-              <span className="material-symbols-outlined text-[#ff4994]">event</span>
+            <div className="w-10 h-10 rounded-xl bg-[#00a2ff]/15 flex items-center justify-center">
+              <span className="material-symbols-outlined text-[#00a2ff]">event</span>
             </div>
             <div>
               <p className="text-base font-extrabold text-white">
                 {selectedClass?.dateStr} {selectedClass?.timeStr}
               </p>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <MapPin className="w-3 h-3 text-[#ff4994]" />
+                <MapPin className="w-3 h-3 text-[#00a2ff]" />
                 <span className="text-xs text-[#e2bdc6]">{selectedClass?.location}</span>
               </div>
             </div>
@@ -174,7 +174,7 @@ export function RegistroDeClaseScreen({
                 onClick={() => setSelectedClassId(c.id)}
                 className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   selectedClassId === c.id 
-                    ? "bg-[#ff4994] text-white" 
+                    ? "bg-[#00a2ff] text-white" 
                     : "bg-white/5 border border-white/10 text-white/60 hover:text-white"
                 }`}
               >
@@ -251,7 +251,7 @@ export function RegistroDeClaseScreen({
           className={`w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] transition-all text-center ${
             isSubmitting 
               ? 'bg-gray-600 cursor-not-allowed opacity-70' 
-              : 'bg-gradient-to-r from-[#ff4994] to-[#c91f6b] hover:brightness-110 active:scale-[0.97] cursor-pointer'
+              : 'bg-gradient-to-r from-[#00a2ff] to-[#0077ff] hover:brightness-110 active:scale-[0.97] cursor-pointer'
           }`}
         >
           {isSubmitting ? "PROCESANDO..." : "CONFIRMAR ASISTENCIA 💪"}
@@ -271,7 +271,7 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
       particleCount: 150,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#ff4994', '#10b981', '#562ba0']
+      colors: ['#00a2ff', '#10b981', '#562ba0']
     });
   }, []);
 
@@ -300,7 +300,7 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
       </p>
 
       {/* Class details card */}
-      <div className="w-full max-w-sm rounded-2xl p-5 bg-[#2a1520]/40 border border-emerald-500/20 space-y-4 mb-8">
+      <div className="w-full max-w-sm rounded-2xl p-5 bg-[#0a1020]/40 border border-emerald-500/20 space-y-4 mb-8">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
             <Calendar className="w-5 h-5 text-emerald-400" />
@@ -331,7 +331,7 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
       <div className="w-full max-w-sm space-y-3">
         <button
           onClick={() => onNavigate(ScreenId.MisRegistros, "push")}
-          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#ff4994] to-[#c91f6b] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] active:scale-[0.97] transition-all cursor-pointer"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#00a2ff] to-[#0077ff] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] active:scale-[0.97] transition-all cursor-pointer"
         >
           VER MIS REGISTROS
         </button>

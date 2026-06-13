@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ScreenId, TransitionType, AlertNotification, ClassRegistration, ClassSession } from "./types";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles } from "lucide-react";
-import bgImage from "./assets/strong_nation_bg.png";
+import bgImage from "./assets/app_background.png";
 
 // Import components
 import { Splash, HomeScreen } from "./components/SplashScreens";
@@ -104,7 +104,7 @@ export default function App() {
   });
 
   const handleInstructorLogin = (password: string) => {
-    if (password === 'strog.hsr.52') {
+    if (password === '521314hsr') {
       setIsInstructor(true);
       localStorage.setItem('isInstructor', 'true');
       return true;
@@ -170,9 +170,9 @@ export default function App() {
   const renderActiveScreen = () => {
     switch (currentScreen) {
       case ScreenId.Splash:
-        return <HomeScreen onNavigate={handleNavigate} classes={classes} isLoading={isLoading} />;
+        return <HomeScreen onNavigate={handleNavigate} classes={classes} isLoading={isLoading} onSelectClass={(id) => setRegistration(prev => ({ ...prev, classId: id }))} />;
       case ScreenId.Inicio:
-        return <InicioScreen onNavigate={handleNavigate} classes={classes} />;
+        return <InicioScreen onNavigate={handleNavigate} classes={classes} onSelectClass={(id) => setRegistration(prev => ({ ...prev, classId: id }))} />;
       case ScreenId.RegistroDeClase:
         return (
           <RegistroDeClaseScreen
@@ -231,7 +231,7 @@ export default function App() {
       case ScreenId.Reglas:
         return <ReglasScreen onNavigate={handleNavigate} />;
       default:
-        return <HomeScreen onNavigate={handleNavigate} classes={classes} isLoading={isLoading} />;
+        return <HomeScreen onNavigate={handleNavigate} classes={classes} isLoading={isLoading} onSelectClass={(id) => setRegistration(prev => ({ ...prev, classId: id }))} />;
     }
   };
 
@@ -278,7 +278,7 @@ export default function App() {
         }}
       ></div>
       {/* Decorative ambient spots */}
-      <div className="fixed top-[-15%] left-[-15%] w-[55%] h-[55%] bg-[#ff4994]/8 rounded-full blur-[120px] pointer-events-none z-0"></div>
+      <div className="fixed top-[-15%] left-[-15%] w-[55%] h-[55%] bg-[#00a2ff]/8 rounded-full blur-[120px] pointer-events-none z-0"></div>
       <div className="fixed bottom-[-15%] right-[-15%] w-[55%] h-[55%] bg-purple-950/15 rounded-full blur-[140px] pointer-events-none z-0"></div>
 
       {/* Main Content Area */}
@@ -306,7 +306,7 @@ export default function App() {
               onClick={() => handleNavigate(item.screen, "none")}
               className={`flex flex-col items-center gap-0.5 py-1.5 px-4 rounded-xl transition-all duration-200 cursor-pointer ${
                 activeTab === item.id
-                  ? "text-[#ff4994]"
+                  ? "text-[#00a2ff]"
                   : "text-white/40 hover:text-white/60"
               }`}
             >
@@ -319,7 +319,7 @@ export default function App() {
               {activeTab === item.id && (
                 <motion.div 
                   layoutId="activeTab"
-                  className="w-1 h-1 rounded-full bg-[#ff4994]"
+                  className="w-1 h-1 rounded-full bg-[#00a2ff]"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
@@ -335,7 +335,7 @@ export default function App() {
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-24 left-4 right-4 z-[60] max-w-lg mx-auto p-3.5 rounded-xl bg-neutral-900/95 backdrop-blur-lg border border-[#ff4994]/30 text-xs text-white shadow-xl flex items-center gap-2"
+            className="fixed bottom-24 left-4 right-4 z-[60] max-w-lg mx-auto p-3.5 rounded-xl bg-neutral-900/95 backdrop-blur-lg border border-[#00a2ff]/30 text-xs text-white shadow-xl flex items-center gap-2"
           >
             <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="font-bold">{toastMessage}</span>

@@ -39,7 +39,7 @@ export function InviteScreen({ onNavigate, onShowToast, classSession }: InvitePr
           </div>
           <h2 className="text-lg font-black text-white uppercase leading-tight italic">
             Falta{missing !== 1 ? 'n' : ''}{" "}
-            <span className="text-[#ff4994]">{missing} alumna{missing !== 1 ? 's' : ''}</span>{" "}
+            <span className="text-[#00a2ff]">{missing} alumna{missing !== 1 ? 's' : ''}</span>{" "}
             para confirmar
           </h2>
           <p className="text-xs text-[#e2bdc6] leading-relaxed">
@@ -72,7 +72,7 @@ export function InviteScreen({ onNavigate, onShowToast, classSession }: InvitePr
                 }}
                 className={`py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-[10px] uppercase tracking-wider hover:bg-white/10 active:scale-95 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer ${!classSession?.wazeUrl ? 'col-span-2' : ''}`}
               >
-                <MapPin className="w-4 h-4 text-[#ff4994]" />
+                <MapPin className="w-4 h-4 text-[#00a2ff]" />
                 Abrir ubicación
               </button>
               {classSession?.wazeUrl && (

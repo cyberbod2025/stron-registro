@@ -111,10 +111,10 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       {/* Header */}
       <div className="px-5 pt-14 pb-4 flex items-center justify-between">
         <div>
-          <p className="text-[10px] font-black text-[#ff4994] tracking-widest uppercase">Panel del Instructor</p>
+          <p className="text-[10px] font-black text-[#00a2ff] tracking-widest uppercase">Panel del Instructor</p>
           <h1 className="text-lg font-black italic text-white uppercase tracking-tight">Profe Hugo ✌️</h1>
         </div>
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff4994] to-[#582ea2] flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00a2ff] to-[#00e5ff] flex items-center justify-center">
           <span className="text-sm font-black text-white">H</span>
         </div>
       </div>
@@ -129,8 +129,8 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
               onClick={() => setSelectedClassId(c.id)}
               className={`shrink-0 w-32 rounded-2xl p-4 border transition-all cursor-pointer ${
                 selectedClassId === c.id
-                  ? "border-[#ff4994]/50 bg-[#ff4994]/10"
-                  : "border-white/5 bg-[#2a1520]/30"
+                  ? "border-[#00a2ff]/50 bg-[#00a2ff]/10"
+                  : "border-white/5 bg-[#0a1020]/30"
               }`}
             >
               <p className="text-[10px] font-bold text-[#e2bdc6] truncate">{c.dateStr} {c.timeStr}</p>
@@ -192,7 +192,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
                     <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
                       student.status === "Asistió"
                         ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                        : "bg-[#ff4994]/15 text-[#ff4994] border border-[#ff4994]/30"
+                        : "bg-[#00a2ff]/15 text-[#00a2ff] border border-[#00a2ff]/30"
                     }`}>
                       {student.status}
                     </span>
@@ -224,14 +224,14 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       {/* Statistics Panel */}
       <div className="px-5">
         <h2 className="text-xs font-black text-white uppercase tracking-widest mb-3">Estadísticas</h2>
-        <div className="rounded-2xl p-5 bg-[#2a1520]/40 border border-white/5">
+        <div className="rounded-2xl p-5 bg-[#0a1020]/40 border border-white/5">
           {/* Circular Chart Placeholder */}
           <div className="flex items-center gap-6 mb-4">
             <div className="relative w-24 h-24 shrink-0">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
                 <circle className="stroke-white/5" fill="transparent" strokeWidth="3" r="15.9" cx="18" cy="18" />
                 <circle 
-                  className="stroke-[#ff4994]" 
+                  className="stroke-[#00a2ff]" 
                   fill="transparent" 
                   strokeWidth="3" 
                   strokeLinecap="round"
@@ -261,7 +261,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#ff4994]"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#00a2ff]"></div>
                   <span className="text-[11px] text-[#e2bdc6]">Asistencia promedio</span>
                 </div>
                 <span className="text-sm font-black text-white">{attendanceRate}%</span>

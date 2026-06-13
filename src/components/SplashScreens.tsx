@@ -4,16 +4,18 @@ import { MapPin, ChevronRight } from "lucide-react";
 
 interface SplashProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
+  onSelectClass?: (classId: string) => void;
 }
 
 interface HomeProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
   classes: ClassSession[];
   isLoading: boolean;
+  onSelectClass?: (classId: string) => void;
 }
 
 /* Full-featured Home Screen matching mockup */
-export function HomeScreen({ onNavigate, classes, isLoading }: HomeProps) {
+export function HomeScreen({ onNavigate, classes, isLoading, onSelectClass }: HomeProps) {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case "confirmada": return "CONFIRMADA";
@@ -47,7 +49,7 @@ export function HomeScreen({ onNavigate, classes, isLoading }: HomeProps) {
             transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
             className="mb-4"
           >
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#ff4994] via-[#c91f6b] to-[#582ea2] flex items-center justify-center shadow-[0_0_40px_rgba(255,73,148,0.4)] relative">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00a2ff] via-[#0077ff] to-[#00e5ff] flex items-center justify-center shadow-[0_0_40px_rgba(255,73,148,0.4)] relative">
               <span className="text-3xl font-black italic text-white" style={{ fontFamily: 'Montserrat' }}>S</span>
               <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#5de151] flex items-center justify-center">
                 <span className="text-[8px]">🔥</span>
@@ -57,7 +59,7 @@ export function HomeScreen({ onNavigate, classes, isLoading }: HomeProps) {
 
           <h1 className="text-3xl font-black italic tracking-tight text-white uppercase leading-none">
             STRONG{" "}
-            <span className="text-[#ff4994] drop-shadow-[0_0_15px_rgba(255,73,148,0.5)]">
+            <span className="text-[#00a2ff] drop-shadow-[0_0_15px_rgba(255,73,148,0.5)]">
               NATION
             </span>
           </h1>
@@ -90,20 +92,23 @@ export function HomeScreen({ onNavigate, classes, isLoading }: HomeProps) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                onClick={() => onNavigate(ScreenId.RegistroDeClase, "push")}
-                className="class-card w-full text-left rounded-2xl p-4 bg-[#2a1520]/60 border border-white/8 hover:border-[#ff4994]/30 transition-all cursor-pointer group flex items-center justify-between"
+                onClick={() => {
+                  if (onSelectClass) onSelectClass(c.id);
+                  onNavigate(ScreenId.RegistroDeClase, "push");
+                }}
+                className="class-card w-full text-left rounded-2xl p-4 bg-[#0a1020]/60 border border-white/8 hover:border-[#00a2ff]/30 transition-all cursor-pointer group flex items-center justify-between"
               >
                 <div className="flex items-center gap-4">
                   {/* Day indicator */}
-                  <div className="w-12 h-12 rounded-xl bg-[#ff4994]/15 border border-[#ff4994]/25 flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[#ff4994] text-xl">event</span>
+                  <div className="w-12 h-12 rounded-xl bg-[#00a2ff]/15 border border-[#00a2ff]/25 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[#00a2ff] text-xl">event</span>
                   </div>
                   <div>
                     <h3 className="text-base font-extrabold text-white leading-tight">
                       {c.dateStr} {c.timeStr}
                     </h3>
                     <div className="flex items-center gap-1.5 mt-1">
-                      <MapPin className="w-3 h-3 text-[#ff4994]" />
+                      <MapPin className="w-3 h-3 text-[#00a2ff]" />
                       <span className="text-xs text-[#e2bdc6]">{c.location}</span>
                     </div>
                   </div>
@@ -112,7 +117,7 @@ export function HomeScreen({ onNavigate, classes, isLoading }: HomeProps) {
                   <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full ${getStatusClass(c.status)}`}>
                     {getStatusLabel(c.status)}
                   </span>
-                  <ChevronRight className="w-4 h-4 text-white/30 group-hover:text-[#ff4994] transition-colors" />
+                  <ChevronRight className="w-4 h-4 text-white/30 group-hover:text-[#00a2ff] transition-colors" />
                 </div>
               </motion.button>
             ))
@@ -125,7 +130,7 @@ export function HomeScreen({ onNavigate, classes, isLoading }: HomeProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
           onClick={() => onNavigate(ScreenId.MisRegistros, "push")}
-          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#ff4994] to-[#c91f6b] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] active:scale-[0.97] transition-all cursor-pointer"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#00a2ff] to-[#0077ff] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] active:scale-[0.97] transition-all cursor-pointer"
         >
           MIS REGISTROS
         </motion.button>
@@ -135,12 +140,13 @@ export function HomeScreen({ onNavigate, classes, isLoading }: HomeProps) {
 }
 
 /* Splash is just a quick loader that auto-advances to Home */
-export function Splash({ onNavigate }: SplashProps) {
+export function Splash({ onNavigate, onSelectClass }: SplashProps) {
   return (
     <HomeScreen 
       onNavigate={onNavigate} 
       classes={[]} 
-      isLoading={true} 
+      isLoading={true}
+      onSelectClass={onSelectClass}
     />
   );
 }

@@ -2,12 +2,12 @@
 
 @theme {
   --color-primary: #ffb1c7;
-  --color-primary-container: #ff4994;
+  --color-primary-container: #00a2ff;
   --color-on-primary-container: #59002b;
   --color-background: #1e0f14;
   --color-surface: #1e0f14;
   --color-secondary: #d3bbff;
-  --color-secondary-container: #582ea2;
+  --color-secondary-container: #00e5ff;
   --color-tertiary: #5de151;
   --color-error: #ffb4ab;
   --color-on-background: #f9dbe2;
@@ -32,7 +32,7 @@
     text-shadow: 0 0 8px rgba(255, 73, 148, 0.6);
   }
   .progress-gradient {
-    background: linear-gradient(90deg, #ff4994 0%, #ba0061 100%);
+    background: linear-gradient(90deg, #00a2ff 0%, #0055cc 100%);
   }
 }
 
@@ -104,7 +104,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Bottom nav active indicator */
 .nav-active {
-  color: #ff4994;
+  color: #00a2ff;
 }
 .nav-active::after {
   content: '';
@@ -112,20 +112,20 @@ h1, h2, h3, h4, h5, h6 {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #ff4994;
+  background: #00a2ff;
   margin: 2px auto 0;
 }
 
 /* Input focus ring */
 input:focus, select:focus {
   outline: none;
-  border-color: #ff4994 !important;
+  border-color: #00a2ff !important;
   box-shadow: 0 0 0 2px rgba(255, 73, 148, 0.2);
 }
 
 /* Checkbox custom */
 input[type="checkbox"] {
-  accent-color: #ff4994;
+  accent-color: #00a2ff;
 }
 
 /* Animated gradient border */
@@ -135,7 +135,7 @@ input[type="checkbox"] {
 }
 
 .animated-border {
-  background: linear-gradient(270deg, #ff4994, #582ea2, #ff4994);
+  background: linear-gradient(270deg, #00a2ff, #00e5ff, #00a2ff);
   background-size: 200% 200%;
   animation: gradient-shift 4s ease infinite;
 }

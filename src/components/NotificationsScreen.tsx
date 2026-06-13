@@ -58,14 +58,14 @@ export function NotificationsScreen({
                 onClick={() => onMarkRead(notif.id)}
                 className={`relative rounded-2xl p-4 transition-all duration-300 border cursor-pointer ${
                   isUnread
-                    ? "bg-[#ff4994]/8 border-[#ff4994]/30"
+                    ? "bg-[#00a2ff]/8 border-[#00a2ff]/30"
                     : "bg-white/[0.03] border-white/5"
                 }`}
               >
                 {isUnread && (
                   <span className="absolute top-4 right-4 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff4994] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff4994]"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00a2ff] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00a2ff]"></span>
                   </span>
                 )}
 
@@ -73,7 +73,7 @@ export function NotificationsScreen({
                   <div className="mt-0.5">
                     {notif.type === "error" && <ShieldAlert className="w-5 h-5 text-rose-500" />}
                     {notif.type === "success" && <CheckCircle className="w-5 h-5 text-emerald-400" />}
-                    {notif.type === "warning" && <Flame className="w-5 h-5 text-[#ff4994] animate-pulse" />}
+                    {notif.type === "warning" && <Flame className="w-5 h-5 text-[#00a2ff] animate-pulse" />}
                     {notif.type === "info" && <CalendarX className="w-5 h-5 text-amber-500" />}
                   </div>
 
@@ -94,7 +94,7 @@ export function NotificationsScreen({
                             onMarkRead(notif.id);
                             onNavigate(ScreenId.InvitarAmiga, "slide_up");
                           }}
-                          className="px-3 py-1.5 rounded-lg bg-[#ff4994] text-white text-[10px] font-black tracking-widest uppercase flex items-center gap-1 active:scale-95 cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg bg-[#00a2ff] text-white text-[10px] font-black tracking-widest uppercase flex items-center gap-1 active:scale-95 cursor-pointer"
                         >
                           Invitar Amiga
                           <ArrowUpRight className="w-3 h-3" />

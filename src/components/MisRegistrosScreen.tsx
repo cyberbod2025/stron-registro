@@ -66,7 +66,7 @@ export function MisRegistrosScreen({ onNavigate, classes }: MisRegistrosProps) {
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 py-2 text-xs font-black rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
                 activeTab === tab.id
-                  ? "bg-[#ff4994] text-white shadow-md"
+                  ? "bg-[#00a2ff] text-white shadow-md"
                   : "text-white/50 hover:text-white"
               }`}
             >
@@ -90,11 +90,11 @@ export function MisRegistrosScreen({ onNavigate, classes }: MisRegistrosProps) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="rounded-2xl p-4 bg-[#2a1520]/40 border border-white/5 flex items-center justify-between"
+              className="rounded-2xl p-4 bg-[#0a1020]/40 border border-white/5 flex items-center justify-between"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#ff4994]/10 border border-[#ff4994]/20 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[#ff4994] text-lg">event</span>
+                <div className="w-10 h-10 rounded-xl bg-[#00a2ff]/10 border border-[#00a2ff]/20 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[#00a2ff] text-lg">event</span>
                 </div>
                 <div>
                   <p className="text-sm font-extrabold text-white">
@@ -118,7 +118,7 @@ export function MisRegistrosScreen({ onNavigate, classes }: MisRegistrosProps) {
       <div className="px-5 mt-8">
         <button
           onClick={() => onNavigate(ScreenId.RegistroDeClase, "slide_up")}
-          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#ff4994] to-[#c91f6b] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] active:scale-[0.97] transition-all cursor-pointer"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#00a2ff] to-[#0077ff] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] active:scale-[0.97] transition-all cursor-pointer"
         >
           REGISTRAR NUEVA CLASE
         </button>

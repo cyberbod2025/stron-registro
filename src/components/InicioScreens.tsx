@@ -5,9 +5,10 @@ import { Bell, User, MapPin, CheckCircle, AlertTriangle, XCircle, Share2 } from 
 interface InicioProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
   classes: ClassSession[];
+  onSelectClass?: (classId: string) => void;
 }
 
-export function InicioScreen({ onNavigate, classes }: InicioProps) {
+export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmada": return "text-emerald-400";
@@ -58,7 +59,7 @@ export function InicioScreen({ onNavigate, classes }: InicioProps) {
         </button>
 
         <div className="text-center">
-          <span className="text-[9px] font-black text-[#ff4994] tracking-[0.2em] uppercase leading-none block mb-0.5">
+          <span className="text-[9px] font-black text-[#00a2ff] tracking-[0.2em] uppercase leading-none block mb-0.5">
             Strong Nation
           </span>
           <h2 className="text-sm font-black text-white italic tracking-tight uppercase">
@@ -92,7 +93,7 @@ export function InicioScreen({ onNavigate, classes }: InicioProps) {
               className={`rounded-2xl overflow-hidden p-5 border shadow-lg ${
                 isConfirmed ? "bg-[#0f1f17]/60 border-emerald-500/20" :
                 isSuspended ? "bg-[#1f0f12]/60 border-rose-500/20" :
-                "bg-[#2a1520]/40 border-[#ff4994]/15"
+                "bg-[#0a1020]/40 border-[#00a2ff]/15"
               }`}
             >
               {/* Status Badge */}
@@ -109,7 +110,7 @@ export function InicioScreen({ onNavigate, classes }: InicioProps) {
                 {c.dateStr} {c.timeStr}
               </h3>
               <div className="flex items-center gap-1.5 text-xs text-[#e2bdc6] mb-4">
-                <MapPin className="w-3.5 h-3.5 text-[#ff4994]" />
+                <MapPin className="w-3.5 h-3.5 text-[#00a2ff]" />
                 <span>{c.location}</span>
               </div>
 
@@ -120,7 +121,7 @@ export function InicioScreen({ onNavigate, classes }: InicioProps) {
                   animate={{ width: `${Math.min(100, (c.confirmedCount / c.minRequired) * 100)}%` }}
                   transition={{ delay: 0.3 + index * 0.1, duration: 0.6 }}
                   className={`h-full rounded-full ${
-                    isConfirmed ? "bg-emerald-400" : isSuspended ? "bg-rose-400" : "bg-[#ff4994]"
+                    isConfirmed ? "bg-emerald-400" : isSuspended ? "bg-rose-400" : "bg-[#00a2ff]"
                   }`}
                 />
               </div>
@@ -138,7 +139,10 @@ export function InicioScreen({ onNavigate, classes }: InicioProps) {
               <div className="flex gap-2">
                 {!isSuspended && (
                   <button
-                    onClick={() => onNavigate(ScreenId.RegistroDeClase, "slide_up")}
+                    onClick={() => {
+                      if (onSelectClass) onSelectClass(c.id);
+                      onNavigate(ScreenId.RegistroDeClase, "slide_up");
+                    }}
                     className="flex-1 py-3 rounded-xl bg-white text-[#1e0f14] font-black text-[11px] uppercase tracking-wider active:scale-95 transition-all text-center cursor-pointer"
                   >
                     Confirmar asistencia
@@ -147,7 +151,7 @@ export function InicioScreen({ onNavigate, classes }: InicioProps) {
                 {needsHelp && (
                   <button
                     onClick={() => onNavigate(ScreenId.InvitarAmiga, "slide_up")}
-                    className="py-3 px-4 rounded-xl bg-[#ff4994] text-white font-black text-[11px] uppercase tracking-wider active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+                    className="py-3 px-4 rounded-xl bg-[#00a2ff] text-white font-black text-[11px] uppercase tracking-wider active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
                   >
                     <Share2 className="w-3.5 h-3.5" />
                     Invitar
