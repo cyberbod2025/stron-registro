@@ -5,6 +5,7 @@ import { Sparkles } from "lucide-react";
 import bgImage from "./assets/app_background.png";
 
 // Import components
+import { RoleSelectionScreen } from "./components/RoleSelectionScreen";
 import { Splash, HomeScreen } from "./components/SplashScreens";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { NotificationsScreen } from "./components/NotificationsScreen";
@@ -21,7 +22,11 @@ import { MisRegistrosScreen } from "./components/MisRegistrosScreen";
 
 export default function App() {
   // Navigation State
-  const [currentScreen, setCurrentScreen] = useState<ScreenId>(ScreenId.Splash);
+  const [currentScreen, setCurrentScreen] = useState<ScreenId>(() => {
+    // Si ya tiene sesión de instructor, puede ir directo al panel, de lo contrario a selección
+    const isInstr = window.location.search.includes('admin=true') || localStorage.getItem('isInstructor') === 'true';
+    return isInstr ? ScreenId.PanelInstructor : ScreenId.RoleSelection;
+  });
   const [transition, setTransition] = useState<TransitionType>("none");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -146,6 +151,8 @@ export default function App() {
   // Determine which tab is active for bottom nav highlighting
   const getActiveTab = (): string => {
     switch (currentScreen) {
+      case ScreenId.RoleSelection:
+        return "none";
       case ScreenId.Splash:
       case ScreenId.Inicio:
         return "inicio";
@@ -169,6 +176,8 @@ export default function App() {
 
   const renderActiveScreen = () => {
     switch (currentScreen) {
+      case ScreenId.RoleSelection:
+        return <RoleSelectionScreen onNavigate={handleNavigate} onInstructorLogin={handleInstructorLogin} onShowToast={onShowToast} />;
       case ScreenId.Splash:
         return <HomeScreen onNavigate={handleNavigate} classes={classes} isLoading={isLoading} onSelectClass={(id) => setRegistration(prev => ({ ...prev, classId: id }))} />;
       case ScreenId.Inicio:
@@ -255,8 +264,6 @@ export default function App() {
   const navItems = isInstructor
     ? [
         { id: "dashboard", icon: "dashboard", label: "Dashboard", screen: ScreenId.PanelInstructor },
-        { id: "clases", icon: "event", label: "Clases", screen: ScreenId.MisRegistros },
-        { id: "reglas", icon: "gavel", label: "Reglas", screen: ScreenId.Reglas },
         { id: "perfil", icon: "person", label: "Perfil", screen: ScreenId.MiPerfil },
       ]
     : [
@@ -284,21 +291,22 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 w-full max-w-lg mx-auto relative z-10 overflow-y-auto pb-20">
         <AnimatePresence mode="wait">
-          <motion.div
-            key={currentScreen}
-            initial={animStyle.initial}
-            animate={animStyle.animate}
-            exit={animStyle.exit}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="w-full min-h-full"
-          >
-            {renderActiveScreen()}
-          </motion.div>
-        </AnimatePresence>
+        <motion.div
+          key={currentScreen}
+          initial={animStyle.initial}
+          animate={animStyle.animate}
+          exit={animStyle.exit}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className="flex-1 w-full relative z-10"
+        >
+          {renderActiveScreen()}
+        </motion.div>
+      </AnimatePresence>
       </main>
 
-      {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 inset-x-0 z-50 bg-[#150a0e]/95 backdrop-blur-xl border-t border-white/5 safe-bottom">
+      {/* Bottom Navigation */}
+      {currentScreen !== ScreenId.RoleSelection && (
+        <nav className="fixed bottom-0 inset-x-0 z-50 bg-[#150a0e]/95 backdrop-blur-xl border-t border-white/5 safe-bottom">
         <div className="max-w-lg mx-auto flex justify-around items-center py-2">
           {navItems.map((item) => (
             <button
@@ -325,10 +333,11 @@ export default function App() {
               )}
             </button>
           ))}
-        </div>
-      </nav>
+          </div>
+        </nav>
+      )}
 
-      {/* Floating Toast */}
+      {/* Toast Notification */}
       <AnimatePresence>
         {toastMessage && (
           <motion.div

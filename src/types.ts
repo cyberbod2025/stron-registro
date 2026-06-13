@@ -1,4 +1,5 @@
 export enum ScreenId {
+  RoleSelection = "Seleccion de Rol",
   Splash = "Splash",
   Inicio = "Inicio",
   RegistroDeClase = "Registro de Clase",

@@ -29,33 +29,12 @@ export function ProfileScreen({
   const displayPhone = userPhone || "55 1234 5678";
   const initial = displayName.charAt(0).toUpperCase();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-
   const menuItems = [
     { icon: "person", label: "Mis datos", screen: null },
     { icon: "event_note", label: "Mis registros", screen: ScreenId.MisRegistros },
     { icon: "fact_check", label: "Historial de asistencia", screen: null },
     { icon: "bar_chart", label: "Mis estadísticas", screen: null },
   ];
-
-  const handleLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!password) return;
-    
-    const success = onInstructorLogin(password);
-    if (success) {
-      onShowToast?.("Acceso de instructor concedido 👑");
-      setIsModalOpen(false);
-      setPassword("");
-      setErrorMsg("");
-      onNavigate(ScreenId.PanelInstructor, "push");
-    } else {
-      setErrorMsg("Contraseña incorrecta");
-    }
-  };
 
   return (
     <motion.div
@@ -126,28 +105,17 @@ export function ProfileScreen({
 
       {/* Access Buttons */}
       <div className="mt-8 px-5 space-y-3">
-        {isInstructor ? (
+        {isInstructor && (
           <button
             onClick={() => {
               onInstructorLogout();
               onShowToast?.("Sesión de instructor cerrada.");
-              onNavigate(ScreenId.Splash, "none");
+              onNavigate(ScreenId.RoleSelection, "push_back");
             }}
             className="w-full py-4 rounded-2xl bg-purple-900/25 border border-purple-500/40 text-purple-200 font-black text-xs uppercase tracking-widest hover:bg-purple-900/40 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <ShieldCheck className="w-4 h-4" />
             Salir de Modo Instructor
-          </button>
-        ) : (
-          <button
-            onClick={() => {
-              setErrorMsg("");
-              setIsModalOpen(true);
-            }}
-            className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/80 font-black text-xs uppercase tracking-widest hover:bg-white/10 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
-          >
-            <KeyRound className="w-4 h-4 text-[#00a2ff]" />
-            Acceso Instructor
           </button>
         )}
       </div>
@@ -170,85 +138,13 @@ export function ProfileScreen({
       {/* Logout */}
       <div className="mt-6 px-5 text-center">
         <button
-          onClick={() => onNavigate(ScreenId.Splash, "none")}
+          onClick={() => onNavigate(ScreenId.RoleSelection, "push_back")}
           className="text-xs font-bold text-white/20 hover:text-white/40 transition-colors cursor-pointer py-2 px-4"
         >
-          Cerrar sesión
+          Cerrar sesión / Cambiar Rol
         </button>
       </div>
 
-      {/* Dynamic Password Modal */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-[#0c0407]/80 backdrop-blur-md"
-            ></motion.div>
-
-            {/* Modal Body */}
-            <motion.div
-              initial={{ scale: 0.9, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              className="relative w-full max-w-sm rounded-3xl p-6 bg-gradient-to-br from-[#0d1326] to-[#070a14] border border-[#00a2ff]/30 shadow-2xl z-10"
-            >
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="absolute top-4 right-4 p-1 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              <div className="text-center mb-6">
-                <div className="inline-flex p-3 rounded-2xl bg-[#00a2ff]/15 border border-[#00a2ff]/30 mb-3 text-[#00a2ff]">
-                  <KeyRound className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-extrabold text-white uppercase tracking-wider">Acceso Instructor</h3>
-                <p className="text-xs text-white/50 mt-1">Introduce la contraseña para ingresar al panel administrador.</p>
-              </div>
-
-              <form onSubmit={handleLoginSubmit} className="space-y-4">
-                <div>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      autoFocus
-                      placeholder="Contraseña"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-4 pr-12 py-3.5 text-sm text-center text-white placeholder-white/20 tracking-widest focus:border-[#00a2ff]/45 outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-white/40 hover:text-white transition-colors cursor-pointer"
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                  {errorMsg && (
-                    <p className="text-[10px] font-bold text-rose-400 mt-1.5 text-center uppercase tracking-wide">
-                      ⚠️ {errorMsg}
-                    </p>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-3.5 rounded-xl bg-[#00a2ff] text-white font-black text-xs uppercase tracking-widest shadow-[0_4px_15px_rgba(255,73,148,0.25)] hover:brightness-110 active:scale-95 transition-all cursor-pointer text-center"
-                >
-                  INGRESAR
-                </button>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }
