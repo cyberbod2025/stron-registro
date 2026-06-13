@@ -44,7 +44,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
         const mapped = data.map((s: any) => ({
           id: s.id,
           name: s.students?.full_name || "Desconocido",
-          status: s.attended ? "Asistió" : "Confirmada",
+          status: s.attended ? "Asistió" : (s.absent ? "No Asistió" : "Confirmada"),
           phone: s.students?.mobile || "",
           time: new Date(s.created_at).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
         }));
@@ -65,7 +65,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       const { supabase } = await import('../lib/supabase');
       const { error } = await supabase
         .from('registrations')
-        .update({ attended: true })
+        .update({ attended: true, absent: false })
         .eq('id', id);
 
       if (error) throw error;
@@ -75,6 +75,24 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
     } catch (err) {
       console.error(err);
       onShowToast?.("Error al marcar asistencia.");
+    }
+  };
+
+  const handleMarkAbsent = async (id: string, name: string) => {
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const { error } = await supabase
+        .from('registrations')
+        .update({ attended: false, absent: true })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      setStudents(students.map(s => s.id === id ? { ...s, status: "No Asistió" } : s));
+      onShowToast?.(`${name} marcada como No Asistió.`);
+    } catch (err) {
+      console.error(err);
+      onShowToast?.("Error al marcar inasistencia.");
     }
   };
 
@@ -192,25 +210,44 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
                     <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
                       student.status === "Asistió"
                         ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                        : student.status === "No Asistió"
+                        ? "bg-rose-500/15 text-rose-400 border border-rose-500/30"
                         : "bg-[#00a2ff]/15 text-[#00a2ff] border border-[#00a2ff]/30"
                     }`}>
                       {student.status}
                     </span>
                   </div>
-                  <div className="col-span-3 flex justify-end">
+                  <div className="col-span-3 flex justify-end gap-1">
                     <button
                       disabled={student.status === "Asistió"}
                       onClick={() => handleMarkAttendance(student.id, student.name)}
                       className={`p-1.5 rounded-lg transition-all cursor-pointer ${
                         student.status === "Asistió"
                           ? "text-emerald-400 bg-emerald-500/10"
-                          : "text-white/50 bg-white/5 hover:bg-white/10 hover:text-white"
+                          : "text-emerald-400/50 bg-emerald-500/5 hover:bg-emerald-500/20 hover:text-emerald-400"
                       }`}
+                      title="Marcar Asistencia"
                     >
                       {student.status === "Asistió" ? (
                         <CheckCircle className="w-4 h-4" />
                       ) : (
                         <span className="material-symbols-outlined text-base">how_to_reg</span>
+                      )}
+                    </button>
+                    <button
+                      disabled={student.status === "No Asistió"}
+                      onClick={() => handleMarkAbsent(student.id, student.name)}
+                      className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                        student.status === "No Asistió"
+                          ? "text-rose-400 bg-rose-500/10"
+                          : "text-rose-400/50 bg-rose-500/5 hover:bg-rose-500/20 hover:text-rose-400"
+                      }`}
+                      title="Marcar Falta"
+                    >
+                      {student.status === "No Asistió" ? (
+                        <X className="w-4 h-4" />
+                      ) : (
+                        <span className="material-symbols-outlined text-base">person_off</span>
                       )}
                     </button>
                   </div>

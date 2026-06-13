@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS public.registrations (
     will_cancel_in_time BOOLEAN DEFAULT false,
     referred_by_email TEXT,
     attended BOOLEAN NOT NULL DEFAULT false,
+    absent BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     UNIQUE(class_id, student_id)
 );
