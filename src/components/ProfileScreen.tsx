@@ -1,7 +1,8 @@
 import { ScreenId, TransitionType } from "../types";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronRight, KeyRound, X, ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { ChevronRight, KeyRound, X, ShieldCheck, Eye, EyeOff, BellRing, BellOff } from "lucide-react";
 import React, { useState } from "react";
+import { useOneSignal } from "../hooks/useOneSignal";
 
 interface ProfileProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -28,6 +29,8 @@ export function ProfileScreen({
   const displayEmail = userEmail || "viri.lopez@gmail.com";
   const displayPhone = userPhone || "55 1234 5678";
   const initial = displayName.charAt(0).toUpperCase();
+
+  const { status: pushStatus, requestPermission } = useOneSignal();
 
   const menuItems = [
     { icon: "person", label: "Mis datos", screen: null },
@@ -80,6 +83,50 @@ export function ProfileScreen({
           </div>
         </div>
       </div>
+
+      {/* Notifications Section */}
+      {!isInstructor && (
+        <div className="px-5 mb-8">
+          <h3 className="text-[10px] font-black text-[#00a2ff] uppercase tracking-widest mb-3 px-2">Recordatorios</h3>
+          
+          <div className="rounded-2xl p-4 bg-[#0a1020]/50 border border-white/5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                pushStatus === "subscribed" ? "bg-emerald-500/10" : "bg-white/5"
+              }`}>
+                {pushStatus === "subscribed" ? (
+                  <BellRing className="w-5 h-5 text-emerald-400" />
+                ) : (
+                  <BellOff className="w-5 h-5 text-white/40" />
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-bold text-white">Avisos de clases</p>
+                <p className="text-[10px] text-white/50 mt-0.5">
+                  {pushStatus === "loading" && "Verificando estado..."}
+                  {pushStatus === "unconfigured" && "No configuradas"}
+                  {pushStatus === "unsupported" && "Navegador no compatible"}
+                  {pushStatus === "unsubscribed" && "Recibe alertas de cupos"}
+                  {pushStatus === "subscribed" && "Recordatorios activados"}
+                  {pushStatus === "blocked" && "Permisos bloqueados"}
+                </p>
+              </div>
+            </div>
+
+            {pushStatus === "unsubscribed" && (
+              <button
+                onClick={requestPermission}
+                className="px-4 py-2 rounded-xl bg-[#00a2ff] text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all"
+              >
+                Activar
+              </button>
+            )}
+            {pushStatus === "subscribed" && (
+              <span className="material-symbols-outlined text-emerald-400">check_circle</span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Menu Items */}
       <div className="px-5 space-y-2">
