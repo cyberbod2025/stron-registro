@@ -169,11 +169,11 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       {/* Instructor Actions */}
       <div className="px-5 mb-6">
         <button
-          onClick={() => onShowToast?.("Recordatorio de clase enviado a las alumnas 🚀")}
+          onClick={() => onShowToast?.("Mensaje de recordatorio preparado 📋")}
           className="w-full py-4 rounded-2xl bg-[#00a2ff]/10 border border-[#00a2ff]/30 text-[#00a2ff] font-black text-xs uppercase tracking-widest hover:bg-[#00a2ff]/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
         >
           <span className="material-symbols-outlined text-lg">campaign</span>
-          Lanzar Recordatorio
+          Preparar recordatorio
         </button>
       </div>
 

@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { Users, Lock, ChevronRight, UserCircle } from "lucide-react";
 import { ScreenId, TransitionType } from "../types";
-import { useState } from "react";
+import React, { useState } from "react";
 import bgImage from "../assets/app_background.png";
 
 interface RoleSelectionProps {

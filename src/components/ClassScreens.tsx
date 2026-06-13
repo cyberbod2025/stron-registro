@@ -63,8 +63,9 @@ export function RegistroDeClaseScreen({
       // Intentar obtener el ID de OneSignal
       let playerId = null;
       try {
-        if (window.OneSignal && window.OneSignal.User && window.OneSignal.User.PushSubscription) {
-          playerId = window.OneSignal.User.PushSubscription.id;
+        const w = window as any;
+        if (w.OneSignal && w.OneSignal.User && w.OneSignal.User.PushSubscription) {
+          playerId = w.OneSignal.User.PushSubscription.id;
         }
       } catch (e) {
         console.log("OneSignal not ready", e);

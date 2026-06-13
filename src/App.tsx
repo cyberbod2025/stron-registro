@@ -109,7 +109,7 @@ export default function App() {
   });
 
   const handleInstructorLogin = (password: string) => {
-    if (password === '521314hsr') {
+    if (password === import.meta.env.VITE_INSTRUCTOR_PIN) {
       setIsInstructor(true);
       localStorage.setItem('isInstructor', 'true');
       return true;
