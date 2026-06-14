@@ -225,7 +225,7 @@ export function RegistroDeClaseScreen({
                 type="text"
                 required
                 className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/20"
-                placeholder="Viridiana López"
+                placeholder="Tu nombre completo"
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
               />
@@ -240,7 +240,7 @@ export function RegistroDeClaseScreen({
                 type="email"
                 required
                 className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/20"
-                placeholder="viri.lopez@gmail.com"
+                placeholder="tu.correo@ejemplo.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
@@ -299,8 +299,51 @@ export function RegistroDeClaseScreen({
   );
 }
 
-export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, registration }: ClassScreensProps) {
+export function ConfirmadaScreen({ onNavigate, classSession, registration, onShowToast }: ClassScreensProps) {
   const { status, requestPermission, debugInfo } = useOneSignal();
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  const handleCancelRegistration = async () => {
+    if (!confirm("¿Estás segura de que deseas cancelar tu asistencia a esta clase?")) {
+      return;
+    }
+
+    setIsCancelling(true);
+    try {
+      const { supabase } = await import('../lib/supabase');
+      
+      // Get student ID
+      const { data: students, error: searchError } = await supabase
+        .from('students')
+        .select('id')
+        .or(`email.eq.${registration?.email},mobile.eq.${registration?.mobile}`)
+        .limit(1);
+
+      if (searchError) throw searchError;
+      
+      if (students && students.length > 0) {
+        const studentId = students[0].id;
+        
+        // Delete registration
+        const { error: deleteError } = await supabase
+          .from('registrations')
+          .delete()
+          .match({ class_id: classSession?.id, student_id: studentId });
+
+        if (deleteError) throw deleteError;
+
+        onShowToast?.("Tu asistencia ha sido cancelada.");
+        onNavigate(ScreenId.MisRegistros, "push_back");
+      } else {
+        onShowToast?.("No se pudo encontrar tu registro.");
+      }
+    } catch (e) {
+      console.error(e);
+      onShowToast?.("Hubo un error al cancelar tu asistencia.");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
   
   useEffect(() => {
     confetti({
@@ -436,6 +479,18 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
         >
           <Share2 className="w-4 h-4 text-[#25D366]" />
           Compartir con una amiga
+        </button>
+
+        <button
+          onClick={handleCancelRegistration}
+          disabled={isCancelling}
+          className="w-full py-3.5 rounded-2xl bg-transparent border border-rose-500/30 text-rose-400 font-bold text-xs uppercase tracking-widest hover:bg-rose-500/10 transition-all flex items-center justify-center gap-2 cursor-pointer mt-4"
+        >
+          {isCancelling ? (
+            <span className="animate-pulse">Cancelando...</span>
+          ) : (
+            <>Cancelar asistencia</>
+          )}
         </button>
 
         {status === "unsubscribed" && (
