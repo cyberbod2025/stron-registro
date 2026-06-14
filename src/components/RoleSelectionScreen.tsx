@@ -33,7 +33,7 @@ export function RoleSelectionScreen({ onNavigate, onInstructorLogin, onShowToast
       className="min-h-screen flex items-center justify-center relative px-6 overflow-hidden"
     >
       {/* Subtle overlay to enhance text readability over global background */}
-      <div className="absolute inset-0 bg-[#0B0B0F]/40 backdrop-blur-sm z-0" />
+      <div className="absolute inset-0 bg-[#0B0B0F]/60 z-0" />
 
       <div className="w-full max-w-sm relative z-10 flex flex-col gap-6">
         <div className="text-center mb-6">
@@ -56,29 +56,26 @@ export function RoleSelectionScreen({ onNavigate, onInstructorLogin, onShowToast
               <div className="w-14 h-14 rounded-full bg-[#F20F72]/20 flex items-center justify-center mb-2">
                 <Users className="w-7 h-7 text-[#F20F72]" />
               </div>
-              <h2 className="text-xl font-black text-white uppercase tracking-wider">Soy Alumna</h2>
+              <h2 className="text-xl font-black text-white uppercase tracking-wider">Soy Alumno</h2>
               <p className="text-xs text-white/80 text-center">
-                Registra tu asistencia, invita amigas y gestiona tus clases.
+                Registra tu asistencia, invita amigos y gestiona tus clases.
               </p>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <ChevronRight className="w-6 h-6 text-[#F20F72]" />
               </div>
             </motion.button>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setShowPassword(true)}
-              className="w-full relative overflow-hidden group rounded-2xl bg-[#0a1020]/50 border border-white/10 hover:border-[#F20F72]/20 p-6 flex flex-col items-center gap-3"
-            >
-              <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-2">
-                <UserCircle className="w-7 h-7 text-white/80 group-hover:text-[#F20F72] transition-colors" />
-              </div>
-              <h2 className="text-xl font-black text-white uppercase tracking-wider">Soy Instructor</h2>
-              <p className="text-xs text-white/80 text-center">
-                Visualiza las métricas, confirmaciones y pasa asistencia.
-              </p>
-            </motion.button>
+            <div className="pt-6">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowPassword(true)}
+                className="mx-auto flex items-center gap-2 py-2 px-4 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Acceso Instructor</span>
+              </motion.button>
+            </div>
           </>
         ) : (
           <motion.div
