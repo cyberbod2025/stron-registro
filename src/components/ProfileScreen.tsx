@@ -25,9 +25,9 @@ export function ProfileScreen({
   onInstructorLogout,
   onShowToast
 }: ProfileProps) {
-  const displayName = userName || "Viridiana López";
-  const displayEmail = userEmail || "viri.lopez@gmail.com";
-  const displayPhone = userPhone || "55 1234 5678";
+  const displayName = userName || "Alumna Nueva";
+  const displayEmail = userEmail || "Sin correo registrado";
+  const displayPhone = userPhone || "Sin teléfono";
   const initial = displayName.charAt(0).toUpperCase();
 
   const { status: pushStatus, requestPermission, debugInfo } = useOneSignal();

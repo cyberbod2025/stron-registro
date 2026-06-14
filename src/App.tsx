@@ -35,15 +35,28 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Registration State
-  const [registration, setRegistration] = useState<ClassRegistration>({
-    classId: "",
-    fullName: "",
-    email: "",
-    mobile: "",
-    isCommitted: false,
-    understandsGoal: false,
-    willCancelInTime: false,
+  const [registration, setRegistration] = useState<ClassRegistration>(() => {
+    const saved = localStorage.getItem('userProfile');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed) return parsed;
+      } catch (e) {}
+    }
+    return {
+      classId: "",
+      fullName: "",
+      email: "",
+      mobile: "",
+      isCommitted: false,
+      understandsGoal: false,
+      willCancelInTime: false,
+    };
   });
+
+  useEffect(() => {
+    localStorage.setItem('userProfile', JSON.stringify(registration));
+  }, [registration]);
 
   const fetchClasses = async () => {
     setIsLoading(true);
