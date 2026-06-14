@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { Users, Lock, ChevronRight, UserCircle } from "lucide-react";
 import { ScreenId, TransitionType } from "../types";
 import React, { useState } from "react";
-import bgImage from "../assets/app_background.png";
+
 
 interface RoleSelectionProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -32,12 +32,8 @@ export function RoleSelectionScreen({ onNavigate, onInstructorLogin, onShowToast
       exit={{ opacity: 0 }}
       className="min-h-screen flex items-center justify-center relative px-6 overflow-hidden"
     >
-      {/* Background with blur to make the text readable */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${bgImage})` }}
-      />
-      <div className="absolute inset-0 bg-[#0a1020]/80 backdrop-blur-md z-0" />
+      {/* Subtle overlay to enhance text readability over global background */}
+      <div className="absolute inset-0 bg-[#0B0B0F]/40 backdrop-blur-sm z-0" />
 
       <div className="w-full max-w-sm relative z-10 flex flex-col gap-6">
         <div className="text-center mb-6">
