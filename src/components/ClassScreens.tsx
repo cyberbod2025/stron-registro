@@ -540,22 +540,7 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
           </div>
         )}
 
-        {status === "error" && (
-          <div className="w-full py-3 px-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-left mt-2">
-            <p className="text-[11px] text-rose-400 font-bold mb-2 uppercase tracking-wider">
-              Diagnóstico recordatorios:
-            </p>
-            <div className="text-[10px] text-rose-300/80 space-y-1 font-mono break-all">
-              <p>Estado: {status}</p>
-              <p>App ID: {debugInfo?.appIdDetected ? 'detectado' : 'no detectado'} / longitud {debugInfo?.appIdLength}</p>
-              <p>Notification API: {debugInfo?.notificationApi ? 'sí' : 'no'}</p>
-              <p>Permiso navegador: {debugInfo?.notificationPermission}</p>
-              <p>Service Worker: {debugInfo?.serviceWorker ? 'sí' : 'no'}</p>
-              <p>OneSignal SDK: {debugInfo?.oneSignalSdk ? 'cargado' : 'no cargado'}</p>
-              <p>Error: {debugInfo?.errorMessage || 'Desconocido'}</p>
-            </div>
-          </div>
-        )}
+
       </div>
     </motion.div>
   );
