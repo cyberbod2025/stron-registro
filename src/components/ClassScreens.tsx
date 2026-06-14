@@ -467,7 +467,7 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
           onClick={async () => {
             const refParam = registration?.email ? `?ref=${encodeURIComponent(registration.email)}` : "";
             const shareUrl = `https://stron-registro.vercel.app/${refParam}`;
-            const whatsappText = `¡Hola! Ya confirmé mi asistencia a la clase de Strong Nation el ${formatDisplayDate(classSession)} a las ${classSession?.timeStr}. ¡Vamos juntas! 💪 ${shareUrl}`;
+            const whatsappText = `¡Hola! Ya confirmé mi asistencia a la clase de Strong Nation el ${formatDisplayDate(classSession)} a las ${classSession?.timeStr}. ¡Vamos juntos! 💪 ${shareUrl}`;
             
             if (navigator.share) {
               try {

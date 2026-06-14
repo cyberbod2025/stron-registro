@@ -65,14 +65,14 @@ export function HomeScreen({ onNavigate, classes, isLoading, onSelectClass }: Ho
             </span>
           </h1>
           <p className="text-xs font-semibold text-[#C93CFF] mt-2 tracking-wider italic">
-            Más fuertes juntas 💪
+            Más fuertes juntos 💪
           </p>
         </div>
 
         {/* Description */}
         <div className="glass-panel mx-auto mb-8 max-w-xs p-4 rounded-2xl bg-gradient-to-b from-black/60 to-black/40 border border-white/5 backdrop-blur-md">
           <p className="text-sm text-[#F7F4F8]/90 text-center leading-relaxed font-medium">
-            Regístrate para tus clases y seamos más fuertes juntas 💪
+            Regístrate para tus clases y seamos más fuertes juntos 💪
           </p>
         </div>
 

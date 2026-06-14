@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, initial-scale=1.0">
+  <title>Promo Flyer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,400;1,700;1,800;1,900&display=swap');
+    body {
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background-color: #0B0B0F;
+    }
+    .flyer-container {
+      width: 1080px;
+      height: 1920px;
+      background: linear-gradient(135deg, #0B0B0F 0%, #170A12 100%);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .glass-card {
+      background: rgba(23, 10, 18, 0.7);
+      backdrop-filter: blur(24px);
+      border: 2px solid rgba(242, 15, 114, 0.3);
+      box-shadow: 0 0 80px rgba(142, 45, 226, 0.3);
+      border-radius: 40px;
+    }
+    .text-glow {
+      text-shadow: 0 0 30px rgba(242, 15, 114, 0.6);
+    }
+    .bg-accent {
+      background: linear-gradient(135deg, #F20F72 0%, #8E2DE2 100%);
+    }
+  </style>
+</head>
+<body>
+  <div class="flyer-container">
+    <!-- Background decorations -->
+    <div class="absolute top-[-10%] left-[-20%] w-[800px] h-[800px] bg-[#F20F72]/20 rounded-full blur-[150px]"></div>
+    <div class="absolute bottom-[-10%] right-[-20%] w-[800px] h-[800px] bg-[#8E2DE2]/30 rounded-full blur-[150px]"></div>
+    
+    <!-- Header -->
+    <div class="absolute top-[8%] flex flex-col items-center">
+      <h1 class="text-[90px] font-black italic tracking-tighter uppercase leading-none text-white text-glow text-center">
+        STRONG<br>
+        <span class="text-[#F20F72]">NATION</span>
+      </h1>
+      <p class="text-[32px] font-bold text-[#C93CFF] tracking-[0.2em] mt-4 uppercase">
+        Más fuertes juntos 💪
+      </p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="glass-card w-[80%] max-w-[850px] p-16 flex flex-col items-center mt-[10%] relative z-10">
+      <h2 class="text-[52px] font-black text-center mb-10 leading-tight uppercase">
+        ¡Nuestra nueva App<br>ya está lista!
+      </h2>
+      
+      <div class="bg-white p-6 rounded-3xl mb-12 shadow-2xl">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=https://stron-registro.vercel.app&color=000000&bgcolor=ffffff" alt="QR Code" class="w-[450px] h-[450px]">
+      </div>
+
+      <div class="text-center w-full">
+        <p class="text-[28px] font-bold text-white/80 mb-6 uppercase tracking-wider">
+          Escanea el QR para instalarla o entra a:
+        </p>
+        <div class="bg-white/10 border-2 border-white/20 rounded-full py-6 px-12 inline-block">
+          <p class="text-[40px] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#F20F72] to-[#C93CFF] tracking-wide">
+            stron-registro.vercel.app
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="absolute bottom-[10%] w-[80%] flex justify-between px-10">
+      <div class="flex flex-col items-center gap-4">
+        <div class="w-24 h-24 rounded-full bg-accent flex items-center justify-center shadow-[0_0_30px_rgba(242,15,114,0.4)]">
+          <span class="material-symbols-outlined text-[48px]">event_available</span>
+        </div>
+        <span class="text-[24px] font-bold tracking-wide">Reserva fácil</span>
+      </div>
+      <div class="flex flex-col items-center gap-4">
+        <div class="w-24 h-24 rounded-full bg-accent flex items-center justify-center shadow-[0_0_30px_rgba(242,15,114,0.4)]">
+          <span class="material-symbols-outlined text-[48px]">notifications_active</span>
+        </div>
+        <span class="text-[24px] font-bold tracking-wide">Alertas de clase</span>
+      </div>
+      <div class="flex flex-col items-center gap-4">
+        <div class="w-24 h-24 rounded-full bg-accent flex items-center justify-center shadow-[0_0_30px_rgba(242,15,114,0.4)]">
+          <span class="material-symbols-outlined text-[48px]">groups</span>
+        </div>
+        <span class="text-[24px] font-bold tracking-wide">Comunidad</span>
+      </div>
+    </div>
+  </div>
+  <!-- Inject material symbols for icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" rel="stylesheet" />
+</body>
+</html>
