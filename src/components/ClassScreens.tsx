@@ -224,7 +224,7 @@ export function RegistroDeClaseScreen({
               <input
                 type="text"
                 required
-                className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/20"
+                className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/50"
                 placeholder="Tu nombre completo"
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
@@ -239,7 +239,7 @@ export function RegistroDeClaseScreen({
               <input
                 type="email"
                 required
-                className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/20"
+                className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/50"
                 placeholder="tu.correo@ejemplo.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -253,7 +253,7 @@ export function RegistroDeClaseScreen({
               <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/20 text-lg">call</span>
               <input
                 type="tel"
-                className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/20"
+                className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/50"
                 placeholder="55 1234 5678"
                 value={formData.mobile}
                 onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}

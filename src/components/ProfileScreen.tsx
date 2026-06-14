@@ -25,14 +25,14 @@ export function ProfileScreen({
   onInstructorLogout,
   onShowToast
 }: ProfileProps) {
-  const displayName = userName || "Alumna Nueva";
-  const displayEmail = userEmail || "Sin correo registrado";
-  const displayPhone = userPhone || "Sin teléfono";
-  const initial = displayName.charAt(0).toUpperCase();
+  const displayName = isInstructor ? "Profe Hugo" : (userName || "Alumna Nueva");
+  const displayEmail = isInstructor ? "Instructor Principal" : (userEmail || "Sin correo registrado");
+  const displayPhone = isInstructor ? "Modo Administrador" : (userPhone || "Sin teléfono");
+  const initial = isInstructor ? "H" : displayName.charAt(0).toUpperCase();
 
   const { status: pushStatus, requestPermission, debugInfo } = useOneSignal();
 
-  const menuItems = [
+  const menuItems = isInstructor ? [] : [
     { icon: "person", label: "Mis datos", screen: null },
     { icon: "fact_check", label: "Historial de asistencia", screen: null },
     { icon: "bar_chart", label: "Mis estadísticas", screen: null },

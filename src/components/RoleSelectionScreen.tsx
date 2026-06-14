@@ -107,7 +107,7 @@ export function RoleSelectionScreen({ onNavigate, onInstructorLogin, onShowToast
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Contraseña de acceso"
-                  className="w-full bg-[#1e0f14]/80 border border-white/10 rounded-xl px-4 py-4 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#00a2ff] transition-colors"
+                  className="w-full bg-[#1e0f14]/80 border border-white/10 rounded-xl px-4 py-4 text-sm text-white placeholder-white/50 focus:outline-none focus:border-[#00a2ff] transition-colors"
                   autoFocus
                 />
               </div>
