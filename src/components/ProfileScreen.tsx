@@ -48,7 +48,7 @@ export function ProfileScreen({
       {/* Header with branding */}
       <div className="relative px-5 pt-14 pb-8 overflow-hidden">
         {/* Background decoration */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#00a2ff]/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#C93CFF]/5 rounded-full blur-3xl"></div>
         
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-xl font-black italic text-white uppercase tracking-tight">Mi perfil</h1>
@@ -61,11 +61,11 @@ export function ProfileScreen({
         </div>
 
         {/* Profile Card */}
-        <div className="relative rounded-3xl p-6 glass-card border border-[#00a2ff]/30 shadow-xl overflow-hidden">
+        <div className="relative rounded-3xl p-6 glass-card border border-[#C93CFF]/30 shadow-xl overflow-hidden">
           <div className="flex items-center gap-4">
             {/* Avatar */}
             <div className="relative">
-              <div className="w-18 h-18 rounded-full bg-gradient-to-tr from-[#00a2ff] to-[#00e5ff] p-[3px]">
+              <div className="w-18 h-18 rounded-full bg-gradient-to-tr from-[#C93CFF] to-[#8E2DE2] p-[3px]">
                 <div className="w-full h-full rounded-full bg-[#1e0f14] flex items-center justify-center">
                   <span className="text-2xl font-black text-white">{initial}</span>
                 </div>
@@ -76,7 +76,7 @@ export function ProfileScreen({
 
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-extrabold text-white leading-tight truncate">{displayName}</h2>
-              <p className="text-xs text-[#f8d7e0] font-mono truncate mt-0.5">{displayEmail}</p>
+              <p className="text-xs text-[#EBD7FF] font-mono truncate mt-0.5">{displayEmail}</p>
               <p className="text-xs text-white/80 mt-0.5">📱 {displayPhone}</p>
             </div>
           </div>
@@ -86,7 +86,7 @@ export function ProfileScreen({
       {/* Notifications Section */}
       {!isInstructor && (
         <div className="px-5 mb-8">
-          <h3 className="text-[10px] font-black text-[#00a2ff] uppercase tracking-widest mb-3 px-2">Recordatorios</h3>
+          <h3 className="text-[10px] font-black text-[#F20F72] uppercase tracking-widest mb-3 px-2">Recordatorios</h3>
           
           <div className="rounded-2xl p-4 glass-card flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -118,7 +118,7 @@ export function ProfileScreen({
             {pushStatus === "unsubscribed" && (
               <button
                 onClick={requestPermission}
-                className="px-4 py-2 rounded-xl bg-[#00a2ff] text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all"
+                className="px-4 py-2 rounded-xl bg-[#F20F72] text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all"
               >
                 Activar
               </button>
@@ -139,15 +139,15 @@ export function ProfileScreen({
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
             onClick={() => item.screen && onNavigate(item.screen, "push")}
-            className="w-full flex items-center justify-between p-4 rounded-2xl glass-card hover:border-[#00a2ff]/40 transition-all cursor-pointer group active:scale-[0.98]"
+            className="w-full flex items-center justify-between p-4 rounded-2xl glass-card hover:border-[#F20F72]/40 transition-all cursor-pointer group active:scale-[0.98]"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#00a2ff]/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#00a2ff] text-xl">{item.icon}</span>
+              <div className="w-10 h-10 rounded-xl bg-[#F20F72]/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-[#F20F72] text-xl">{item.icon}</span>
               </div>
               <span className="text-sm font-bold text-white">{item.label}</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-[#00a2ff] transition-colors" />
+            <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-[#F20F72] transition-colors" />
           </motion.button>
         ))}
       </div>
@@ -173,12 +173,12 @@ export function ProfileScreen({
       <div className="mt-10 px-5">
         <div className="flex flex-col items-center opacity-40">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00a2ff] to-[#00e5ff] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F20F72] to-[#8E2DE2] flex items-center justify-center">
               <span className="text-xs font-black italic text-white">S</span>
             </div>
             <div>
               <p className="text-[10px] font-black text-white uppercase tracking-wider leading-none">STRONG</p>
-              <p className="text-[10px] font-black text-[#00a2ff] uppercase tracking-wider leading-none">NATION</p>
+              <p className="text-[10px] font-black text-[#F20F72] uppercase tracking-wider leading-none">NATION</p>
             </div>
           </div>
         </div>

@@ -44,7 +44,7 @@ export function RoleSelectionScreen({ onNavigate, onInstructorLogin, onShowToast
           <h1 className="text-3xl font-black text-white tracking-tight uppercase italic drop-shadow-[0_0_15px_rgba(0,162,255,0.5)]">
             Strong Nation
           </h1>
-          <p className="text-sm font-medium text-[#00a2ff] uppercase tracking-widest mt-2">
+          <p className="text-sm font-medium text-[#F20F72] uppercase tracking-widest mt-2">
             Registro de Clases
           </p>
         </div>
@@ -55,17 +55,17 @@ export function RoleSelectionScreen({ onNavigate, onInstructorLogin, onShowToast
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onNavigate(ScreenId.Splash, "push")}
-              className="w-full relative overflow-hidden group rounded-2xl bg-gradient-to-br from-[#00a2ff]/20 to-[#00a2ff]/5 border border-[#00a2ff]/30 p-6 flex flex-col items-center gap-3"
+              className="w-full relative overflow-hidden group rounded-2xl bg-gradient-to-br from-[#F20F72]/20 to-[#F20F72]/5 border border-[#F20F72]/30 p-6 flex flex-col items-center gap-3"
             >
-              <div className="w-14 h-14 rounded-full bg-[#00a2ff]/20 flex items-center justify-center mb-2">
-                <Users className="w-7 h-7 text-[#00a2ff]" />
+              <div className="w-14 h-14 rounded-full bg-[#F20F72]/20 flex items-center justify-center mb-2">
+                <Users className="w-7 h-7 text-[#F20F72]" />
               </div>
               <h2 className="text-xl font-black text-white uppercase tracking-wider">Soy Alumna</h2>
               <p className="text-xs text-white/80 text-center">
                 Registra tu asistencia, invita amigas y gestiona tus clases.
               </p>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <ChevronRight className="w-6 h-6 text-[#00a2ff]" />
+                <ChevronRight className="w-6 h-6 text-[#F20F72]" />
               </div>
             </motion.button>
 
@@ -73,10 +73,10 @@ export function RoleSelectionScreen({ onNavigate, onInstructorLogin, onShowToast
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowPassword(true)}
-              className="w-full relative overflow-hidden group rounded-2xl bg-[#0a1020]/50 border border-white/10 hover:border-[#00a2ff]/20 p-6 flex flex-col items-center gap-3"
+              className="w-full relative overflow-hidden group rounded-2xl bg-[#0a1020]/50 border border-white/10 hover:border-[#F20F72]/20 p-6 flex flex-col items-center gap-3"
             >
               <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-2">
-                <UserCircle className="w-7 h-7 text-white/80 group-hover:text-[#00a2ff] transition-colors" />
+                <UserCircle className="w-7 h-7 text-white/80 group-hover:text-[#F20F72] transition-colors" />
               </div>
               <h2 className="text-xl font-black text-white uppercase tracking-wider">Soy Instructor</h2>
               <p className="text-xs text-white/80 text-center">
@@ -88,10 +88,10 @@ export function RoleSelectionScreen({ onNavigate, onInstructorLogin, onShowToast
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full bg-[#0a1020]/80 border border-[#00a2ff]/30 rounded-2xl p-6 shadow-2xl"
+            className="w-full bg-[#0a1020]/80 border border-[#F20F72]/30 rounded-2xl p-6 shadow-2xl"
           >
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#00a2ff] to-[#0055cc] flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#F20F72] to-[#8E2DE2] flex items-center justify-center">
                 <Lock className="w-8 h-8 text-white" />
               </div>
             </div>
@@ -107,14 +107,14 @@ export function RoleSelectionScreen({ onNavigate, onInstructorLogin, onShowToast
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Contraseña de acceso"
-                  className="w-full bg-[#1e0f14]/80 border border-white/10 rounded-xl px-4 py-4 text-sm text-white placeholder-white/50 focus:outline-none focus:border-[#00a2ff] transition-colors"
+                  className="w-full bg-[#1e0f14]/80 border border-white/10 rounded-xl px-4 py-4 text-sm text-white placeholder-white/50 focus:outline-none focus:border-[#F20F72] transition-colors"
                   autoFocus
                 />
               </div>
               
               <button
                 type="submit"
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-[#00a2ff] to-[#0077ff] text-white font-black text-xs uppercase tracking-widest active:scale-[0.98] transition-all"
+                className="w-full py-4 rounded-xl bg-gradient-to-r from-[#F20F72] to-[#8E2DE2] text-white font-black text-xs uppercase tracking-widest active:scale-[0.98] transition-all"
               >
                 Ingresar
               </button>

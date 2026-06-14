@@ -55,12 +55,12 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
           onClick={() => onNavigate(ScreenId.Notificaciones, "push")}
           className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer relative"
         >
-          <Bell className="w-5 h-5 text-[#ffb1c7]" />
+          <Bell className="w-5 h-5 text-[#C93CFF]" />
           <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-[#1e0f14]" />
         </button>
 
         <div className="text-center">
-          <span className="text-[9px] font-black text-[#00a2ff] tracking-[0.2em] uppercase leading-none block mb-0.5">
+          <span className="text-[9px] font-black text-[#F20F72] tracking-[0.2em] uppercase leading-none block mb-0.5">
             Strong Nation
           </span>
           <h2 className="text-sm font-black text-white italic tracking-tight uppercase">
@@ -111,7 +111,7 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
                 {formatDisplayDate(c)} {c.timeStr}
               </h3>
               <div className="flex items-center gap-1.5 text-xs text-[#e2bdc6] mb-4">
-                <MapPin className="w-3.5 h-3.5 text-[#00a2ff]" />
+                <MapPin className="w-3.5 h-3.5 text-[#F20F72]" />
                 <span>{c.location}</span>
               </div>
 
@@ -122,7 +122,7 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
                   animate={{ width: `${Math.min(100, (c.confirmedCount / c.minRequired) * 100)}%` }}
                   transition={{ delay: 0.3 + index * 0.1, duration: 0.6 }}
                   className={`h-full rounded-full ${
-                    isConfirmed ? "bg-emerald-400" : isSuspended ? "bg-rose-400" : "bg-[#00a2ff]"
+                    isConfirmed ? "bg-emerald-400" : isSuspended ? "bg-rose-400" : "bg-[#F20F72]"
                   }`}
                 />
               </div>
@@ -152,7 +152,7 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
                 {needsHelp && (
                   <button
                     onClick={() => onNavigate(ScreenId.InvitarAmiga, "slide_up")}
-                    className="py-3 px-4 rounded-xl bg-[#00a2ff] text-white font-black text-[11px] uppercase tracking-wider active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+                    className="py-3 px-4 rounded-xl bg-[#F20F72] text-white font-black text-[11px] uppercase tracking-wider active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
                   >
                     <Share2 className="w-3.5 h-3.5" />
                     Invitar

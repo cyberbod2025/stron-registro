@@ -301,7 +301,7 @@ export default function App() {
         }}
       ></div>
       {/* Decorative ambient spots */}
-      <div className="fixed top-[-15%] left-[-15%] w-[55%] h-[55%] bg-[#00a2ff]/8 rounded-full blur-[120px] pointer-events-none z-0"></div>
+      <div className="fixed top-[-15%] left-[-15%] w-[55%] h-[55%] bg-[#F20F72]/8 rounded-full blur-[120px] pointer-events-none z-0"></div>
       <div className="fixed bottom-[-15%] right-[-15%] w-[55%] h-[55%] bg-purple-950/15 rounded-full blur-[140px] pointer-events-none z-0"></div>
 
       {/* Main Content Area */}
@@ -330,7 +330,7 @@ export default function App() {
               onClick={() => handleNavigate(item.screen, "none")}
               className={`flex flex-col items-center gap-0.5 py-1.5 px-4 rounded-xl transition-all duration-200 cursor-pointer ${
                 activeTab === item.id
-                  ? "text-[#00a2ff]"
+                  ? "text-[#F20F72]"
                   : "text-white/60 hover:text-white/80"
               }`}
             >
@@ -343,7 +343,7 @@ export default function App() {
               {activeTab === item.id && (
                 <motion.div 
                   layoutId="activeTab"
-                  className="w-1 h-1 rounded-full bg-[#00a2ff]"
+                  className="w-1 h-1 rounded-full bg-[#F20F72]"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
@@ -360,7 +360,7 @@ export default function App() {
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-24 left-4 right-4 z-[60] max-w-lg mx-auto p-3.5 rounded-xl bg-neutral-900/95 backdrop-blur-lg border border-[#00a2ff]/30 text-xs text-white shadow-xl flex items-center gap-2"
+            className="fixed bottom-24 left-4 right-4 z-[60] max-w-lg mx-auto p-3.5 rounded-xl bg-neutral-900/95 backdrop-blur-lg border border-[#F20F72]/30 text-xs text-white shadow-xl flex items-center gap-2"
           >
             <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="font-bold">{toastMessage}</span>

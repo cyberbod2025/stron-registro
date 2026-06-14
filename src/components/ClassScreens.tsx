@@ -166,7 +166,7 @@ export function RegistroDeClaseScreen({
 
                 return (
                   <div key={weekCategory} className="space-y-3">
-                    <p className="text-xs font-black text-[#ffb1c7] uppercase tracking-widest pl-1">
+                    <p className="text-xs font-black text-[#C93CFF] uppercase tracking-widest pl-1">
                       {weekCategory === "esta_semana" ? "Esta semana" : "Próxima semana"}
                     </p>
                     <div className="space-y-2.5">
@@ -179,18 +179,18 @@ export function RegistroDeClaseScreen({
                             onClick={() => setSelectedClassId(c.id)}
                             className={`w-full text-left rounded-2xl p-4 transition-all cursor-pointer relative overflow-hidden glass-card ${
                               isSelected 
-                                ? "border-2 border-[#00a2ff] shadow-[0_0_15px_rgba(0,162,255,0.3)] bg-[rgba(0,162,255,0.1)]" 
+                                ? "border-2 border-[#F20F72] shadow-[0_0_15px_rgba(242,15,114,0.3)] bg-[rgba(242,15,114,0.1)]" 
                                 : "border border-white/10 hover:border-white/20"
                             }`}
                           >
                             {isSelected && (
-                              <div className="absolute top-4 right-4 text-[#00a2ff]">
-                                <CheckCircle className="w-5 h-5 fill-[#00a2ff]/20" />
+                              <div className="absolute top-4 right-4 text-[#F20F72]">
+                                <CheckCircle className="w-5 h-5 fill-[#F20F72]/20" />
                               </div>
                             )}
                             <div className="flex items-center gap-3">
                               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                                isSelected ? "bg-[#00a2ff]/20 text-[#00a2ff]" : "bg-white/10 text-white/60"
+                                isSelected ? "bg-[#F20F72]/20 text-[#F20F72]" : "bg-white/10 text-white/60"
                               }`}>
                                 <Calendar className="w-5 h-5" />
                               </div>
@@ -199,8 +199,8 @@ export function RegistroDeClaseScreen({
                                   {formatDisplayDate(c)} <span className="text-white/70 font-medium">| {c.timeStr}</span>
                                 </p>
                                 <div className="flex items-center gap-1.5 mt-1">
-                                  <MapPin className={`w-3 h-3 ${isSelected ? "text-[#00a2ff]" : "text-white/50"}`} />
-                                  <span className={`text-xs ${isSelected ? "text-[#e2bdc6]" : "text-white/70"}`}>{c.location}</span>
+                                  <MapPin className={`w-3 h-3 ${isSelected ? "text-[#F20F72]" : "text-white/50"}`} />
+                                  <span className={`text-xs ${isSelected ? "text-[#F7F4F8]" : "text-white/70"}`}>{c.location}</span>
                                 </div>
                               </div>
                             </div>
@@ -216,7 +216,7 @@ export function RegistroDeClaseScreen({
 
           {/* Form Fields */}
           <div className="space-y-5">
-            <p className="text-xs font-black text-[#ffb1c7] uppercase tracking-widest">Tus datos</p>
+            <p className="text-xs font-black text-[#C93CFF] uppercase tracking-widest">Tus datos</p>
             
             <div>
               <label className="block text-[10px] font-bold uppercase text-white/80 tracking-wider mb-1.5">Nombre completo</label>
@@ -279,14 +279,36 @@ export function RegistroDeClaseScreen({
             </div>
           </div>
 
+          {/* Beneficios de la clase */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-[#170A12] to-[#0B0B0F] border border-[#F20F72]/20">
+            <p className="text-[11px] font-black text-white uppercase tracking-widest mb-2 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-[#F20F72] rounded-full"></span>
+              Esta clase te ayuda a:
+            </p>
+            <ul className="space-y-1.5 text-[11px] text-[#F7F4F8]/80">
+              <li className="flex items-start gap-1.5">
+                <span className="text-[#8E2DE2] font-black">▹</span> activar todo tu cuerpo
+              </li>
+              <li className="flex items-start gap-1.5">
+                <span className="text-[#8E2DE2] font-black">▹</span> mejorar condición y resistencia
+              </li>
+              <li className="flex items-start gap-1.5">
+                <span className="text-[#8E2DE2] font-black">▹</span> entrenar fuerza y cardio
+              </li>
+              <li className="flex items-start gap-1.5">
+                <span className="text-[#8E2DE2] font-black">▹</span> moverte al ritmo de la música
+              </li>
+            </ul>
+          </div>
+
           {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] transition-all text-center ${
+            className={`w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(242,15,114,0.3)] transition-all text-center ${
               isSubmitting 
                 ? 'bg-gray-600 cursor-not-allowed opacity-70' 
-                : 'bg-gradient-to-r from-[#00a2ff] to-[#0077ff] hover:brightness-110 active:scale-[0.97] cursor-pointer'
+                : 'bg-gradient-to-r from-[#F20F72] to-[#8E2DE2] hover:brightness-110 active:scale-[0.97] cursor-pointer'
             }`}
           >
             {isSubmitting ? "PROCESANDO..." : "CONFIRMAR ASISTENCIA 💪"}
@@ -348,7 +370,7 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
       particleCount: 150,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#00a2ff', '#10b981', '#562ba0']
+      colors: ['#F20F72', '#10b981', '#8E2DE2']
     });
   }, []);
 
@@ -408,7 +430,7 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
       <div className="w-full max-w-sm space-y-3">
         <button
           onClick={() => onNavigate(ScreenId.MisRegistros, "push")}
-          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#00a2ff] to-[#0077ff] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] active:scale-[0.97] transition-all cursor-pointer"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F20F72] to-[#8E2DE2] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(242,15,114,0.3)] active:scale-[0.97] transition-all cursor-pointer"
         >
           VER MIS REGISTROS
         </button>

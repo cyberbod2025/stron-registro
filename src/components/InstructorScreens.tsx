@@ -303,17 +303,17 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       {/* Header */}
       <div className="px-5 pt-14 pb-4 flex items-center justify-between">
         <div>
-          <p className="text-[10px] font-black text-[#00a2ff] tracking-widest uppercase">Panel del Instructor</p>
+          <p className="text-[10px] font-black text-[#F20F72] tracking-widest uppercase">Panel del Instructor</p>
           <h1 className="text-lg font-black italic text-white uppercase tracking-tight">Profe Hugo ✌️</h1>
         </div>
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00a2ff] to-[#00e5ff] flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#F20F72] to-[#8E2DE2] flex items-center justify-center">
           <span className="text-sm font-black text-white">H</span>
         </div>
       </div>
 
       {/* Class Cards Summary */}
       <div className="px-5 mb-6">
-        <h2 className="text-xs font-black text-[#ffb1c7] uppercase tracking-widest mb-3">Tus próximas clases</h2>
+        <h2 className="text-xs font-black text-[#C93CFF] uppercase tracking-widest mb-3">Tus próximas clases</h2>
         <div className="flex gap-3 overflow-x-auto pb-2 -mx-2 px-2 hide-scrollbar">
           {classes?.filter(c => getWeekCategory(c.startsAt) !== "otro").map((c) => (
             <motion.button
@@ -321,7 +321,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
               onClick={() => setSelectedClassId(c.id)}
               className={`shrink-0 w-32 rounded-2xl p-4 border transition-all cursor-pointer ${
                 selectedClassId === c.id
-                  ? "border-[#00a2ff]/50 bg-[#00a2ff]/10"
+                  ? "border-[#F20F72]/50 bg-[#F20F72]/10"
                   : "border-white/5 bg-[#0a1020]/30"
               }`}
             >
@@ -344,7 +344,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       <div className="px-5 mb-6">
         <button
           onClick={() => onShowToast?.("Mensaje de recordatorio preparado 📋")}
-          className="w-full py-4 rounded-2xl bg-[#00a2ff]/10 border border-[#00a2ff]/30 text-[#00a2ff] font-black text-xs uppercase tracking-widest hover:bg-[#00a2ff]/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 mb-3"
+          className="w-full py-4 rounded-2xl bg-[#F20F72]/10 border border-[#F20F72]/30 text-[#F20F72] font-black text-xs uppercase tracking-widest hover:bg-[#F20F72]/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 mb-3"
         >
           <span className="material-symbols-outlined text-lg">campaign</span>
           Preparar recordatorio
@@ -352,7 +352,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
 
         <button
           onClick={handleGenerateNextWeek}
-          className="w-full py-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400 font-black text-xs uppercase tracking-widest hover:bg-purple-500/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+          className="w-full py-4 rounded-2xl bg-[#8E2DE2]/10 border border-[#8E2DE2]/30 text-[#8E2DE2] font-black text-xs uppercase tracking-widest hover:bg-[#8E2DE2]/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
         >
           <span className="material-symbols-outlined text-lg">event_repeat</span>
           Generar próxima semana
@@ -421,9 +421,9 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
 
           {/* Quorum Push Section */}
           {selectedClass.status !== "suspendida" && (selectedClass.minRequired - selectedClass.confirmedCount) > 0 && (
-            <div className="glass-panel mx-4 mb-6 p-4 border border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.15)] relative overflow-hidden">
+            <div className="glass-panel mx-4 mb-6 p-4 border border-[#8E2DE2]/30 shadow-[0_0_20px_rgba(142,45,226,0.15)] relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-[10px] font-black text-purple-300 uppercase tracking-widest flex items-center gap-1">
+                <h3 className="text-[10px] font-black text-[#8E2DE2] uppercase tracking-widest flex items-center gap-1">
                   <span className="material-symbols-outlined text-[14px]">group_add</span>
                   Empujón de quórum
                 </h3>
@@ -514,7 +514,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
                         ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
                         : student.status === "No Asistió"
                         ? "bg-rose-500/15 text-rose-400 border border-rose-500/30"
-                        : "bg-[#00a2ff]/15 text-[#00a2ff] border border-[#00a2ff]/30"
+                        : "bg-[#F20F72]/15 text-[#F20F72] border border-[#F20F72]/30"
                     }`}>
                       {student.status}
                     </span>
@@ -592,7 +592,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
               <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
                 <circle className="stroke-white/5" fill="transparent" strokeWidth="3" r="15.9" cx="18" cy="18" />
                 <circle 
-                  className="stroke-[#00a2ff]" 
+                  className="stroke-[#F20F72]" 
                   fill="transparent" 
                   strokeWidth="3" 
                   strokeLinecap="round"
@@ -622,7 +622,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#00a2ff]"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#F20F72]"></div>
                   <span className="text-[11px] text-[#e2bdc6]">Asistencia promedio</span>
                 </div>
                 <span className="text-sm font-black text-white">{attendanceRate}%</span>

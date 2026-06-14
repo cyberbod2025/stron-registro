@@ -68,7 +68,7 @@ export function MisRegistrosScreen({ onNavigate, classes, onSelectClass }: MisRe
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 py-2 text-xs font-black rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
                 activeTab === tab.id
-                  ? "bg-[#00a2ff] text-white shadow-md"
+                  ? "bg-[#F20F72] text-white shadow-md"
                   : "text-white/80 hover:text-white"
               }`}
             >
@@ -96,11 +96,11 @@ export function MisRegistrosScreen({ onNavigate, classes, onSelectClass }: MisRe
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="w-full text-left rounded-2xl p-4 glass-card hover:border-[#00a2ff]/40 transition-all cursor-pointer group active:scale-[0.98]"
+              className="w-full text-left rounded-2xl p-4 glass-card hover:border-[#F20F72]/40 transition-all cursor-pointer group active:scale-[0.98]"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#00a2ff]/10 border border-[#00a2ff]/20 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[#00a2ff] text-lg">event</span>
+                <div className="w-10 h-10 rounded-xl bg-[#F20F72]/10 border border-[#F20F72]/20 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[#F20F72] text-lg">event</span>
                 </div>
                 <div>
                   <p className="text-sm font-extrabold text-white">
@@ -124,7 +124,7 @@ export function MisRegistrosScreen({ onNavigate, classes, onSelectClass }: MisRe
       <div className="px-5 mt-8">
         <button
           onClick={() => onNavigate(ScreenId.RegistroDeClase, "slide_up")}
-          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#00a2ff] to-[#0077ff] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] active:scale-[0.97] transition-all cursor-pointer"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F20F72] to-[#8E2DE2] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(242,15,114,0.3)] active:scale-[0.97] transition-all cursor-pointer"
         >
           REGISTRAR NUEVA CLASE
         </button>

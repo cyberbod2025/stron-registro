@@ -1,48 +1,49 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #ffb1c7;
-  --color-primary-container: #00a2ff;
-  --color-on-primary-container: #59002b;
-  --color-background: #1e0f14;
-  --color-surface: #1e0f14;
-  --color-secondary: #d3bbff;
-  --color-secondary-container: #00e5ff;
-  --color-tertiary: #5de151;
-  --color-error: #ffb4ab;
-  --color-on-background: #f9dbe2;
+  --color-primary: #F20F72;
+  --color-primary-container: #8E2DE2;
+  --color-on-primary-container: #F7F4F8;
+  --color-background: #0B0B0F;
+  --color-surface: #170A12;
+  --color-secondary: #C93CFF;
+  --color-secondary-container: #E53935;
+  --color-tertiary: #19D27C;
+  --color-error: #E53935;
+  --color-on-background: #F7F4F8;
   --font-sans: "Inter", system-ui, sans-serif;
   --font-display: "Montserrat", "Inter", sans-serif;
 }
 
 @layer utilities {
   .glass-card {
-    background: linear-gradient(135deg, rgba(8, 13, 26, 0.82), rgba(8, 13, 26, 0.58));
+    background: linear-gradient(135deg, rgba(11, 11, 15, 0.85), rgba(23, 10, 18, 0.65));
     backdrop-filter: blur(24px) saturate(170%);
     -webkit-backdrop-filter: blur(24px) saturate(170%);
-    border: 1px solid rgba(255, 255, 255, 0.24);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   .glass-panel {
-    background: rgba(3, 7, 18, 0.52);
+    background: rgba(11, 11, 15, 0.65);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
   .neon-glow {
-    filter: drop-shadow(0 0 10px rgba(255, 73, 148, 0.4));
+    filter: drop-shadow(0 0 10px rgba(242, 15, 114, 0.4));
   }
   .neon-glow-pink {
-    box-shadow: 0 0 20px rgba(255, 73, 148, 0.3);
+    box-shadow: 0 0 20px rgba(242, 15, 114, 0.3);
   }
   .neon-text-glow {
-    text-shadow: 0 0 8px rgba(255, 73, 148, 0.6);
+    text-shadow: 0 0 8px rgba(201, 60, 255, 0.6);
   }
   .text-shadow-solid {
     text-shadow: 0 1px 10px rgba(0,0,0,0.85);
   }
   .progress-gradient {
-    background: linear-gradient(90deg, #00a2ff 0%, #0055cc 100%);
+    background: linear-gradient(90deg, #F20F72 0%, #8E2DE2 100%);
   }
 }
 
@@ -83,25 +84,25 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 73, 148, 0.3);
+  background: rgba(242, 15, 114, 0.3);
   border-radius: 4px;
 }
 
 /* Status pills */
 .status-confirmed {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  color: #6ee7b7;
+  background: rgba(25, 210, 124, 0.15);
+  border: 1px solid rgba(25, 210, 124, 0.4);
+  color: #19D27C;
 }
 .status-pending {
-  background: rgba(251, 191, 36, 0.15);
-  border: 1px solid rgba(251, 191, 36, 0.4);
-  color: #fcd34d;
+  background: rgba(246, 183, 60, 0.15);
+  border: 1px solid rgba(246, 183, 60, 0.4);
+  color: #F6B73C;
 }
 .status-cancelled {
-  background: rgba(244, 63, 94, 0.15);
-  border: 1px solid rgba(244, 63, 94, 0.4);
-  color: #fda4af;
+  background: rgba(229, 57, 53, 0.15);
+  border: 1px solid rgba(229, 57, 53, 0.4);
+  color: #E53935;
 }
 
 /* Class card hover effect */
@@ -114,7 +115,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Bottom nav active indicator */
 .nav-active {
-  color: #00a2ff;
+  color: #F20F72;
 }
 .nav-active::after {
   content: '';
@@ -122,20 +123,20 @@ h1, h2, h3, h4, h5, h6 {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #00a2ff;
+  background: #F20F72;
   margin: 2px auto 0;
 }
 
 /* Input focus ring */
 input:focus, select:focus {
   outline: none;
-  border-color: #00a2ff !important;
-  box-shadow: 0 0 0 2px rgba(255, 73, 148, 0.2);
+  border-color: #F20F72 !important;
+  box-shadow: 0 0 0 2px rgba(242, 15, 114, 0.2);
 }
 
 /* Checkbox custom */
 input[type="checkbox"] {
-  accent-color: #00a2ff;
+  accent-color: #F20F72;
 }
 
 /* Animated gradient border */
@@ -145,15 +146,14 @@ input[type="checkbox"] {
 }
 
 .animated-border {
-  background: linear-gradient(270deg, #00a2ff, #00e5ff, #00a2ff);
+  background: linear-gradient(270deg, #F20F72, #C93CFF, #F20F72);
   background-size: 200% 200%;
   animation: gradient-shift 4s ease infinite;
 }
 
-/* Pulse glow animation */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 8px rgba(255, 73, 148, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(255, 73, 148, 0.6); }
+  0%, 100% { box-shadow: 0 0 8px rgba(242, 15, 114, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(242, 15, 114, 0.6); }
 }
 
 .pulse-glow {
