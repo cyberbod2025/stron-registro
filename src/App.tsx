@@ -5,6 +5,7 @@ import { Sparkles } from "lucide-react";
 import bgImage from "./assets/app_background.png";
 
 // Import components
+import { WelcomeCoverScreen } from "./components/WelcomeCoverScreen";
 import { RoleSelectionScreen } from "./components/RoleSelectionScreen";
 import { Splash, HomeScreen } from "./components/SplashScreens";
 import { ProfileScreen } from "./components/ProfileScreen";
@@ -23,9 +24,9 @@ import { MisRegistrosScreen } from "./components/MisRegistrosScreen";
 export default function App() {
   // Navigation State
   const [currentScreen, setCurrentScreen] = useState<ScreenId>(() => {
-    // Si ya tiene sesión de instructor, puede ir directo al panel, de lo contrario a selección
+    // Si ya tiene sesión de instructor, puede ir directo al panel, de lo contrario a la portada de bienvenida
     const isInstr = window.location.search.includes('admin=true') || localStorage.getItem('isInstructor') === 'true';
-    return isInstr ? ScreenId.PanelInstructor : ScreenId.RoleSelection;
+    return isInstr ? ScreenId.PanelInstructor : ScreenId.WelcomeCover;
   });
   const [transition, setTransition] = useState<TransitionType>("none");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -167,6 +168,7 @@ export default function App() {
   // Determine which tab is active for bottom nav highlighting
   const getActiveTab = (): string => {
     switch (currentScreen) {
+      case ScreenId.WelcomeCover:
       case ScreenId.RoleSelection:
         return "none";
       case ScreenId.Splash:
@@ -192,6 +194,8 @@ export default function App() {
 
   const renderActiveScreen = () => {
     switch (currentScreen) {
+      case ScreenId.WelcomeCover:
+        return <WelcomeCoverScreen onNavigate={handleNavigate} />;
       case ScreenId.RoleSelection:
         return <RoleSelectionScreen onNavigate={handleNavigate} onInstructorLogin={handleInstructorLogin} onShowToast={onShowToast} />;
       case ScreenId.Splash:
@@ -321,7 +325,7 @@ export default function App() {
       </main>
 
       {/* Bottom Navigation */}
-      {currentScreen !== ScreenId.RoleSelection && (
+      {currentScreen !== ScreenId.RoleSelection && currentScreen !== ScreenId.WelcomeCover && (
         <nav className="fixed bottom-0 inset-x-0 z-50 bg-[#150a0e]/95 backdrop-blur-xl border-t border-white/5 safe-bottom">
         <div className="max-w-lg mx-auto flex justify-around items-center py-2">
           {navItems.map((item) => (

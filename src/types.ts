@@ -10,7 +10,8 @@ export enum ScreenId {
   MiPerfil = "Mi Perfil",
   InvitarAmiga = "Salvar Quórum",
   PanelInstructor = "Panel Instructor",
-  Reglas = "Reglas"
+  Reglas = "Reglas",
+  WelcomeCover = "Welcome Cover"
 }
 
 export type TransitionType = "slide_up" | "push" | "push_back" | "none";
