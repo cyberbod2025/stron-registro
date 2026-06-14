@@ -430,7 +430,7 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
           Compartir con una amiga
         </button>
 
-        {status === "unsubscribed" && (
+        {status === "unsubscribed" ? (
           <button
             onClick={requestPermission}
             className="w-full py-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 font-bold text-xs uppercase tracking-widest hover:bg-amber-500/25 active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
@@ -438,7 +438,13 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
             <Bell className="w-4 h-4 text-amber-400" />
             Activar recordatorios
           </button>
-        )}
+        ) : status === "unconfigured" || status === "unsupported" || status === "blocked" ? (
+          <div className="w-full py-3 px-4 rounded-2xl bg-white/5 border border-white/10 text-center mt-2">
+            <p className="text-[11px] text-white/50 leading-relaxed">
+              Los recordatorios aún no están disponibles en este dispositivo.
+            </p>
+          </div>
+        ) : null}
       </div>
     </motion.div>
   );
