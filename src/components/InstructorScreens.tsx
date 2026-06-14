@@ -36,7 +36,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
         const { supabase } = await import('../lib/supabase');
         const { data, error } = await supabase
           .from('registrations')
-          .select('*, students(full_name, mobile)')
+          .select('*, students(full_name, mobile, whatsapp_opt_in)')
           .eq('class_id', selectedClassId)
           .order('created_at', { ascending: true });
 
@@ -48,6 +48,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
           name: s.students?.full_name || "Desconocido",
           status: s.attended ? "Asistió" : (s.absent ? "No Asistió" : "Confirmada"),
           phone: s.students?.mobile || "",
+          whatsappOptIn: s.students?.whatsapp_opt_in ?? true,
           time: new Date(s.created_at).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
         }));
 
@@ -419,15 +420,19 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
                   <div className="col-span-3 flex justify-end gap-1">
                     {selectedClass.status === "suspendida" ? (
                       student.phone ? (
-                        <a
-                          href={getWhatsAppLink(student.phone)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="px-2 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-emerald-500/20 transition-all cursor-pointer flex items-center gap-1"
-                        >
-                          <span className="material-symbols-outlined text-[12px]">chat</span>
-                          WA
-                        </a>
+                        student.whatsappOptIn ? (
+                          <a
+                            href={getWhatsAppLink(student.phone)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-2 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-emerald-500/20 transition-all cursor-pointer flex items-center gap-1"
+                          >
+                            <span className="material-symbols-outlined text-[12px]">chat</span>
+                            WA
+                          </a>
+                        ) : (
+                          <span className="text-[8px] text-rose-300/60 italic uppercase text-right leading-tight">No autorizó<br/>WhatsApp</span>
+                        )
                       ) : (
                         <span className="text-[9px] text-white/30 italic uppercase">Sin Tel.</span>
                       )

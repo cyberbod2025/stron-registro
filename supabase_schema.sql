@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS public.students (
     email TEXT NOT NULL,
     mobile TEXT NOT NULL,
     onesignal_player_id TEXT,
+    whatsapp_opt_in BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

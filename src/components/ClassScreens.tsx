@@ -76,9 +76,11 @@ export function RegistroDeClaseScreen({
 
       if (existingStudents && existingStudents.length > 0) {
         studentId = existingStudents[0].id;
+        const updateData: any = { whatsapp_opt_in: formData.whatsappOptIn ?? true };
         if (playerId) {
-          await supabase.from('students').update({ onesignal_player_id: playerId }).eq('id', studentId);
+          updateData.onesignal_player_id = playerId;
         }
+        await supabase.from('students').update(updateData).eq('id', studentId);
       } else {
         // 2. Si no existe, crearla
         const { data: newStudent, error: insertError } = await supabase
@@ -88,6 +90,7 @@ export function RegistroDeClaseScreen({
               full_name: formData.fullName,
               email: formData.email,
               mobile: formData.mobile,
+              whatsapp_opt_in: formData.whatsappOptIn ?? true,
               onesignal_player_id: playerId
             }
           ])
@@ -259,15 +262,20 @@ export function RegistroDeClaseScreen({
           </div>
 
           {/* WhatsApp opt-in */}
-          <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-[#25D366]/10 border border-[#25D366]/20">
-            <input
-              type="checkbox"
-              className="w-5 h-5 rounded"
-              checked={formData.whatsappOptIn ?? true}
-              onChange={(e) => setFormData({ ...formData, whatsappOptIn: e.target.checked })}
-            />
-            <span className="text-sm text-white font-semibold">Quiero recibir avisos por WhatsApp 📱</span>
-          </label>
+          <div>
+            <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-[#25D366]/10 border border-[#25D366]/20">
+              <input
+                type="checkbox"
+                className="w-5 h-5 rounded"
+                checked={formData.whatsappOptIn ?? true}
+                onChange={(e) => setFormData({ ...formData, whatsappOptIn: e.target.checked })}
+              />
+              <span className="text-sm text-white font-semibold">Quiero recibir avisos por WhatsApp 📱</span>
+            </label>
+            <p className="mt-1.5 ml-2 text-[10px] text-white/40 italic">
+              Usaremos tu número solo para avisarte cambios importantes de tu clase.
+            </p>
+          </div>
         </div>
 
         {/* Submit Button */}
