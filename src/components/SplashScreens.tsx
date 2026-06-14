@@ -70,17 +70,22 @@ export function HomeScreen({ onNavigate, classes, isLoading, onSelectClass }: Ho
         </div>
 
         {/* Description */}
-        <p className="text-sm text-[#F7F4F8]/80 text-center leading-relaxed max-w-xs mx-auto mb-8">
-          Regístrate para tus clases y seamos más fuertes juntas 💪
-        </p>
+        <div className="glass-panel mx-auto mb-8 max-w-xs p-4 rounded-2xl bg-gradient-to-b from-black/60 to-black/40 border border-white/5 backdrop-blur-md">
+          <p className="text-sm text-[#F7F4F8]/90 text-center leading-relaxed font-medium">
+            Regístrate para tus clases y seamos más fuertes juntas 💪
+          </p>
+        </div>
 
         {/* Beneficios */}
-        <div className="mb-8 p-5 glass-panel border border-[#F20F72]/20 shadow-[0_0_20px_rgba(201,60,255,0.08)]">
-          <h2 className="text-[13px] font-black text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-[#F20F72] rounded-full"></span>
+        <div className="mb-8 p-5 glass-panel bg-gradient-to-br from-[#0B0B0F]/90 to-[#170A12]/95 border border-[#F20F72]/20 shadow-[0_0_20px_rgba(201,60,255,0.08)] backdrop-blur-xl rounded-2xl relative overflow-hidden">
+          {/* Decorative glow inside */}
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#F20F72]/10 blur-[30px] rounded-full pointer-events-none"></div>
+          
+          <h2 className="text-[13px] font-black text-white uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10">
+            <span className="w-1.5 h-1.5 bg-[#F20F72] rounded-full shadow-[0_0_8px_rgba(242,15,114,0.8)]"></span>
             ¿Por qué Strong Nation?
           </h2>
-          <ul className="space-y-2 text-xs text-[#F7F4F8]/80">
+          <ul className="space-y-2 text-xs text-[#F7F4F8]/90 relative z-10">
             <li className="flex items-start gap-2">
               <span className="text-[#8E2DE2] font-black">▹</span> Entrenamiento de alta intensidad
             </li>
