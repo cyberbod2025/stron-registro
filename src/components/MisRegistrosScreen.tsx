@@ -7,11 +7,12 @@ import { formatDisplayDate } from "../lib/utils";
 interface MisRegistrosProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
   classes: ClassSession[];
+  onSelectClass: (classId: string) => void;
 }
 
 type TabFilter = "proximas" | "pasadas" | "historial";
 
-export function MisRegistrosScreen({ onNavigate, classes }: MisRegistrosProps) {
+export function MisRegistrosScreen({ onNavigate, classes, onSelectClass }: MisRegistrosProps) {
   const [activeTab, setActiveTab] = useState<TabFilter>("proximas");
 
   const tabs: { id: TabFilter; label: string }[] = [
@@ -86,12 +87,16 @@ export function MisRegistrosScreen({ onNavigate, classes }: MisRegistrosProps) {
           </div>
         ) : (
           filteredClasses.map((c, index) => (
-            <motion.div
+            <motion.button
               key={c.id}
+              onClick={() => {
+                onSelectClass(c.id);
+                onNavigate(ScreenId.Confirmada, "push");
+              }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="rounded-2xl p-4 bg-[#0a1020]/40 border border-white/5 flex items-center justify-between"
+              className="w-full text-left rounded-2xl p-4 bg-[#0a1020]/40 border border-white/5 flex items-center justify-between cursor-pointer hover:border-[#00a2ff]/30 hover:bg-[#0a1020]/80 transition-all active:scale-[0.98]"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#00a2ff]/10 border border-[#00a2ff]/20 flex items-center justify-center">
@@ -110,7 +115,7 @@ export function MisRegistrosScreen({ onNavigate, classes }: MisRegistrosProps) {
               <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${getStatusClass(c.status)}`}>
                 {getStatusLabel(c.status)}
               </span>
-            </motion.div>
+            </motion.button>
           ))
         )}
       </div>

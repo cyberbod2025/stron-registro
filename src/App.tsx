@@ -200,12 +200,12 @@ export default function App() {
           <ConfirmadaScreen
             onNavigate={handleNavigate}
             onShowToast={onShowToast}
-            classSession={classes.find(c => c.status === "confirmada") || classes[0]}
+            classSession={classes.find(c => c.id === registration.classId) || classes[0]}
             registration={registration}
           />
         );
       case ScreenId.ClaseCancelada:
-        return <ClaseCanceladaIztacalcoScreen onNavigate={handleNavigate} classSession={classes.find(c => c.status === "suspendida") || classes[0]} />;
+        return <ClaseCanceladaIztacalcoScreen onNavigate={handleNavigate} classSession={classes.find(c => c.id === registration.classId) || classes[0]} />;
       case ScreenId.Notificaciones:
         return (
           <NotificationsScreen
@@ -239,7 +239,7 @@ export default function App() {
           />
         );
       case ScreenId.MisRegistros:
-        return <MisRegistrosScreen onNavigate={handleNavigate} classes={classes} />;
+        return <MisRegistrosScreen onNavigate={handleNavigate} classes={classes} onSelectClass={(id) => setRegistration(prev => ({ ...prev, classId: id }))} />;
       case ScreenId.Reglas:
         return <ReglasScreen onNavigate={handleNavigate} />;
       default:
