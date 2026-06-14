@@ -1,7 +1,7 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
 import { Bell, User, MapPin, CheckCircle, AlertTriangle, XCircle, Share2 } from "lucide-react";
-import { formatDisplayDate } from "../lib/utils";
+import { formatDisplayDate, getWeekCategory } from "../lib/utils";
 
 interface InicioProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -78,7 +78,7 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
 
       {/* Class Cards */}
       <div className="px-5 space-y-4">
-        {classes.map((c, index) => {
+        {classes.filter(c => getWeekCategory(c.startsAt) !== "otro").map((c, index) => {
           const isPending = c.status === "pendiente";
           const isConfirmed = c.status === "confirmada";
           const isSuspended = c.status === "suspendida";

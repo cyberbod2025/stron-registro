@@ -2,7 +2,7 @@ import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
 import { ArrowLeft, Users, CheckCircle, Clock, X, AlertTriangle, Info } from "lucide-react";
 import React, { useState } from "react";
-import { formatDisplayDate } from "../lib/utils";
+import { formatDisplayDate, getWeekCategory } from "../lib/utils";
 
 interface InstructorProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -150,10 +150,10 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
 
       {/* Class Cards Summary */}
       <div className="px-5 mb-6">
-        <h2 className="text-xs font-black text-white uppercase tracking-widest mb-3">Resumen de clases</h2>
-        <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
-          {classes?.map((c) => (
-            <button
+        <h2 className="text-xs font-black text-[#ffb1c7] uppercase tracking-widest mb-3">Tus próximas clases</h2>
+        <div className="flex gap-3 overflow-x-auto pb-2 -mx-2 px-2 hide-scrollbar">
+          {classes?.filter(c => getWeekCategory(c.startsAt) !== "otro").map((c) => (
+            <motion.button
               key={c.id}
               onClick={() => setSelectedClassId(c.id)}
               className={`shrink-0 w-32 rounded-2xl p-4 border transition-all cursor-pointer ${
@@ -172,7 +172,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
               <div className={`mt-2 inline-flex px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border ${getStatusBg(c.status)} ${getStatusColor(c.status)}`}>
                 {c.status === "confirmada" ? "CONFIRMADA ✅" : c.status === "suspendida" ? "CANCELADA" : "EN PROGRESO"}
               </div>
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>

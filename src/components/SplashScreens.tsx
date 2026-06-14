@@ -1,7 +1,7 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
 import { MapPin, ChevronRight } from "lucide-react";
-import { formatDisplayDate } from "../lib/utils";
+import { formatDisplayDate, getWeekCategory } from "../lib/utils";
 
 interface SplashProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -87,7 +87,7 @@ export function HomeScreen({ onNavigate, classes, isLoading, onSelectClass }: Ho
               ))}
             </>
           ) : (
-            classes.map((c, index) => (
+            classes.filter(c => getWeekCategory(c.startsAt) !== "otro").map((c, index) => (
               <motion.button
                 key={c.id}
                 initial={{ opacity: 0, x: -20 }}

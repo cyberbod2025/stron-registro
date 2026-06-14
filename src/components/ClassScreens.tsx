@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Calendar, Clock, MapPin, CheckCircle, ArrowLeft, Users, ShieldAlert, Sparkles, MessageCircle, Share2, Map, AlertTriangle, AlertCircle, Bell } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { generateGoogleCalendarUrl } from "../lib/calendar";
-import { formatDisplayDate } from "../lib/utils";
+import { formatDisplayDate, getWeekCategory } from "../lib/utils";
 import { useOneSignal } from "../hooks/useOneSignal";
 import confetti from "canvas-confetti";
 
@@ -150,41 +150,63 @@ export function RegistroDeClaseScreen({
       </div>
 
       <form onSubmit={handleSubmit} className="px-5 pt-6 space-y-6">
-        {/* Selected Class Info */}
-        <div className="rounded-2xl p-4 bg-[#0a1020]/40 border border-[#00a2ff]/20">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#00a2ff]/15 flex items-center justify-center">
-              <span className="material-symbols-outlined text-[#00a2ff]">event</span>
-            </div>
-            <div>
-              <p className="text-base font-extrabold text-white">
-                {formatDisplayDate(selectedClass)} {selectedClass?.timeStr}
-              </p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <MapPin className="w-3 h-3 text-[#00a2ff]" />
-                <span className="text-xs text-[#e2bdc6]">{selectedClass?.location}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Class Selection UI grouped by Week */}
+        {classes && classes.length > 0 && (
+          <div className="space-y-6">
+            {["esta_semana", "proxima_semana"].map((weekCategory) => {
+              const weekClasses = classes.filter(
+                c => c.status !== "suspendida" && getWeekCategory(c.startsAt) === weekCategory
+              );
+              
+              if (weekClasses.length === 0) return null;
 
-        {/* Class selector if multiple */}
-        {classes && classes.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-            {classes.filter(c => c.status !== "suspendida").map(c => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => setSelectedClassId(c.id)}
-                className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  selectedClassId === c.id 
-                    ? "bg-[#00a2ff] text-white" 
-                    : "bg-white/5 border border-white/10 text-white/60 hover:text-white"
-                }`}
-              >
-                {c.dateStr} {c.timeStr}
-              </button>
-            ))}
+              return (
+                <div key={weekCategory} className="space-y-3">
+                  <p className="text-xs font-black text-[#ffb1c7] uppercase tracking-widest pl-1">
+                    {weekCategory === "esta_semana" ? "Esta semana" : "Próxima semana"}
+                  </p>
+                  <div className="space-y-2.5">
+                    {weekClasses.map(c => {
+                      const isSelected = selectedClassId === c.id;
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => setSelectedClassId(c.id)}
+                          className={`w-full text-left rounded-2xl p-4 transition-all cursor-pointer relative overflow-hidden ${
+                            isSelected 
+                              ? "bg-[#0a1020]/80 border-2 border-[#00a2ff] shadow-[0_0_15px_rgba(0,162,255,0.2)]" 
+                              : "bg-[#0a1020]/40 border-2 border-transparent border-t-white/5 border-l-white/5 hover:bg-[#0a1020]/60"
+                          }`}
+                        >
+                          {isSelected && (
+                            <div className="absolute top-4 right-4 text-[#00a2ff]">
+                              <CheckCircle className="w-5 h-5 fill-[#00a2ff]/20" />
+                            </div>
+                          )}
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                              isSelected ? "bg-[#00a2ff]/20 text-[#00a2ff]" : "bg-white/5 text-white/40"
+                            }`}>
+                              <Calendar className="w-5 h-5" />
+                            </div>
+                            <div className="pr-8">
+                              <p className={`text-base font-extrabold ${isSelected ? "text-white" : "text-white/80"}`}>
+                                {formatDisplayDate(c)} <span className="text-white/50 font-medium">| {c.timeStr}</span>
+                              </p>
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <MapPin className={`w-3 h-3 ${isSelected ? "text-[#00a2ff]" : "text-white/30"}`} />
+                                <span className={`text-xs ${isSelected ? "text-[#e2bdc6]" : "text-white/50"}`}>{c.location}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
