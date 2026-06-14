@@ -33,7 +33,7 @@ export function RegistroDeClaseScreen({
     isCommitted: registration?.isCommitted ?? false,
     understandsGoal: registration?.understandsGoal ?? false,
     willCancelInTime: registration?.willCancelInTime ?? false,
-    whatsappOptIn: true,
+    whatsappOptIn: registration?.whatsappOptIn ?? true,
     referredByEmail: new URLSearchParams(window.location.search).get('ref') || undefined,
   });
 
@@ -76,7 +76,7 @@ export function RegistroDeClaseScreen({
 
       if (existingStudents && existingStudents.length > 0) {
         studentId = existingStudents[0].id;
-        const updateData: any = { whatsapp_opt_in: formData.whatsappOptIn ?? true };
+        const updateData: any = { whatsapp_opt_in: formData.whatsappOptIn };
         if (playerId) {
           updateData.onesignal_player_id = playerId;
         }
@@ -90,7 +90,7 @@ export function RegistroDeClaseScreen({
               full_name: formData.fullName,
               email: formData.email,
               mobile: formData.mobile,
-              whatsapp_opt_in: formData.whatsappOptIn ?? true,
+              whatsapp_opt_in: formData.whatsappOptIn,
               onesignal_player_id: playerId
             }
           ])
@@ -267,7 +267,7 @@ export function RegistroDeClaseScreen({
               <input
                 type="checkbox"
                 className="w-5 h-5 rounded"
-                checked={formData.whatsappOptIn ?? true}
+                checked={formData.whatsappOptIn}
                 onChange={(e) => setFormData({ ...formData, whatsappOptIn: e.target.checked })}
               />
               <span className="text-sm text-white font-semibold">Quiero recibir avisos por WhatsApp 📱</span>
