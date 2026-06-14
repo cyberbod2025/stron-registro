@@ -76,8 +76,8 @@ export function ProfileScreen({
 
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-extrabold text-white leading-tight truncate">{displayName}</h2>
-              <p className="text-xs text-[#e2bdc6] font-mono truncate mt-0.5">{displayEmail}</p>
-              <p className="text-xs text-white/40 mt-0.5">📱 {displayPhone}</p>
+              <p className="text-xs text-[#f8d7e0] font-mono truncate mt-0.5">{displayEmail}</p>
+              <p className="text-xs text-white/80 mt-0.5">📱 {displayPhone}</p>
             </div>
           </div>
         </div>
@@ -188,7 +188,7 @@ export function ProfileScreen({
       <div className="mt-6 px-5 text-center">
         <button
           onClick={() => onNavigate(ScreenId.RoleSelection, "push_back")}
-          className="text-xs font-bold text-white/20 hover:text-white/40 transition-colors cursor-pointer py-2 px-4"
+          className="text-xs font-bold text-white/80 hover:text-white glass-card transition-colors cursor-pointer py-2.5 px-6 rounded-xl border border-white/10"
         >
           Cerrar sesión / Cambiar Rol
         </button>
