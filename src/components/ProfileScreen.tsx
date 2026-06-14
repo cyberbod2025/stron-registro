@@ -30,7 +30,7 @@ export function ProfileScreen({
   const displayPhone = userPhone || "55 1234 5678";
   const initial = displayName.charAt(0).toUpperCase();
 
-  const { status: pushStatus, requestPermission } = useOneSignal();
+  const { status: pushStatus, requestPermission, debugInfo } = useOneSignal();
 
   const menuItems = [
     { icon: "person", label: "Mis datos", screen: null },
@@ -113,6 +113,23 @@ export function ProfileScreen({
                 </p>
               </div>
             </div>
+
+            {pushStatus === "error" && (
+              <div className="w-full mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-left">
+                <p className="text-[10px] text-rose-400 font-bold mb-1 uppercase tracking-wider">
+                  Diagnóstico técnico:
+                </p>
+                <div className="text-[9px] text-rose-300/80 space-y-1 font-mono break-all">
+                  <p>Estado: {pushStatus}</p>
+                  <p>App ID: {debugInfo?.appIdDetected ? 'detectado' : 'no detectado'} / longitud {debugInfo?.appIdLength}</p>
+                  <p>Notification API: {debugInfo?.notificationApi ? 'sí' : 'no'}</p>
+                  <p>Permiso: {debugInfo?.notificationPermission}</p>
+                  <p>Service Worker: {debugInfo?.serviceWorker ? 'sí' : 'no'}</p>
+                  <p>OneSignal SDK: {debugInfo?.oneSignalSdk ? 'cargado' : 'no cargado'}</p>
+                  <p>Error: {debugInfo?.errorMessage || 'Desconocido'}</p>
+                </div>
+              </div>
+            )}
 
             {pushStatus === "unsubscribed" && (
               <button
