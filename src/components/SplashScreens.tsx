@@ -1,6 +1,6 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { MapPin, ChevronRight } from "lucide-react";
+import { UserCircle, MapPin, ChevronRight } from "lucide-react";
 import { formatDisplayDate, getWeekCategory } from "../lib/utils";
 
 interface SplashProps {
@@ -44,16 +44,16 @@ export function HomeScreen({ onNavigate, classes, isLoading, onSelectClass }: Ho
       <div className="relative px-6 pt-14 pb-8">
         {/* Brand Logo */}
         <div className="flex flex-col items-center text-center mb-8">
-          {/* S Logo */}
+          {/* Avatar Placeholder */}
           <motion.div
             animate={{ y: [0, -5, 0] }}
             transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
             className="mb-4"
           >
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00a2ff] via-[#0077ff] to-[#00e5ff] flex items-center justify-center shadow-[0_0_40px_rgba(255,73,148,0.4)] relative">
-              <span className="text-3xl font-black italic text-white" style={{ fontFamily: 'Montserrat' }}>S</span>
-              <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#5de151] flex items-center justify-center">
-                <span className="text-[8px]">🔥</span>
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#12080c] to-[#0a1020] flex items-center justify-center shadow-[0_0_30px_rgba(0,162,255,0.2)] border-2 border-white/10 relative overflow-hidden glass-card">
+              <UserCircle className="w-14 h-14 text-white/50" strokeWidth={1} />
+              <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-[#00a2ff] to-[#00e5ff] flex items-center justify-center border border-[#00a2ff]/50 shadow-[0_0_10px_rgba(0,162,255,0.5)]">
+                <span className="text-[9px] font-black text-white italic">PRO</span>
               </div>
             </div>
           </motion.div>
