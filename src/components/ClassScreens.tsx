@@ -1,8 +1,10 @@
 import { ScreenId, TransitionType, ClassRegistration, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { Calendar, Clock, MapPin, CheckCircle, ArrowLeft, Users, ShieldAlert, Sparkles, MessageCircle, Share2, Map, AlertTriangle, AlertCircle } from "lucide-react";
+import { Calendar, Clock, MapPin, CheckCircle, ArrowLeft, Users, ShieldAlert, Sparkles, MessageCircle, Share2, Map, AlertTriangle, AlertCircle, Bell } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { generateGoogleCalendarUrl } from "../lib/calendar";
+import { formatDisplayDate } from "../lib/utils";
+import { useOneSignal } from "../hooks/useOneSignal";
 import confetti from "canvas-confetti";
 
 interface ClassScreensProps {
@@ -156,7 +158,7 @@ export function RegistroDeClaseScreen({
             </div>
             <div>
               <p className="text-base font-extrabold text-white">
-                {selectedClass?.dateStr} {selectedClass?.timeStr}
+                {formatDisplayDate(selectedClass)} {selectedClass?.timeStr}
               </p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <MapPin className="w-3 h-3 text-[#00a2ff]" />
@@ -268,6 +270,8 @@ export function RegistroDeClaseScreen({
 }
 
 export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, registration }: ClassScreensProps) {
+  const { status, requestPermission } = useOneSignal();
+  
   useEffect(() => {
     confetti({
       particleCount: 150,
@@ -309,7 +313,7 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
           </div>
           <div>
             <p className="text-base font-extrabold text-white">
-              {classSession?.dateStr} {classSession?.timeStr}
+              {formatDisplayDate(classSession)} {classSession?.timeStr}
             </p>
             <div className="flex items-center gap-1.5 mt-0.5">
               <MapPin className="w-3 h-3 text-emerald-400" />
@@ -339,9 +343,9 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
         </button>
 
         {/* Ubicación */}
-        {classSession?.location_link && (
+        {classSession?.mapsUrl && (
           <button
-            onClick={() => window.open(classSession.location_link, '_blank')}
+            onClick={() => window.open(classSession.mapsUrl, '_blank')}
             className="w-full py-3.5 rounded-2xl bg-[#0a1020]/40 border border-emerald-500/20 text-emerald-400 font-bold text-xs uppercase tracking-widest hover:bg-emerald-500/10 active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Map className="w-4 h-4" />
@@ -353,10 +357,10 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
           onClick={() => {
             const calUrl = classSession?.calendarUrl || generateGoogleCalendarUrl(
               classSession?.title || "",
-              classSession?.dateStr || "",
+              formatDisplayDate(classSession) || "",
               classSession?.timeStr || "",
               classSession?.location || "",
-              "Regla de cierre: Te avisaremos si la clase se CONFIRMA o se CANCELA a las 8:00 PM.\\nQuórum mínimo: 3 personas."
+              "Regla de cierre: Te avisaremos si la clase se CONFIRMA o se CANCELA a las 8:00 PM.\nQuórum mínimo: 3 personas."
             );
             window.open(calUrl, '_blank');
           }}
@@ -370,7 +374,7 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
           onClick={async () => {
             const refParam = registration?.email ? `?ref=${encodeURIComponent(registration.email)}` : "";
             const shareUrl = `https://stron-registro.vercel.app/${refParam}`;
-            const whatsappText = `¡Hola! Ya confirmé mi asistencia a la clase de Strong Nation el ${classSession?.dateStr} a las ${classSession?.timeStr}. ¡Vamos juntas! 💪 ${shareUrl}`;
+            const whatsappText = `¡Hola! Ya confirmé mi asistencia a la clase de Strong Nation el ${formatDisplayDate(classSession)} a las ${classSession?.timeStr}. ¡Vamos juntas! 💪 ${shareUrl}`;
             
             if (navigator.share) {
               try {
@@ -403,6 +407,16 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
           <Share2 className="w-4 h-4 text-[#25D366]" />
           Compartir con una amiga
         </button>
+
+        {status === "unsubscribed" && (
+          <button
+            onClick={requestPermission}
+            className="w-full py-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 font-bold text-xs uppercase tracking-widest hover:bg-amber-500/25 active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+          >
+            <Bell className="w-4 h-4 text-amber-400" />
+            Activar recordatorios
+          </button>
+        )}
       </div>
     </motion.div>
   );
@@ -442,12 +456,13 @@ export function ClaseCanceladaIztacalcoScreen({ onNavigate, classSession }: Clas
           Hola, lamentablemente no se alcanzó el mínimo de{" "}
           <strong className="text-white">{classSession?.minRequired || 5} personas</strong>.
         </p>
-        <div className="border-t border-white/5 pt-4">
-          <p className="text-base font-extrabold text-white">
-            {classSession?.dateStr} {classSession?.timeStr}
+        <div className="text-center space-y-1">
+          <p className="text-[10px] text-rose-300 font-bold uppercase tracking-wider">Clase Cancelada</p>
+          <p className="text-white text-sm font-black">
+            {formatDisplayDate(classSession)} {classSession?.timeStr}
           </p>
-          <p className="text-xs text-[#e2bdc6] mt-1">{classSession?.location}</p>
         </div>
+        <p className="text-xs text-[#e2bdc6] mt-1">{classSession?.location}</p>
       </div>
 
       <div className="w-full max-w-sm glass-card rounded-2xl p-4 border border-white/10 mb-6">

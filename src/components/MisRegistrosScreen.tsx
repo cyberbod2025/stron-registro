@@ -2,6 +2,7 @@ import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
 import { MapPin } from "lucide-react";
 import { useState } from "react";
+import { formatDisplayDate } from "../lib/utils";
 
 interface MisRegistrosProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -98,7 +99,7 @@ export function MisRegistrosScreen({ onNavigate, classes }: MisRegistrosProps) {
                 </div>
                 <div>
                   <p className="text-sm font-extrabold text-white">
-                    {c.dateStr} {c.timeStr}
+                    {formatDisplayDate(c)} {c.timeStr}
                   </p>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <MapPin className="w-3 h-3 text-white/30" />

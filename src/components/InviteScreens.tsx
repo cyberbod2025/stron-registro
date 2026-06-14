@@ -1,6 +1,7 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
 import { ArrowLeft, MessageCircle, MapPin, Navigation, Calendar } from "lucide-react";
+import { formatDisplayDate } from "../lib/utils";
 
 interface InviteProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -51,7 +52,7 @@ export function InviteScreen({ onNavigate, onShowToast, classSession }: InvitePr
         <div className="space-y-3">
           <button
             onClick={() => {
-              const whatsappText = `Hola, estamos por confirmar la clase de Strong Nation.\nSolo falta ${missing} persona${missing !== 1 ? 's' : ''} para completar el mínimo de ${classSession?.minRequired || 5}.\nClase: ${classSession?.dateStr} ${classSession?.timeStr}\nSede: ${classSession?.location}.\n¿Te animas? 💪`;
+              const whatsappText = `Hola, estamos por confirmar la clase de Strong Nation.\nSolo falta ${missing} persona${missing !== 1 ? 's' : ''} para completar el mínimo de ${classSession?.minRequired || 5}.\nClase: ${formatDisplayDate(classSession)} ${classSession?.timeStr}\nSede: ${classSession?.location}.\n¿Te animas? 💪`;
               window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, '_blank');
             }}
             className="w-full py-4 rounded-2xl bg-[#25D366] text-white font-black text-sm uppercase tracking-widest shadow-md hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer"

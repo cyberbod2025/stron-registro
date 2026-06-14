@@ -2,6 +2,7 @@ import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
 import { ArrowLeft, Users, CheckCircle, Clock, X, AlertTriangle, Info } from "lucide-react";
 import React, { useState } from "react";
+import { formatDisplayDate } from "../lib/utils";
 
 interface InstructorProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -161,8 +162,8 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
                   : "border-white/5 bg-[#0a1020]/30"
               }`}
             >
-              <p className="text-[10px] font-bold text-[#e2bdc6] truncate">{c.dateStr} {c.timeStr}</p>
-              <p className="text-[9px] text-white/40 truncate">{c.location}</p>
+              <p className="text-[10px] font-bold text-[#e2bdc6] truncate">{formatDisplayDate(c)} {c.timeStr}</p>
+              <p className="text-white text-xs font-black truncate">{c.location}</p>
               <div className="mt-3 flex items-end justify-between">
                 <span className="text-2xl font-black text-white leading-none">
                   {c.confirmedCount}<span className="text-sm text-white/40">/{c.minRequired}</span>
@@ -200,10 +201,11 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       {/* Selected Class Detail */}
       {selectedClass && (
         <div className="px-5 mb-6">
-          <h2 className="text-xs font-black text-white uppercase tracking-widest mb-3">
-            Detalle de registros — {selectedClass.dateStr} {selectedClass.timeStr}
-          </h2>
-
+          <div className="bg-[#12080c] px-4 py-2 flex items-center justify-between border-b border-white/5">
+            <span className="text-[10px] text-[#e2bdc6] font-bold uppercase tracking-wider">
+              Detalle de registros — {formatDisplayDate(selectedClass)} {selectedClass.timeStr}
+            </span>
+          </div>
           {/* Students Table */}
           <div className="rounded-2xl overflow-hidden border border-white/5">
             {/* Table Header */}

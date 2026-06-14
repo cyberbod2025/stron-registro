@@ -53,7 +53,7 @@ export default function App() {
       const { data: classesData, error: classesError } = await supabase
         .from('classes')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('starts_at', { ascending: true, nullsFirst: false });
 
       if (classesError) throw classesError;
 
@@ -73,6 +73,7 @@ export default function App() {
         title: c.title,
         dateStr: c.date_str,
         timeStr: c.time_str,
+        startsAt: c.starts_at,
         location: c.location,
         address: c.address,
         isPrivateLocation: c.is_private_location,

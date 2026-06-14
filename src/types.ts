@@ -25,8 +25,9 @@ export type ClassStatus = "pendiente" | "confirmada" | "suspendida";
 export interface ClassSession {
   id: string;
   title: string;
-  dateStr: string; // e.g. "Jueves"
-  timeStr: string; // e.g. "9:00 a.m."
+  dateStr: string; // e.g. "Jueves" (fallback)
+  timeStr: string; // e.g. "9:00 a.m." (fallback)
+  startsAt?: string; // Real timestamp
   location: string;
   location_link?: string;
   isPrivateLocation?: boolean;

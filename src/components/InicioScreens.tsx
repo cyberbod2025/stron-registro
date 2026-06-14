@@ -1,6 +1,7 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
 import { Bell, User, MapPin, CheckCircle, AlertTriangle, XCircle, Share2 } from "lucide-react";
+import { formatDisplayDate } from "../lib/utils";
 
 interface InicioProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -107,7 +108,7 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
 
               {/* Class Info */}
               <h3 className="text-lg font-black text-white leading-tight mb-1">
-                {c.dateStr} {c.timeStr}
+                {formatDisplayDate(c)} {c.timeStr}
               </h3>
               <div className="flex items-center gap-1.5 text-xs text-[#e2bdc6] mb-4">
                 <MapPin className="w-3.5 h-3.5 text-[#00a2ff]" />

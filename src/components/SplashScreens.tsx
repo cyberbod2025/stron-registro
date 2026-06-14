@@ -1,6 +1,7 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
 import { MapPin, ChevronRight } from "lucide-react";
+import { formatDisplayDate } from "../lib/utils";
 
 interface SplashProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -104,9 +105,9 @@ export function HomeScreen({ onNavigate, classes, isLoading, onSelectClass }: Ho
                     <span className="material-symbols-outlined text-[#00a2ff] text-xl">event</span>
                   </div>
                   <div>
-                    <h3 className="text-base font-extrabold text-white leading-tight">
-                      {c.dateStr} {c.timeStr}
-                    </h3>
+                    <p className="text-[11px] font-black text-white uppercase tracking-wider mb-0.5">
+                      {formatDisplayDate(c)} {c.timeStr}
+                    </p>
                     <div className="flex items-center gap-1.5 mt-1">
                       <MapPin className="w-3 h-3 text-[#00a2ff]" />
                       <span className="text-xs text-[#e2bdc6]">{c.location}</span>

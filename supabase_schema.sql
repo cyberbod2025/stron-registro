@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.classes (
     maps_url TEXT,
     waze_url TEXT,
     calendar_url TEXT,
+    starts_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
