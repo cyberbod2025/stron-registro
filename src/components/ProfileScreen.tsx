@@ -104,11 +104,12 @@ export function ProfileScreen({
                 <p className="text-sm font-bold text-white">Avisos de clases</p>
                 <p className="text-[10px] text-white/50 mt-0.5">
                   {pushStatus === "loading" && "Verificando estado..."}
-                  {pushStatus === "unconfigured" && "No configuradas"}
-                  {pushStatus === "unsupported" && "Navegador no compatible"}
-                  {pushStatus === "unsubscribed" && "Recibe alertas de cupos"}
+                  {pushStatus === "unsubscribed" && "No activadas"}
                   {pushStatus === "subscribed" && "Recordatorios activados"}
                   {pushStatus === "blocked" && "Permisos bloqueados"}
+                  {pushStatus === "unconfigured" && "Falta configurar"}
+                  {pushStatus === "unsupported" && "No soportado en este dispositivo"}
+                  {pushStatus === "error" && "Error al cargar"}
                 </p>
               </div>
             </div>

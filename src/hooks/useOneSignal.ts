@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export type OneSignalState = "unconfigured" | "unsupported" | "loading" | "subscribed" | "unsubscribed" | "blocked";
+export type OneSignalState = "unconfigured" | "unsupported" | "loading" | "subscribed" | "unsubscribed" | "blocked" | "error";
 
 export function useOneSignal() {
   const [status, setStatus] = useState<OneSignalState>("loading");
@@ -9,7 +9,11 @@ export function useOneSignal() {
     const initOneSignal = async () => {
       const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
       
-      console.info("OneSignal App ID config present:", !!appId);
+      console.info("[OneSignal Diag] App ID present:", !!appId);
+      if (appId) console.info("[OneSignal Diag] App ID length:", appId.length);
+      console.info("[OneSignal Diag] window.OneSignal exists:", !!(window as any).OneSignal);
+      console.info("[OneSignal Diag] Notification API supported:", 'Notification' in window);
+      console.info("[OneSignal Diag] Notification.permission:", 'Notification' in window ? Notification.permission : 'N/A');
 
       if (!appId) {
         setStatus("unconfigured");
@@ -31,6 +35,7 @@ export function useOneSignal() {
 
           // Check if push is supported
           if (!OneSignal.Notifications.isPushSupported()) {
+            console.warn("[OneSignal Diag] Push not supported");
             setStatus("unsupported");
             return;
           }
@@ -38,6 +43,8 @@ export function useOneSignal() {
           const updateStatus = () => {
             const hasPermission = OneSignal.Notifications.permission;
             const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+
+            console.info("[OneSignal Diag] updateStatus() -> hasPermission:", hasPermission, "isSubscribed:", isSubscribed);
 
             if (hasPermission === false) {
               // Denied/Blocked
@@ -57,8 +64,8 @@ export function useOneSignal() {
           OneSignal.Notifications.addEventListener("permissionChange", updateStatus);
 
         } catch (error) {
-          console.error("Error initializing OneSignal", error);
-          setStatus("unconfigured");
+          console.error("[OneSignal Diag] Error initializing OneSignal", error);
+          setStatus("error");
         }
       });
     };
@@ -72,7 +79,8 @@ export function useOneSignal() {
       try {
         await w.OneSignal.Notifications.requestPermission();
       } catch (error) {
-        console.error("Error requesting permission", error);
+        console.error("[OneSignal Diag] Error requesting permission", error);
+        setStatus("error");
       }
     }
   };

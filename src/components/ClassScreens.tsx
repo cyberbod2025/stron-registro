@@ -438,7 +438,7 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
           Compartir con una amiga
         </button>
 
-        {status === "unsubscribed" ? (
+        {status === "unsubscribed" && (
           <button
             onClick={requestPermission}
             className="w-full py-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 font-bold text-xs uppercase tracking-widest hover:bg-amber-500/25 active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
@@ -446,13 +446,48 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
             <Bell className="w-4 h-4 text-amber-400" />
             Activar recordatorios
           </button>
-        ) : status === "unconfigured" || status === "unsupported" || status === "blocked" ? (
-          <div className="w-full py-3 px-4 rounded-2xl bg-white/5 border border-white/10 text-center mt-2">
-            <p className="text-[11px] text-white/50 leading-relaxed">
-              Los recordatorios aún no están disponibles en este dispositivo.
+        )}
+        
+        {status === "subscribed" && (
+          <div className="w-full py-3 px-4 rounded-2xl bg-[#25D366]/10 border border-[#25D366]/20 text-center mt-2 flex items-center justify-center gap-2">
+            <Bell className="w-4 h-4 text-[#25D366]" />
+            <p className="text-[11px] text-[#25D366] font-bold uppercase tracking-wider">
+              Recordatorios activados
             </p>
           </div>
-        ) : null}
+        )}
+
+        {status === "unconfigured" && (
+          <div className="w-full py-3 px-4 rounded-2xl bg-white/5 border border-white/10 text-center mt-2">
+            <p className="text-[11px] text-white/50 leading-relaxed">
+              Recordatorios no configurados. Falta configurar OneSignal.
+            </p>
+          </div>
+        )}
+
+        {status === "unsupported" && (
+          <div className="w-full py-3 px-4 rounded-2xl bg-white/5 border border-white/10 text-center mt-2">
+            <p className="text-[11px] text-white/50 leading-relaxed">
+              Este navegador o dispositivo no permite recordatorios push.
+            </p>
+          </div>
+        )}
+
+        {status === "blocked" && (
+          <div className="w-full py-3 px-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-center mt-2">
+            <p className="text-[11px] text-rose-400/80 leading-relaxed">
+              Permiso bloqueado. Activa notificaciones desde la configuración del navegador.
+            </p>
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="w-full py-3 px-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-center mt-2">
+            <p className="text-[11px] text-rose-400/80 leading-relaxed">
+              No pudimos cargar recordatorios. Intenta más tarde.
+            </p>
+          </div>
+        )}
       </div>
     </motion.div>
   );
