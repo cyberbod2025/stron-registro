@@ -447,7 +447,14 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
             Activar recordatorios
           </button>
         )}
-        
+        {status === "loading" && (
+          <div className="w-full py-3 px-4 rounded-2xl bg-white/5 border border-white/10 text-center mt-2">
+            <p className="text-[11px] text-white/50 leading-relaxed animate-pulse">
+              Verificando estado de recordatorios...
+            </p>
+          </div>
+        )}
+
         {status === "subscribed" && (
           <div className="w-full py-3 px-4 rounded-2xl bg-[#25D366]/10 border border-[#25D366]/20 text-center mt-2 flex items-center justify-center gap-2">
             <Bell className="w-4 h-4 text-[#25D366]" />
