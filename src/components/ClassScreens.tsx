@@ -1,7 +1,8 @@
 import { ScreenId, TransitionType, ClassRegistration, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { ArrowLeft, CheckCircle, Calendar, MapPin, AlertTriangle, AlertCircle, MessageCircle, Clock } from "lucide-react";
+import { Calendar, Clock, MapPin, CheckCircle, ArrowLeft, Users, ShieldAlert, Sparkles, MessageCircle, Share2, Map, AlertTriangle, AlertCircle } from "lucide-react";
 import React, { useState, useEffect } from "react";
+import { generateGoogleCalendarUrl } from "../lib/calendar";
 import confetti from "canvas-confetti";
 
 interface ClassScreensProps {
@@ -337,26 +338,69 @@ export function ConfirmadaScreen({ onNavigate, onShowToast, classSession, regist
           VER MIS REGISTROS
         </button>
 
-        {classSession?.calendarUrl && (
+        {/* Ubicación */}
+        {classSession?.location_link && (
           <button
-            onClick={() => window.open(classSession.calendarUrl, '_blank')}
-            className="w-full py-3.5 rounded-2xl bg-white/10 border border-white/20 text-white font-bold text-xs uppercase tracking-widest hover:bg-white/20 active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer"
+            onClick={() => window.open(classSession.location_link, '_blank')}
+            className="w-full py-3.5 rounded-2xl bg-[#0a1020]/40 border border-emerald-500/20 text-emerald-400 font-bold text-xs uppercase tracking-widest hover:bg-emerald-500/10 active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <Calendar className="w-4 h-4" />
-            Agendar en mi calendario
+            <Map className="w-4 h-4" />
+            Abrir ubicación en Maps
           </button>
         )}
 
         <button
           onClick={() => {
+            const calUrl = classSession?.calendarUrl || generateGoogleCalendarUrl(
+              classSession?.title || "",
+              classSession?.dateStr || "",
+              classSession?.timeStr || "",
+              classSession?.location || "",
+              "Regla de cierre: Te avisaremos si la clase se CONFIRMA o se CANCELA a las 8:00 PM.\\nQuórum mínimo: 3 personas."
+            );
+            window.open(calUrl, '_blank');
+          }}
+          className="w-full py-3.5 rounded-2xl bg-white/10 border border-white/20 text-white font-bold text-xs uppercase tracking-widest hover:bg-white/20 active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <Calendar className="w-4 h-4" />
+          Agendar en mi calendario
+        </button>
+
+        <button
+          onClick={async () => {
             const refParam = registration?.email ? `?ref=${encodeURIComponent(registration.email)}` : "";
             const shareUrl = `https://stron-registro.vercel.app/${refParam}`;
             const whatsappText = `¡Hola! Ya confirmé mi asistencia a la clase de Strong Nation el ${classSession?.dateStr} a las ${classSession?.timeStr}. ¡Vamos juntas! 💪 ${shareUrl}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, '_blank');
+            
+            if (navigator.share) {
+              try {
+                await navigator.share({
+                  title: 'Clase Strong Nation',
+                  text: whatsappText,
+                });
+                return;
+              } catch (e) {
+                console.log("Share API error or cancelled", e);
+              }
+            }
+            
+            // Fallback a wa.me
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(whatsappText)}`;
+            try {
+              window.open(waUrl, '_blank');
+            } catch (e) {
+              // Fallback a clipboard
+              try {
+                await navigator.clipboard.writeText(whatsappText);
+                onShowToast?.("Enlace copiado al portapapeles");
+              } catch (clipErr) {
+                onShowToast?.("No se pudo compartir");
+              }
+            }
           }}
           className="w-full py-3.5 rounded-2xl bg-[#25D366]/15 border border-[#25D366]/30 text-white font-bold text-xs uppercase tracking-widest hover:bg-[#25D366]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
-          <MessageCircle className="w-4 h-4 text-[#25D366]" />
+          <Share2 className="w-4 h-4 text-[#25D366]" />
           Compartir con una amiga
         </button>
       </div>

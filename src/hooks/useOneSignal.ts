@@ -9,10 +9,13 @@ export function useOneSignal() {
     const initOneSignal = async () => {
       const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
       
+      console.info("OneSignal App ID config present:", !!appId);
+
       if (!appId) {
         setStatus("unconfigured");
         return;
       }
+
 
       const w = window as any;
       w.OneSignalDeferred = w.OneSignalDeferred || [];

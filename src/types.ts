@@ -28,7 +28,7 @@ export interface ClassSession {
   dateStr: string; // e.g. "Jueves"
   timeStr: string; // e.g. "9:00 a.m."
   location: string;
-  address?: string;
+  location_link?: string;
   isPrivateLocation?: boolean;
   status: ClassStatus;
   confirmedCount: number;
