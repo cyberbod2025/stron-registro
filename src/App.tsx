@@ -20,6 +20,7 @@ import { InicioScreen } from "./components/InicioScreens";
 import { PanelInstructor } from "./components/InstructorScreens";
 import { ReglasScreen } from "./components/ReglasScreen";
 import { MisRegistrosScreen } from "./components/MisRegistrosScreen";
+import { LoadingSplash } from "./components/LoadingSplash";
 
 export default function App() {
   // Navigation State
@@ -34,6 +35,7 @@ export default function App() {
   // Classes State
   const [classes, setClasses] = useState<ClassSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
 
   // Registration State
   const [registration, setRegistration] = useState<ClassRegistration>(() => {
@@ -115,6 +117,8 @@ export default function App() {
 
   useEffect(() => {
     fetchClasses();
+    const timer = setTimeout(() => setShowSplash(false), 2500);
+    return () => clearTimeout(timer);
   }, []);
 
   // Notifications State
@@ -311,21 +315,25 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 w-full max-w-lg mx-auto relative z-10 overflow-y-auto pb-20">
         <AnimatePresence mode="wait">
-        <motion.div
-          key={currentScreen}
-          initial={animStyle.initial}
-          animate={animStyle.animate}
-          exit={animStyle.exit}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="flex-1 w-full relative z-10"
-        >
-          {renderActiveScreen()}
-        </motion.div>
+        {(isLoading || showSplash) ? (
+          <LoadingSplash key="loading" />
+        ) : (
+          <motion.div
+            key={currentScreen}
+            initial={animStyle.initial}
+            animate={animStyle.animate}
+            exit={animStyle.exit}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="flex-1 w-full relative z-10"
+          >
+            {renderActiveScreen()}
+          </motion.div>
+        )}
       </AnimatePresence>
       </main>
 
       {/* Bottom Navigation */}
-      {currentScreen !== ScreenId.RoleSelection && currentScreen !== ScreenId.WelcomeCover && (
+      {!(isLoading || showSplash) && currentScreen !== ScreenId.RoleSelection && currentScreen !== ScreenId.WelcomeCover && (
         <nav className="fixed bottom-0 inset-x-0 z-50 bg-[#150a0e]/95 backdrop-blur-xl border-t border-white/5 safe-bottom">
         <div className="max-w-lg mx-auto flex justify-around items-center py-2">
           {navItems.map((item) => (
