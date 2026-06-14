@@ -69,7 +69,7 @@ export function MisRegistrosScreen({ onNavigate, classes, onSelectClass }: MisRe
               className={`flex-1 py-2 text-xs font-black rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
                 activeTab === tab.id
                   ? "bg-[#00a2ff] text-white shadow-md"
-                  : "text-white/50 hover:text-white"
+                  : "text-white/80 hover:text-white"
               }`}
             >
               {tab.label}
@@ -82,8 +82,8 @@ export function MisRegistrosScreen({ onNavigate, classes, onSelectClass }: MisRe
       <div className="px-5 space-y-3">
         {filteredClasses.length === 0 ? (
           <div className="text-center py-12">
-            <span className="material-symbols-outlined text-white/10 text-5xl mb-3 block">event_busy</span>
-            <p className="text-sm text-white/40 font-bold">No hay registros en esta categoría</p>
+            <span className="material-symbols-outlined text-white/30 text-5xl mb-3 block">event_busy</span>
+            <p className="text-sm text-white/80 font-bold">No hay registros en esta categoría</p>
           </div>
         ) : (
           filteredClasses.map((c, index) => (

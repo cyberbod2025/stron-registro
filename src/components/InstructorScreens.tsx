@@ -395,12 +395,12 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
 
           {/* Cancellation Notice Section */}
           {selectedClass.status === "suspendida" && students.length > 0 && (
-            <div className="bg-rose-500/5 px-4 py-4 border-b border-rose-500/10">
+            <div className="glass-panel mx-4 mb-6 p-4 border border-rose-500/20">
               <h3 className="text-[10px] font-black text-rose-300 uppercase tracking-widest mb-2 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
                 Avisar a alumnas registradas
               </h3>
-              <p className="text-[10px] text-rose-200/70 mb-3 italic">
+              <p className="text-[10px] text-rose-200/90 mb-3 italic">
                 "{getCancellationMessage()}"
               </p>
               <div className="flex gap-2">
@@ -421,7 +421,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
 
           {/* Quorum Push Section */}
           {selectedClass.status !== "suspendida" && (selectedClass.minRequired - selectedClass.confirmedCount) > 0 && (
-            <div className="bg-purple-500/5 px-4 py-4 border-b border-purple-500/10">
+            <div className="glass-panel mx-4 mb-6 p-4 border border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.15)] relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-[10px] font-black text-purple-300 uppercase tracking-widest flex items-center gap-1">
                   <span className="material-symbols-outlined text-[14px]">group_add</span>
@@ -431,7 +431,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
                   Faltan {selectedClass.minRequired - selectedClass.confirmedCount} para confirmar
                 </span>
               </div>
-              <p className="text-[10px] text-purple-200/70 mb-3 italic">
+              <p className="text-[10px] text-purple-200/90 mb-3 italic">
                 "{getQuorumPushMessage()}"
               </p>
               <div className="flex gap-2 mb-3">
@@ -446,7 +446,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
               {/* Suggested Students List */}
               {suggestedStudents.length > 0 ? (
                 <div className="mt-4">
-                  <p className="text-[9px] font-bold text-white/50 uppercase tracking-widest mb-2">Alumnas Sugeridas</p>
+                  <p className="text-[9px] font-bold text-white/80 uppercase tracking-widest mb-2">Alumnas Sugeridas</p>
                   <div className="space-y-1">
                     {suggestedStudents.map(student => (
                       <div key={student.id} className="flex items-center justify-between bg-black/20 p-2 rounded-lg border border-white/5">
@@ -473,9 +473,9 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
           )}
 
           {/* Students Table */}
-          <div className="rounded-2xl overflow-hidden border border-white/5">
+          <div className="glass-panel mx-4 mb-6 rounded-2xl overflow-hidden border border-white/10">
             {/* Table Header */}
-            <div className="grid grid-cols-12 bg-[#12080c] px-4 py-2 text-[9px] font-bold text-white/40 uppercase tracking-wider">
+            <div className="grid grid-cols-12 bg-[#030712]/80 px-4 py-2 text-[9px] font-bold text-white/80 uppercase tracking-wider">
               <span className="col-span-4">Alumna</span>
               <span className="col-span-2">Hora</span>
               <span className="col-span-3">Registro</span>
@@ -506,7 +506,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
                     )}
                   </div>
                   <div className="col-span-2">
-                    <p className="text-white/40 text-[10px] font-mono">{student.time}</p>
+                    <p className="text-white/80 text-[10px] font-mono">{student.time}</p>
                   </div>
                   <div className="col-span-3">
                     <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${

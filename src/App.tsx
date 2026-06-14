@@ -331,7 +331,7 @@ export default function App() {
               className={`flex flex-col items-center gap-0.5 py-1.5 px-4 rounded-xl transition-all duration-200 cursor-pointer ${
                 activeTab === item.id
                   ? "text-[#00a2ff]"
-                  : "text-white/40 hover:text-white/60"
+                  : "text-white/60 hover:text-white/80"
               }`}
             >
               <span className={`material-symbols-outlined text-[22px] ${activeTab === item.id ? 'font-bold' : ''}`} style={activeTab === item.id ? { fontVariationSettings: "'FILL' 1" } : {}}>

@@ -103,7 +103,7 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
                   {getStatusIcon(c.status)}
                   {getHeaderTitle(c.status)}
                 </span>
-                <span className="text-[10px] text-white/40 font-mono">{c.confirmedCount}/{c.minRequired}</span>
+                <span className="text-[10px] text-white/80 font-mono">{c.confirmedCount}/{c.minRequired}</span>
               </div>
 
               {/* Class Info */}

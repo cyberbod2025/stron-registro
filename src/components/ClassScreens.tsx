@@ -152,146 +152,147 @@ export function RegistroDeClaseScreen({
         <div className="w-9" />
       </div>
 
-      <form onSubmit={handleSubmit} className="px-5 pt-6 space-y-6">
-        {/* Class Selection UI grouped by Week */}
-        {classes && classes.length > 0 && (
-          <div className="space-y-6">
-            {["esta_semana", "proxima_semana"].map((weekCategory) => {
-              const weekClasses = classes.filter(
-                c => c.status !== "suspendida" && getWeekCategory(c.startsAt) === weekCategory
-              );
-              
-              if (weekClasses.length === 0) return null;
+      <div className="px-4 pt-6">
+        <form onSubmit={handleSubmit} className="glass-panel p-5 space-y-6">
+          {/* Class Selection UI grouped by Week */}
+          {classes && classes.length > 0 && (
+            <div className="space-y-6">
+              {["esta_semana", "proxima_semana"].map((weekCategory) => {
+                const weekClasses = classes.filter(
+                  c => c.status !== "suspendida" && getWeekCategory(c.startsAt) === weekCategory
+                );
+                
+                if (weekClasses.length === 0) return null;
 
-              return (
-                <div key={weekCategory} className="space-y-3">
-                  <p className="text-xs font-black text-[#ffb1c7] uppercase tracking-widest pl-1">
-                    {weekCategory === "esta_semana" ? "Esta semana" : "Próxima semana"}
-                  </p>
-                  <div className="space-y-2.5">
-                    {weekClasses.map(c => {
-                      const isSelected = selectedClassId === c.id;
-                      return (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => setSelectedClassId(c.id)}
-                          className={`w-full text-left rounded-2xl p-4 transition-all cursor-pointer relative overflow-hidden glass-card ${
-                            isSelected 
-                              ? "border-2 border-[#00a2ff] shadow-[0_0_15px_rgba(0,162,255,0.3)] bg-[rgba(0,162,255,0.1)]" 
-                              : "border border-white/10 hover:border-white/20"
-                          }`}
-                        >
-                          {isSelected && (
-                            <div className="absolute top-4 right-4 text-[#00a2ff]">
-                              <CheckCircle className="w-5 h-5 fill-[#00a2ff]/20" />
-                            </div>
-                          )}
-                          <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                              isSelected ? "bg-[#00a2ff]/20 text-[#00a2ff]" : "bg-white/5 text-white/40"
-                            }`}>
-                              <Calendar className="w-5 h-5" />
-                            </div>
-                            <div className="pr-8">
-                              <p className={`text-base font-extrabold ${isSelected ? "text-white" : "text-white/80"}`}>
-                                {formatDisplayDate(c)} <span className="text-white/50 font-medium">| {c.timeStr}</span>
-                              </p>
-                              <div className="flex items-center gap-1.5 mt-1">
-                                <MapPin className={`w-3 h-3 ${isSelected ? "text-[#00a2ff]" : "text-white/30"}`} />
-                                <span className={`text-xs ${isSelected ? "text-[#e2bdc6]" : "text-white/50"}`}>{c.location}</span>
+                return (
+                  <div key={weekCategory} className="space-y-3">
+                    <p className="text-xs font-black text-[#ffb1c7] uppercase tracking-widest pl-1">
+                      {weekCategory === "esta_semana" ? "Esta semana" : "Próxima semana"}
+                    </p>
+                    <div className="space-y-2.5">
+                      {weekClasses.map(c => {
+                        const isSelected = selectedClassId === c.id;
+                        return (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => setSelectedClassId(c.id)}
+                            className={`w-full text-left rounded-2xl p-4 transition-all cursor-pointer relative overflow-hidden glass-card ${
+                              isSelected 
+                                ? "border-2 border-[#00a2ff] shadow-[0_0_15px_rgba(0,162,255,0.3)] bg-[rgba(0,162,255,0.1)]" 
+                                : "border border-white/10 hover:border-white/20"
+                            }`}
+                          >
+                            {isSelected && (
+                              <div className="absolute top-4 right-4 text-[#00a2ff]">
+                                <CheckCircle className="w-5 h-5 fill-[#00a2ff]/20" />
+                              </div>
+                            )}
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                                isSelected ? "bg-[#00a2ff]/20 text-[#00a2ff]" : "bg-white/10 text-white/60"
+                              }`}>
+                                <Calendar className="w-5 h-5" />
+                              </div>
+                              <div className="pr-8">
+                                <p className={`text-base font-extrabold text-shadow-solid ${isSelected ? "text-white" : "text-white/90"}`}>
+                                  {formatDisplayDate(c)} <span className="text-white/70 font-medium">| {c.timeStr}</span>
+                                </p>
+                                <div className="flex items-center gap-1.5 mt-1">
+                                  <MapPin className={`w-3 h-3 ${isSelected ? "text-[#00a2ff]" : "text-white/50"}`} />
+                                  <span className={`text-xs ${isSelected ? "text-[#e2bdc6]" : "text-white/70"}`}>{c.location}</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </button>
-                      );
-                    })}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
 
-        {/* Form Fields */}
-        <div className="space-y-5">
-          <p className="text-xs font-black text-[#ffb1c7] uppercase tracking-widest">Tus datos</p>
-          
-          <div>
-            <label className="block text-[10px] font-bold uppercase text-white/50 tracking-wider mb-1.5">Nombre completo</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/20 text-lg">person</span>
-              <input
-                type="text"
-                required
-                className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/50"
-                placeholder="Tu nombre completo"
-                value={formData.fullName}
-                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              />
+          {/* Form Fields */}
+          <div className="space-y-5">
+            <p className="text-xs font-black text-[#ffb1c7] uppercase tracking-widest">Tus datos</p>
+            
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-white/80 tracking-wider mb-1.5">Nombre completo</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/40 text-lg">person</span>
+                <input
+                  type="text"
+                  required
+                  className="w-full bg-[#030712]/80 border border-white/20 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/60"
+                  placeholder="Tu nombre completo"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-white/80 tracking-wider mb-1.5">Correo electrónico</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/40 text-lg">mail</span>
+                <input
+                  type="email"
+                  required
+                  className="w-full bg-[#030712]/80 border border-white/20 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/60"
+                  placeholder="tu.correo@ejemplo.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-white/80 tracking-wider mb-1.5">Teléfono (opcional)</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/40 text-lg">call</span>
+                <input
+                  type="tel"
+                  className="w-full bg-[#030712]/80 border border-white/20 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/60"
+                  placeholder="55 1234 5678"
+                  value={formData.mobile}
+                  onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* WhatsApp opt-in */}
+            <div>
+              <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-[#25D366]/15 border border-[#25D366]/30">
+                <input
+                  type="checkbox"
+                  className="w-5 h-5 rounded"
+                  checked={formData.whatsappOptIn}
+                  onChange={(e) => setFormData({ ...formData, whatsappOptIn: e.target.checked })}
+                />
+                <span className="text-sm text-white font-semibold">Quiero recibir avisos por WhatsApp 📱</span>
+              </label>
+              <p className="mt-1.5 ml-2 text-[10px] text-white/60 italic">
+                Usaremos tu número solo para avisarte cambios importantes de tu clase.
+              </p>
             </div>
           </div>
 
-          <div>
-            <label className="block text-[10px] font-bold uppercase text-white/50 tracking-wider mb-1.5">Correo electrónico</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/20 text-lg">mail</span>
-              <input
-                type="email"
-                required
-                className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/50"
-                placeholder="tu.correo@ejemplo.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-bold uppercase text-white/50 tracking-wider mb-1.5">Teléfono (opcional)</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/20 text-lg">call</span>
-              <input
-                type="tel"
-                className="w-full bg-[#12080c] border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/50"
-                placeholder="55 1234 5678"
-                value={formData.mobile}
-                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-              />
-            </div>
-          </div>
-
-          {/* WhatsApp opt-in */}
-          <div>
-            <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-[#25D366]/10 border border-[#25D366]/20">
-              <input
-                type="checkbox"
-                className="w-5 h-5 rounded"
-                checked={formData.whatsappOptIn}
-                onChange={(e) => setFormData({ ...formData, whatsappOptIn: e.target.checked })}
-              />
-              <span className="text-sm text-white font-semibold">Quiero recibir avisos por WhatsApp 📱</span>
-            </label>
-            <p className="mt-1.5 ml-2 text-[10px] text-white/40 italic">
-              Usaremos tu número solo para avisarte cambios importantes de tu clase.
-            </p>
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className={`w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] transition-all text-center ${
-            isSubmitting 
-              ? 'bg-gray-600 cursor-not-allowed opacity-70' 
-              : 'bg-gradient-to-r from-[#00a2ff] to-[#0077ff] hover:brightness-110 active:scale-[0.97] cursor-pointer'
-          }`}
-        >
-          {isSubmitting ? "PROCESANDO..." : "CONFIRMAR ASISTENCIA 💪"}
-        </button>
-
-      </form>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(255,73,148,0.3)] transition-all text-center ${
+              isSubmitting 
+                ? 'bg-gray-600 cursor-not-allowed opacity-70' 
+                : 'bg-gradient-to-r from-[#00a2ff] to-[#0077ff] hover:brightness-110 active:scale-[0.97] cursor-pointer'
+            }`}
+          >
+            {isSubmitting ? "PROCESANDO..." : "CONFIRMAR ASISTENCIA 💪"}
+          </button>
+        </form>
+      </div>
     </motion.div>
   );
 }
@@ -397,7 +398,7 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
             <Clock className="w-4 h-4 text-amber-400" />
             <span>Fecha límite: <strong className="text-white">{classSession?.deadlineStr}</strong></span>
           </div>
-          <p className="text-[11px] text-white/50 leading-relaxed pl-6">
+          <p className="text-[11px] text-white/80 leading-relaxed pl-6">
             Te avisaremos si la clase se CONFIRMA o se CANCELA después de las 8:00 PM.
           </p>
         </div>
@@ -416,7 +417,7 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
         {classSession?.mapsUrl && (
           <button
             onClick={() => window.open(classSession.mapsUrl, '_blank')}
-            className="w-full py-3.5 rounded-2xl bg-[#0a1020]/40 border border-emerald-500/20 text-emerald-400 font-bold text-xs uppercase tracking-widest hover:bg-emerald-500/10 active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 rounded-2xl glass-panel border border-emerald-500/20 text-emerald-400 font-bold text-xs uppercase tracking-widest hover:bg-emerald-500/10 active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Map className="w-4 h-4" />
             Abrir ubicación en Maps
@@ -501,7 +502,7 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
         )}
         {status === "loading" && (
           <div className="w-full py-3 px-4 rounded-2xl bg-white/5 border border-white/10 text-center mt-2">
-            <p className="text-[11px] text-white/50 leading-relaxed animate-pulse">
+            <p className="text-[11px] text-white/80 leading-relaxed animate-pulse">
               Verificando estado de recordatorios...
             </p>
           </div>
@@ -518,7 +519,7 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
 
         {status === "unconfigured" && (
           <div className="w-full py-3 px-4 rounded-2xl bg-white/5 border border-white/10 text-center mt-2">
-            <p className="text-[11px] text-white/50 leading-relaxed">
+            <p className="text-[11px] text-white/80 leading-relaxed">
               Recordatorios no configurados. Falta configurar OneSignal.
             </p>
           </div>
@@ -526,7 +527,7 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
 
         {status === "unsupported" && (
           <div className="w-full py-3 px-4 rounded-2xl bg-white/5 border border-white/10 text-center mt-2">
-            <p className="text-[11px] text-white/50 leading-relaxed">
+            <p className="text-[11px] text-white/80 leading-relaxed">
               Este navegador o dispositivo no permite recordatorios push.
             </p>
           </div>
@@ -591,7 +592,7 @@ export function ClaseCanceladaIztacalcoScreen({ onNavigate, classSession }: Clas
 
       <div className="w-full max-w-sm glass-card rounded-2xl p-4 border border-white/10 mb-6">
         <div className="flex items-start gap-2 text-xs text-[#e2bdc6]">
-          <AlertCircle className="w-4 h-4 text-white/50 shrink-0 mt-0.5" />
+          <AlertCircle className="w-4 h-4 text-white/80 shrink-0 mt-0.5" />
           <p className="leading-relaxed">
             Te avisaremos para la próxima clase. ¡No te desanimes!
           </p>

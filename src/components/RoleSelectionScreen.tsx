@@ -61,7 +61,7 @@ export function RoleSelectionScreen({ onNavigate, onInstructorLogin, onShowToast
                 <Users className="w-7 h-7 text-[#00a2ff]" />
               </div>
               <h2 className="text-xl font-black text-white uppercase tracking-wider">Soy Alumna</h2>
-              <p className="text-xs text-white/60 text-center">
+              <p className="text-xs text-white/80 text-center">
                 Registra tu asistencia, invita amigas y gestiona tus clases.
               </p>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -76,10 +76,10 @@ export function RoleSelectionScreen({ onNavigate, onInstructorLogin, onShowToast
               className="w-full relative overflow-hidden group rounded-2xl bg-[#0a1020]/50 border border-white/10 hover:border-[#00a2ff]/20 p-6 flex flex-col items-center gap-3"
             >
               <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-2">
-                <UserCircle className="w-7 h-7 text-white/60 group-hover:text-[#00a2ff] transition-colors" />
+                <UserCircle className="w-7 h-7 text-white/80 group-hover:text-[#00a2ff] transition-colors" />
               </div>
               <h2 className="text-xl font-black text-white uppercase tracking-wider">Soy Instructor</h2>
-              <p className="text-xs text-white/60 text-center">
+              <p className="text-xs text-white/80 text-center">
                 Visualiza las métricas, confirmaciones y pasa asistencia.
               </p>
             </motion.button>

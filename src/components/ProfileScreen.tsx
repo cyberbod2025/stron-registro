@@ -96,12 +96,12 @@ export function ProfileScreen({
                 {pushStatus === "subscribed" ? (
                   <BellRing className="w-5 h-5 text-emerald-400" />
                 ) : (
-                  <BellOff className="w-5 h-5 text-white/40" />
+                  <BellOff className="w-5 h-5 text-white/70" />
                 )}
               </div>
               <div>
                 <p className="text-sm font-bold text-white">Avisos de clases</p>
-                <p className="text-[10px] text-white/50 mt-0.5">
+                <p className="text-[10px] text-white/80 mt-0.5">
                   {pushStatus === "loading" && "Verificando estado..."}
                   {pushStatus === "unsubscribed" && "No activadas"}
                   {pushStatus === "subscribed" && "Recordatorios activados"}
