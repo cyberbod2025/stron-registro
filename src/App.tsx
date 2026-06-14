@@ -83,7 +83,9 @@ export default function App() {
         deadlineStr: c.deadline_str,
         mapsUrl: c.maps_url,
         wazeUrl: c.waze_url,
-        calendarUrl: c.calendar_url
+        calendarUrl: c.calendar_url,
+        cancelledAt: c.cancelled_at,
+        cancellationReason: c.cancellation_reason
       }));
 
       setClasses(loadedClasses);

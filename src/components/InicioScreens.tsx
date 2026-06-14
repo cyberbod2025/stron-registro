@@ -133,7 +133,7 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
                   <span>Faltan <strong className="text-amber-300">{missing}</strong> alumna{missing !== 1 ? 's' : ''}. Cierre: {c.deadlineStr}.</span>
                 )}
                 {isConfirmed && <span className="text-emerald-300">✅ Nos vemos en clase. Llegar 10 min antes.</span>}
-                {isSuspended && <span className="text-rose-300">No se alcanzó el mínimo antes del cierre.</span>}
+                {isSuspended && <span className="text-rose-300">{c.cancellationReason ? `Cancelada: ${c.cancellationReason}` : "No se alcanzó el mínimo antes del cierre."}</span>}
               </div>
 
               {/* Actions */}

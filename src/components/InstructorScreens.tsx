@@ -107,6 +107,95 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
     }
   };
 
+  const handleGenerateNextWeek = async () => {
+    if (!classes || classes.length === 0) return;
+    try {
+      const { supabase } = await import('../lib/supabase');
+      // Find maximum starts_at currently in DB
+      const validStarts = classes.map(c => c.startsAt ? new Date(c.startsAt).getTime() : 0).filter(t => t > 0);
+      if (validStarts.length === 0) return;
+      
+      const maxTime = Math.max(...validStarts);
+      const maxDate = new Date(maxTime);
+      
+      // Get all classes that are within 6 days of the max date (so we clone the last week)
+      const latestWeekClasses = classes.filter(c => {
+        if (!c.startsAt) return false;
+        const d = new Date(c.startsAt);
+        const diffDays = Math.abs((d.getTime() - maxDate.getTime()) / (1000 * 60 * 60 * 24));
+        return diffDays <= 6; 
+      });
+
+      const newClasses = latestWeekClasses.map(c => {
+        const newDate = new Date(c.startsAt!);
+        newDate.setDate(newDate.getDate() + 7);
+        return {
+          title: c.title,
+          date_str: c.dateStr,
+          time_str: c.timeStr,
+          location: c.location,
+          address: c.address,
+          is_private_location: c.isPrivateLocation,
+          status: 'pendiente',
+          min_required: c.minRequired,
+          deadline_str: c.deadlineStr,
+          maps_url: c.mapsUrl,
+          waze_url: c.wazeUrl,
+          calendar_url: c.calendarUrl,
+          starts_at: newDate.toISOString()
+        };
+      });
+
+      if (newClasses.length === 0) return;
+
+      const { error } = await supabase.from('classes').insert(newClasses);
+      if (error) throw error;
+      onShowToast?.("Próxima semana generada con éxito");
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      onShowToast?.("Error generando próxima semana");
+    }
+  };
+
+  const handleCancelClass = async () => {
+    if (!selectedClassId) return;
+    const reason = window.prompt("Motivo de cancelación (ej. Lluvia, Enfermedad):", "Fuerza mayor");
+    if (reason === null) return; // User cancelled prompt
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const { error } = await supabase.from('classes').update({
+        status: 'suspendida',
+        cancelled_at: new Date().toISOString(),
+        cancellation_reason: reason
+      }).eq('id', selectedClassId);
+      if (error) throw error;
+      onShowToast?.("Clase cancelada");
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      onShowToast?.("Error cancelando clase");
+    }
+  };
+
+  const handleReactivateClass = async () => {
+    if (!selectedClassId) return;
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const { error } = await supabase.from('classes').update({
+        status: 'pendiente',
+        cancelled_at: null,
+        cancellation_reason: null
+      }).eq('id', selectedClassId);
+      if (error) throw error;
+      onShowToast?.("Clase reactivada");
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      onShowToast?.("Error reactivando clase");
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmada": return "text-emerald-400";
@@ -181,10 +270,18 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       <div className="px-5 mb-6">
         <button
           onClick={() => onShowToast?.("Mensaje de recordatorio preparado 📋")}
-          className="w-full py-4 rounded-2xl bg-[#00a2ff]/10 border border-[#00a2ff]/30 text-[#00a2ff] font-black text-xs uppercase tracking-widest hover:bg-[#00a2ff]/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+          className="w-full py-4 rounded-2xl bg-[#00a2ff]/10 border border-[#00a2ff]/30 text-[#00a2ff] font-black text-xs uppercase tracking-widest hover:bg-[#00a2ff]/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 mb-3"
         >
           <span className="material-symbols-outlined text-lg">campaign</span>
           Preparar recordatorio
+        </button>
+
+        <button
+          onClick={handleGenerateNextWeek}
+          className="w-full py-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400 font-black text-xs uppercase tracking-widest hover:bg-purple-500/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+        >
+          <span className="material-symbols-outlined text-lg">event_repeat</span>
+          Generar próxima semana
         </button>
       </div>
 
@@ -201,10 +298,25 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       {/* Selected Class Detail */}
       {selectedClass && (
         <div className="px-5 mb-6">
-          <div className="bg-[#12080c] px-4 py-2 flex items-center justify-between border-b border-white/5">
+          <div className="bg-[#12080c] px-4 py-3 flex items-center justify-between border-b border-white/5">
             <span className="text-[10px] text-[#e2bdc6] font-bold uppercase tracking-wider">
               Detalle de registros — {formatDisplayDate(selectedClass)} {selectedClass.timeStr}
             </span>
+            {selectedClass.status === "suspendida" ? (
+              <button
+                onClick={handleReactivateClass}
+                className="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-emerald-500/30 transition-all cursor-pointer"
+              >
+                Reactivar Sesión
+              </button>
+            ) : (
+              <button
+                onClick={handleCancelClass}
+                className="px-3 py-1.5 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-rose-500/30 transition-all cursor-pointer"
+              >
+                Cancelar Sesión
+              </button>
+            )}
           </div>
           {/* Students Table */}
           <div className="rounded-2xl overflow-hidden border border-white/5">

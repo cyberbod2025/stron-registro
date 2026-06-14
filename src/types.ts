@@ -29,6 +29,7 @@ export interface ClassSession {
   timeStr: string; // e.g. "9:00 a.m." (fallback)
   startsAt?: string; // Real timestamp
   location: string;
+  address?: string;
   location_link?: string;
   isPrivateLocation?: boolean;
   status: ClassStatus;
@@ -38,6 +39,8 @@ export interface ClassSession {
   mapsUrl?: string;
   wazeUrl?: string;
   calendarUrl?: string;
+  cancelledAt?: string;
+  cancellationReason?: string;
 }
 
 export interface ClassRegistration {

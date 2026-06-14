@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS public.classes (
     waze_url TEXT,
     calendar_url TEXT,
     starts_at TIMESTAMP WITH TIME ZONE,
+    cancelled_at TIMESTAMP WITH TIME ZONE,
+    cancellation_reason TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
