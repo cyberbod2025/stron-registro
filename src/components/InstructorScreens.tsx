@@ -196,6 +196,30 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
     }
   };
 
+  const getCancellationMessage = () => {
+    if (!selectedClass) return "";
+    const dateStr = formatDisplayDate(selectedClass);
+    const reason = selectedClass.cancellationReason || "Motivos de fuerza mayor";
+    return `Hola, chicas. Les aviso que la clase de Strong Nation del ${dateStr} a las ${selectedClass.timeStr} en ${selectedClass.location} queda cancelada por: ${reason}. Una disculpa por el inconveniente. Gracias por estar al pendiente. 💪`;
+  };
+
+  const copyCancellationMessage = async () => {
+    const text = getCancellationMessage();
+    try {
+      await navigator.clipboard.writeText(text);
+      onShowToast?.("Mensaje de cancelación copiado 📋");
+    } catch (err) {
+      onShowToast?.("No se pudo copiar el mensaje");
+    }
+  };
+
+  const getWhatsAppLink = (phone: string) => {
+    const text = encodeURIComponent(getCancellationMessage());
+    const formattedPhone = phone.replace(/\D/g, '');
+    const finalPhone = formattedPhone.length === 10 ? `52${formattedPhone}` : formattedPhone;
+    return `https://wa.me/${finalPhone}?text=${text}`;
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmada": return "text-emerald-400";
@@ -318,6 +342,33 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
               </button>
             )}
           </div>
+
+          {/* Cancellation Notice Section */}
+          {selectedClass.status === "suspendida" && students.length > 0 && (
+            <div className="bg-rose-500/5 px-4 py-4 border-b border-rose-500/10">
+              <h3 className="text-[10px] font-black text-rose-300 uppercase tracking-widest mb-2 flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" />
+                Avisar a alumnas registradas
+              </h3>
+              <p className="text-[10px] text-rose-200/70 mb-3 italic">
+                "{getCancellationMessage()}"
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={copyCancellationMessage}
+                  className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-black text-[10px] uppercase tracking-wider hover:bg-white/10 transition-all cursor-pointer flex-1 text-center"
+                >
+                  Copiar mensaje general
+                </button>
+              </div>
+              {!students.some(s => s.phone) && (
+                <p className="mt-3 text-[10px] text-amber-200/70 italic">
+                  No hay teléfonos disponibles para esta sesión.
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Students Table */}
           <div className="rounded-2xl overflow-hidden border border-white/5">
             {/* Table Header */}
@@ -366,38 +417,56 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
                     </span>
                   </div>
                   <div className="col-span-3 flex justify-end gap-1">
-                    <button
-                      disabled={student.status === "Asistió"}
-                      onClick={() => handleMarkAttendance(student.id, student.name)}
-                      className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                        student.status === "Asistió"
-                          ? "text-emerald-400 bg-emerald-500/10"
-                          : "text-emerald-400/50 bg-emerald-500/5 hover:bg-emerald-500/20 hover:text-emerald-400"
-                      }`}
-                      title="Marcar Asistencia"
-                    >
-                      {student.status === "Asistió" ? (
-                        <CheckCircle className="w-4 h-4" />
+                    {selectedClass.status === "suspendida" ? (
+                      student.phone ? (
+                        <a
+                          href={getWhatsAppLink(student.phone)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-2 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-emerald-500/20 transition-all cursor-pointer flex items-center gap-1"
+                        >
+                          <span className="material-symbols-outlined text-[12px]">chat</span>
+                          WA
+                        </a>
                       ) : (
-                        <span className="material-symbols-outlined text-base">how_to_reg</span>
-                      )}
-                    </button>
-                    <button
-                      disabled={student.status === "No Asistió"}
-                      onClick={() => handleMarkAbsent(student.id, student.name)}
-                      className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                        student.status === "No Asistió"
-                          ? "text-rose-400 bg-rose-500/10"
-                          : "text-rose-400/50 bg-rose-500/5 hover:bg-rose-500/20 hover:text-rose-400"
-                      }`}
-                      title="Marcar Falta"
-                    >
-                      {student.status === "No Asistió" ? (
-                        <X className="w-4 h-4" />
-                      ) : (
-                        <span className="material-symbols-outlined text-base">person_off</span>
-                      )}
-                    </button>
+                        <span className="text-[9px] text-white/30 italic uppercase">Sin Tel.</span>
+                      )
+                    ) : (
+                      <>
+                        <button
+                          disabled={student.status === "Asistió"}
+                          onClick={() => handleMarkAttendance(student.id, student.name)}
+                          className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                            student.status === "Asistió"
+                              ? "text-emerald-400 bg-emerald-500/10"
+                              : "text-emerald-400/50 bg-emerald-500/5 hover:bg-emerald-500/20 hover:text-emerald-400"
+                          }`}
+                          title="Marcar Asistencia"
+                        >
+                          {student.status === "Asistió" ? (
+                            <CheckCircle className="w-4 h-4" />
+                          ) : (
+                            <span className="material-symbols-outlined text-base">how_to_reg</span>
+                          )}
+                        </button>
+                        <button
+                          disabled={student.status === "No Asistió"}
+                          onClick={() => handleMarkAbsent(student.id, student.name)}
+                          className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                            student.status === "No Asistió"
+                              ? "text-rose-400 bg-rose-500/10"
+                              : "text-rose-400/50 bg-rose-500/5 hover:bg-rose-500/20 hover:text-rose-400"
+                          }`}
+                          title="Marcar Falta"
+                        >
+                          {student.status === "No Asistió" ? (
+                            <X className="w-4 h-4" />
+                          ) : (
+                            <span className="material-symbols-outlined text-base">person_off</span>
+                          )}
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))
