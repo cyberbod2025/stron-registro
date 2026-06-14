@@ -1,6 +1,6 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { ArrowLeft, Users, CheckCircle, Clock, X } from "lucide-react";
+import { ArrowLeft, Users, CheckCircle, Clock, X, AlertTriangle, Info } from "lucide-react";
 import React, { useState } from "react";
 
 interface InstructorProps {
@@ -43,11 +43,21 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
         
         const mapped = data.map((s: any) => ({
           id: s.id,
+          studentId: s.student_id,
           name: s.students?.full_name || "Desconocido",
           status: s.attended ? "Asistió" : (s.absent ? "No Asistió" : "Confirmada"),
           phone: s.students?.mobile || "",
           time: new Date(s.created_at).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
         }));
+
+        mapped.forEach((student: any) => {
+          student.isSuspicious = mapped.some(
+            (other: any) => 
+              other.name.toLowerCase().trim() === student.name.toLowerCase().trim() && 
+              other.studentId !== student.studentId
+          );
+        });
+
         setStudents(mapped);
       } catch (err) {
         console.error(err);
@@ -177,6 +187,16 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
         </button>
       </div>
 
+      {/* Declarative Warning */}
+      <div className="px-5 mb-6">
+        <div className="rounded-xl bg-blue-500/10 border border-blue-500/20 p-3 flex gap-3 items-start">
+          <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+          <p className="text-[10px] text-blue-200/70 leading-relaxed">
+            <strong>Identidad V1 (Declarativa):</strong> Las alumnas se registran libremente con su email y teléfono. El sistema no verifica identidad real (OTP/Passwords). Un ícono ⚠️ indica un posible registro duplicado o sospechoso (mismo nombre, diferente correo/teléfono).
+          </p>
+        </div>
+      </div>
+
       {/* Selected Class Detail */}
       {selectedClass && (
         <div className="px-5 mb-6">
@@ -211,8 +231,11 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
                     index % 2 === 0 ? "bg-transparent" : "bg-white/[0.02]"
                   }`}
                 >
-                  <div className="col-span-4">
+                  <div className="col-span-4 flex items-center gap-1.5">
                     <p className="font-bold text-white truncate text-[11px]">{student.name}</p>
+                    {student.isSuspicious && (
+                      <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0" title="Posible duplicado. Mismo nombre, diferente correo/teléfono." />
+                    )}
                   </div>
                   <div className="col-span-2">
                     <p className="text-white/40 text-[10px] font-mono">{student.time}</p>

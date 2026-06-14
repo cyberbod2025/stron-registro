@@ -50,11 +50,11 @@ export function RegistroDeClaseScreen({
     try {
       const { supabase } = await import('../lib/supabase');
       
-      // 1. Buscar si la alumna ya existe
+      // 1. Buscar si la alumna ya existe (por email o teléfono)
       const { data: existingStudents, error: searchError } = await supabase
         .from('students')
         .select('id')
-        .eq('email', formData.email)
+        .or(`email.eq.${formData.email},mobile.eq.${formData.mobile}`)
         .limit(1);
 
       if (searchError) throw searchError;
