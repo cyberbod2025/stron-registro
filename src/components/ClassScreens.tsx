@@ -291,9 +291,6 @@ export function RegistroDeClaseScreen({
           {isSubmitting ? "PROCESANDO..." : "CONFIRMAR ASISTENCIA 💪"}
         </button>
 
-        <p className="text-[11px] text-center text-white/40 leading-relaxed">
-          Recibirás un correo con la confirmación
-        </p>
       </form>
     </motion.div>
   );
