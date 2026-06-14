@@ -91,10 +91,10 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.08 }}
-              className={`rounded-2xl overflow-hidden p-5 border shadow-lg ${
-                isConfirmed ? "bg-[#0f1f17]/60 border-emerald-500/20" :
-                isSuspended ? "bg-[#1f0f12]/60 border-rose-500/20" :
-                "bg-[#0a1020]/40 border-[#00a2ff]/15"
+              className={`rounded-2xl overflow-hidden p-5 shadow-lg glass-card ${
+                isConfirmed ? "border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)]" :
+                isSuspended ? "border-rose-500/30 shadow-[0_0_15px_rgba(244,63,94,0.15)]" :
+                "border-white/20"
               }`}
             >
               {/* Status Badge */}

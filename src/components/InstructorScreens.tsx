@@ -585,7 +585,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       {/* Statistics Panel */}
       <div className="px-5">
         <h2 className="text-xs font-black text-white uppercase tracking-widest mb-3">Estadísticas</h2>
-        <div className="rounded-2xl p-5 bg-[#0a1020]/40 border border-white/5">
+        <div className="rounded-2xl p-5 glass-card">
           {/* Circular Chart Placeholder */}
           <div className="flex items-center gap-6 mb-4">
             <div className="relative w-24 h-24 shrink-0">

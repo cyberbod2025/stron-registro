@@ -97,7 +97,7 @@ export function HomeScreen({ onNavigate, classes, isLoading, onSelectClass }: Ho
                   if (onSelectClass) onSelectClass(c.id);
                   onNavigate(ScreenId.RegistroDeClase, "push");
                 }}
-                className="class-card w-full text-left rounded-2xl p-4 bg-[#0a1020]/60 border border-white/8 hover:border-[#00a2ff]/30 transition-all cursor-pointer group flex items-center justify-between"
+                className="class-card w-full text-left rounded-2xl p-4 glass-card hover:border-[#00a2ff]/30 transition-all cursor-pointer group flex items-center justify-between"
               >
                 <div className="flex items-center gap-4">
                   {/* Day indicator */}

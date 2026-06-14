@@ -65,7 +65,7 @@ export function ReglasScreen({ onNavigate }: ReglasProps) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.08 }}
-            className="flex items-start gap-4 p-4 rounded-2xl bg-[#0a1020]/40 border border-white/5"
+            className="flex items-start gap-4 p-4 rounded-2xl glass-card"
           >
             <div className="w-10 h-10 rounded-xl bg-[#00a2ff]/10 border border-[#00a2ff]/20 flex items-center justify-center shrink-0 mt-0.5">
               <span className="material-symbols-outlined text-[#00a2ff] text-xl">{rule.icon}</span>

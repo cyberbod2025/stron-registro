@@ -61,7 +61,7 @@ export function ProfileScreen({
         </div>
 
         {/* Profile Card */}
-        <div className="relative rounded-3xl p-6 bg-gradient-to-br from-[#0d1326]/80 via-[#070a14]/60 to-[#0a0d1a]/80 border border-[#00a2ff]/20 shadow-xl">
+        <div className="relative rounded-3xl p-6 glass-card border border-[#00a2ff]/30 shadow-xl overflow-hidden">
           <div className="flex items-center gap-4">
             {/* Avatar */}
             <div className="relative">
@@ -88,7 +88,7 @@ export function ProfileScreen({
         <div className="px-5 mb-8">
           <h3 className="text-[10px] font-black text-[#00a2ff] uppercase tracking-widest mb-3 px-2">Recordatorios</h3>
           
-          <div className="rounded-2xl p-4 bg-[#0a1020]/50 border border-white/5 flex items-center justify-between">
+          <div className="rounded-2xl p-4 glass-card flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                 pushStatus === "subscribed" ? "bg-emerald-500/10" : "bg-white/5"
@@ -139,7 +139,7 @@ export function ProfileScreen({
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
             onClick={() => item.screen && onNavigate(item.screen, "push")}
-            className="w-full flex items-center justify-between p-4 rounded-2xl bg-[#0a1020]/30 border border-white/5 hover:border-[#00a2ff]/20 transition-all cursor-pointer group active:scale-[0.98]"
+            className="w-full flex items-center justify-between p-4 rounded-2xl glass-card hover:border-[#00a2ff]/40 transition-all cursor-pointer group active:scale-[0.98]"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#00a2ff]/10 flex items-center justify-center">

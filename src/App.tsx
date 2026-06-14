@@ -293,7 +293,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col bg-[#1e0f14] font-sans antialiased overflow-x-hidden relative">
       {/* Background Image */}
       <div 
-        className="fixed inset-0 z-0 opacity-40 pointer-events-none mix-blend-overlay"
+        className="fixed inset-0 z-0 opacity-80 pointer-events-none"
         style={{ 
           backgroundImage: `url(${bgImage})`, 
           backgroundSize: 'cover', 

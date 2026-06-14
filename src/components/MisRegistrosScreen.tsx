@@ -96,7 +96,7 @@ export function MisRegistrosScreen({ onNavigate, classes, onSelectClass }: MisRe
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="w-full text-left rounded-2xl p-4 bg-[#0a1020]/40 border border-white/5 flex items-center justify-between cursor-pointer hover:border-[#00a2ff]/30 hover:bg-[#0a1020]/80 transition-all active:scale-[0.98]"
+              className="w-full text-left rounded-2xl p-4 glass-card hover:border-[#00a2ff]/40 transition-all cursor-pointer group active:scale-[0.98]"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#00a2ff]/10 border border-[#00a2ff]/20 flex items-center justify-center">
