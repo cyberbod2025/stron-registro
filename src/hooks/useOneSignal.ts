@@ -72,12 +72,18 @@ export function useOneSignal() {
               }
               window.__oneSignalInitialized = true;
             } catch (initErr: any) {
-              if (initErr?.message?.includes("already initialized")) {
+              const msg = initErr?.message || "";
+              if (msg.includes("already initialized")) {
                 console.warn("[OneSignal Diag] SDK was already initialized, proceeding safely.");
                 window.__oneSignalInitialized = true;
+              } else if (msg.includes("Can only be used on:")) {
+                console.warn("[OneSignal Diag] Domain mismatch. OneSignal is disabled in this environment.");
+                setStatus("unsupported");
+                return;
               } else {
                 throw initErr;
               }
+            }
             }
           }
 
