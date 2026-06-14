@@ -84,7 +84,6 @@ export function useOneSignal() {
                 throw initErr;
               }
             }
-            }
           }
 
           // Check if push is supported
