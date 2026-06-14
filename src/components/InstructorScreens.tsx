@@ -136,7 +136,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
           location: c.location,
           address: c.address,
           is_private_location: c.isPrivateLocation,
-          status: 'pendiente',
+          status: 'scheduled',
           min_required: c.minRequired,
           deadline_str: c.deadlineStr,
           maps_url: c.mapsUrl,
@@ -165,7 +165,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
     try {
       const { supabase } = await import('../lib/supabase');
       const { error } = await supabase.from('classes').update({
-        status: 'suspendida',
+        status: 'cancelled',
         cancelled_at: new Date().toISOString(),
         cancellation_reason: reason
       }).eq('id', selectedClassId);
@@ -183,7 +183,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
     try {
       const { supabase } = await import('../lib/supabase');
       const { error } = await supabase.from('classes').update({
-        status: 'pendiente',
+        status: 'scheduled',
         cancelled_at: null,
         cancellation_reason: null
       }).eq('id', selectedClassId);

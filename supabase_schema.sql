@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS public.classes (
     location TEXT NOT NULL,
     address TEXT,
     is_private_location BOOLEAN DEFAULT false,
-    status TEXT NOT NULL DEFAULT 'pendiente',
+    status TEXT NOT NULL DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'cancelled')),
     min_required INTEGER NOT NULL DEFAULT 5,
     deadline_str TEXT,
     maps_url TEXT,
@@ -83,6 +83,6 @@ END $$;
 -- Opcional: Insertar las clases iniciales (mock)
 INSERT INTO public.classes (title, date_str, time_str, location, address, is_private_location, status, min_required, deadline_str, maps_url, waze_url)
 VALUES 
-('Strong Nation', 'Martes', '9:00 a.m.', 'Casa de Nidia', 'Ubicación compartida solo a alumnas registradas', true, 'confirmada', 5, 'lunes 8:00 p.m.', 'https://maps.app.goo.gl/DPtUq6P3PiWHNB5u7', 'WAZE_URL_CASA_DE_VIRI'),
-('Strong Nation', 'Jueves', '9:00 a.m.', 'Casa de Nidia', 'Ubicación compartida solo a alumnas registradas', true, 'pendiente', 5, 'miércoles 8:00 p.m.', 'https://maps.app.goo.gl/DPtUq6P3PiWHNB5u7', 'WAZE_URL_CASA_DE_VIRI'),
-('Strong Nation', 'Domingo', '8:30 a.m.', 'Day Cardio', 'Dirección Pública Day Cardio', false, 'suspendida', 5, 'sábado 8:00 p.m.', 'https://maps.app.goo.gl/wDKZqsd9wULqMp5S6', 'WAZE_URL_DAY_CARDIO');
+('Strong Nation', 'Martes', '9:00 a.m.', 'Casa de Nidia', 'Ubicación compartida solo a alumnas registradas', true, 'scheduled', 5, 'lunes 8:00 p.m.', 'https://maps.app.goo.gl/DPtUq6P3PiWHNB5u7', 'WAZE_URL_CASA_DE_VIRI'),
+('Strong Nation', 'Jueves', '9:00 a.m.', 'Casa de Nidia', 'Ubicación compartida solo a alumnas registradas', true, 'scheduled', 5, 'miércoles 8:00 p.m.', 'https://maps.app.goo.gl/DPtUq6P3PiWHNB5u7', 'WAZE_URL_CASA_DE_VIRI'),
+('Strong Nation', 'Domingo', '8:30 a.m.', 'Day Cardio', 'Dirección Pública Day Cardio', false, 'cancelled', 5, 'sábado 8:00 p.m.', 'https://maps.app.goo.gl/wDKZqsd9wULqMp5S6', 'WAZE_URL_DAY_CARDIO');

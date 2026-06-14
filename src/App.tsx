@@ -77,7 +77,7 @@ export default function App() {
         location: c.location,
         address: c.address,
         isPrivateLocation: c.is_private_location,
-        status: c.status,
+        status: c.status === 'cancelled' ? 'suspendida' : ((regCounts[c.id] || 0) >= c.min_required ? 'confirmada' : 'pendiente'),
         confirmedCount: regCounts[c.id] || 0,
         minRequired: c.min_required,
         deadlineStr: c.deadline_str,
