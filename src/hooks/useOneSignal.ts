@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
 
+declare global {
+  interface Window {
+    __oneSignalInitialized?: boolean;
+    OneSignalDeferred?: any[];
+    OneSignal?: any;
+  }
+}
+
 export type OneSignalState = "unconfigured" | "unsupported" | "loading" | "subscribed" | "unsubscribed" | "blocked" | "error";
 
 export interface OneSignalDebugInfo {
@@ -55,11 +63,22 @@ export function useOneSignal() {
       
       w.OneSignalDeferred.push(async function(OneSignal: any) {
         try {
-          if (!OneSignal.initialized) {
-            await OneSignal.init({
-              appId,
-              // notifyButton is removed to keep our custom UI clean
-            });
+          if (window.__oneSignalInitialized) {
+            console.info("[OneSignal Diag] SDK ya estaba inicializado globalmente.");
+          } else {
+            try {
+              if (!OneSignal.initialized && !OneSignal.config?.appId) {
+                await OneSignal.init({ appId });
+              }
+              window.__oneSignalInitialized = true;
+            } catch (initErr: any) {
+              if (initErr?.message?.includes("already initialized")) {
+                console.warn("[OneSignal Diag] SDK was already initialized, proceeding safely.");
+                window.__oneSignalInitialized = true;
+              } else {
+                throw initErr;
+              }
+            }
           }
 
           // Check if push is supported
