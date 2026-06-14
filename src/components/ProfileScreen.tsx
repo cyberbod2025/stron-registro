@@ -34,7 +34,6 @@ export function ProfileScreen({
 
   const menuItems = [
     { icon: "person", label: "Mis datos", screen: null },
-    { icon: "event_note", label: "Mis registros", screen: ScreenId.MisRegistros },
     { icon: "fact_check", label: "Historial de asistencia", screen: null },
     { icon: "bar_chart", label: "Mis estadísticas", screen: null },
   ];
