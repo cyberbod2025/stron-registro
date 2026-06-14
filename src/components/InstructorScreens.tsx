@@ -12,6 +12,7 @@ interface InstructorProps {
 
 export function PanelInstructor({ onNavigate, onShowToast, classes }: InstructorProps) {
   const [students, setStudents] = useState<any[]>([]);
+  const [suggestedStudents, setSuggestedStudents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
@@ -61,6 +62,30 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
         });
 
         setStudents(mapped);
+
+        // Fetch suggested students if pending
+        const currentSelected = classes?.find(c => c.id === selectedClassId);
+        if (currentSelected && currentSelected.status !== "suspendida" && (currentSelected.minRequired - currentSelected.confirmedCount) > 0) {
+          const registeredIds = mapped.map((m: any) => m.studentId);
+          const { data: allOpts } = await supabase
+            .from('students')
+            .select('id, full_name, mobile')
+            .eq('whatsapp_opt_in', true)
+            .neq('mobile', '');
+
+          if (allOpts) {
+            const uniquePhones = new Set();
+            const suggestions = allOpts.filter((opt: any) => {
+              if (registeredIds.includes(opt.id)) return false;
+              if (uniquePhones.has(opt.mobile)) return false;
+              uniquePhones.add(opt.mobile);
+              return true;
+            });
+            setSuggestedStudents(suggestions);
+          }
+        } else {
+          setSuggestedStudents([]);
+        }
       } catch (err) {
         console.error(err);
         onShowToast?.("Error al cargar alumnas");
@@ -221,6 +246,30 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
     return `https://wa.me/${finalPhone}?text=${text}`;
   };
 
+  const getQuorumPushMessage = () => {
+    if (!selectedClass) return "";
+    const dateStr = formatDisplayDate(selectedClass);
+    const missing = selectedClass.minRequired - selectedClass.confirmedCount;
+    return `Hola 👋 Solo faltan ${missing} lugares para confirmar la clase de Strong Nation del ${dateStr} a las ${selectedClass.timeStr} en ${selectedClass.location}.\n\nSi te animas, regístrate aquí:\nhttps://stron-registro.vercel.app\n\nLa clase se confirma con mínimo ${selectedClass.minRequired} alumnas. 💪`;
+  };
+
+  const copyQuorumPushMessage = async () => {
+    const text = getQuorumPushMessage();
+    try {
+      await navigator.clipboard.writeText(text);
+      onShowToast?.("Mensaje de empujón copiado 📋");
+    } catch (err) {
+      onShowToast?.("No se pudo copiar el mensaje");
+    }
+  };
+
+  const getQuorumWhatsAppLink = (phone: string) => {
+    const text = encodeURIComponent(getQuorumPushMessage());
+    const formattedPhone = phone.replace(/\D/g, '');
+    const finalPhone = formattedPhone.length === 10 ? `52${formattedPhone}` : formattedPhone;
+    return `https://wa.me/${finalPhone}?text=${text}`;
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmada": return "text-emerald-400";
@@ -365,6 +414,59 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
               {!students.some(s => s.phone) && (
                 <p className="mt-3 text-[10px] text-amber-200/70 italic">
                   No hay teléfonos disponibles para esta sesión.
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Quorum Push Section */}
+          {selectedClass.status !== "suspendida" && (selectedClass.minRequired - selectedClass.confirmedCount) > 0 && (
+            <div className="bg-purple-500/5 px-4 py-4 border-b border-purple-500/10">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-[10px] font-black text-purple-300 uppercase tracking-widest flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[14px]">group_add</span>
+                  Empujón de quórum
+                </h3>
+                <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[9px] font-black uppercase tracking-wider border border-purple-500/30">
+                  Faltan {selectedClass.minRequired - selectedClass.confirmedCount} para confirmar
+                </span>
+              </div>
+              <p className="text-[10px] text-purple-200/70 mb-3 italic">
+                "{getQuorumPushMessage()}"
+              </p>
+              <div className="flex gap-2 mb-3">
+                <button
+                  onClick={copyQuorumPushMessage}
+                  className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-black text-[10px] uppercase tracking-wider hover:bg-white/10 transition-all cursor-pointer flex-1 text-center"
+                >
+                  Copiar mensaje de empujón
+                </button>
+              </div>
+              
+              {/* Suggested Students List */}
+              {suggestedStudents.length > 0 ? (
+                <div className="mt-4">
+                  <p className="text-[9px] font-bold text-white/50 uppercase tracking-widest mb-2">Alumnas Sugeridas</p>
+                  <div className="space-y-1">
+                    {suggestedStudents.map(student => (
+                      <div key={student.id} className="flex items-center justify-between bg-black/20 p-2 rounded-lg border border-white/5">
+                        <span className="text-[10px] text-white font-bold truncate pr-2">{student.full_name}</span>
+                        <a
+                          href={getQuorumWhatsAppLink(student.mobile)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-2 py-1.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-purple-500/20 transition-all cursor-pointer flex items-center gap-1 shrink-0"
+                        >
+                          <span className="material-symbols-outlined text-[12px]">chat</span>
+                          WA
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-3 text-[10px] text-amber-200/70 italic">
+                  No hay alumnas sugeridas disponibles en este momento.
                 </p>
               )}
             </div>
