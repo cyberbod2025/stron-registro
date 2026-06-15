@@ -222,6 +222,25 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
     }
   };
 
+  const handleManualConfirm = async () => {
+    if (!selectedClassId) return;
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const { error } = await supabase.from('classes').update({
+        manual_confirmed: true,
+        confirmation_source: 'manual',
+        confirmed_at: new Date().toISOString(),
+        confirmed_by: 'instructor'
+      }).eq('id', selectedClassId);
+      if (error) throw error;
+      onShowToast?.("Clase confirmada manualmente");
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      onShowToast?.("Error confirmando clase");
+    }
+  };
+
   const getCancellationMessage = () => {
     if (!selectedClass) return "";
     const dateStr = formatDisplayDate(selectedClass);
@@ -332,8 +351,11 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
                   {c.confirmedCount}<span className="text-sm text-white/40">/{c.minRequired}</span>
                 </span>
               </div>
-              <div className={`mt-2 inline-flex px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border ${getStatusBg(c.status)} ${getStatusColor(c.status)}`}>
-                {c.status === "confirmada" ? "CONFIRMADA ✅" : c.status === "suspendida" ? "CANCELADA" : "EN PROGRESO"}
+              <div className={`mt-2 flex items-center justify-center w-full px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider border ${getStatusBg(c.status)} ${getStatusColor(c.status)}`}>
+                {c.status === "confirmada" ? (c.manual_confirmed ? "CONFIRMADA (MANUAL)" : "CONFIRMADA ✅") : c.status === "suspendida" ? "CANCELADA" : "EN PROGRESO"}
+              </div>
+              <div className="mt-2 text-[9px] font-bold text-center text-[#C93CFF] bg-[#C93CFF]/10 py-1 rounded-md uppercase">
+                Ver registradas
               </div>
             </motion.button>
           ))}
@@ -372,25 +394,35 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       {/* Selected Class Detail */}
       {selectedClass && (
         <div className="px-5 mb-6">
-          <div className="bg-[#12080c] px-4 py-3 flex items-center justify-between border-b border-white/5">
+          <div className="bg-[#12080c] px-4 py-3 flex items-center justify-between border-b border-white/5 flex-wrap gap-2">
             <span className="text-[10px] text-[#e2bdc6] font-bold uppercase tracking-wider">
               Detalle de registros — {formatDisplayDate(selectedClass)} {selectedClass.timeStr}
             </span>
-            {selectedClass.status === "suspendida" ? (
-              <button
-                onClick={handleReactivateClass}
-                className="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-emerald-500/30 transition-all cursor-pointer"
-              >
-                Reactivar Sesión
-              </button>
-            ) : (
-              <button
-                onClick={handleCancelClass}
-                className="px-3 py-1.5 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-rose-500/30 transition-all cursor-pointer"
-              >
-                Cancelar Sesión
-              </button>
-            )}
+            <div className="flex gap-2">
+              {selectedClass.status !== "suspendida" && !selectedClass.manual_confirmed && selectedClass.status !== "confirmada" && (
+                <button
+                  onClick={handleManualConfirm}
+                  className="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-blue-500/30 transition-all cursor-pointer"
+                >
+                  Confirmar clase manualmente
+                </button>
+              )}
+              {selectedClass.status === "suspendida" ? (
+                <button
+                  onClick={handleReactivateClass}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-emerald-500/30 transition-all cursor-pointer"
+                >
+                  Reactivar Sesión
+                </button>
+              ) : (
+                <button
+                  onClick={handleCancelClass}
+                  className="px-3 py-1.5 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-rose-500/30 transition-all cursor-pointer"
+                >
+                  Cancelar Sesión
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Cancellation Notice Section */}

@@ -93,7 +93,7 @@ export default function App() {
         location: c.location,
         address: c.address,
         isPrivateLocation: c.is_private_location,
-        status: c.status === 'cancelled' ? 'suspendida' : ((regCounts[c.id] || 0) >= c.min_required ? 'confirmada' : 'pendiente'),
+        status: c.status === 'cancelled' ? 'suspendida' : (c.manual_confirmed ? 'confirmada' : ((regCounts[c.id] || 0) >= c.min_required ? 'confirmada' : 'pendiente')),
         confirmedCount: regCounts[c.id] || 0,
         minRequired: c.min_required,
         deadlineStr: c.deadline_str,
@@ -101,7 +101,11 @@ export default function App() {
         wazeUrl: c.waze_url,
         calendarUrl: c.calendar_url,
         cancelledAt: c.cancelled_at,
-        cancellationReason: c.cancellation_reason
+        cancellationReason: c.cancellation_reason,
+        manual_confirmed: c.manual_confirmed,
+        confirmation_source: c.confirmation_source,
+        confirmed_at: c.confirmed_at,
+        confirmed_by: c.confirmed_by
       }));
 
       setClasses(loadedClasses);

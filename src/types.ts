@@ -42,6 +42,10 @@ export interface ClassSession {
   calendarUrl?: string;
   cancelledAt?: string;
   cancellationReason?: string;
+  manual_confirmed?: boolean;
+  confirmation_source?: string;
+  confirmed_at?: string;
+  confirmed_by?: string;
 }
 
 export interface ClassRegistration {
