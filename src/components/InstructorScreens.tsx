@@ -8,9 +8,10 @@ interface InstructorProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
   onShowToast?: (message: string) => void;
   classes?: ClassSession[];
+  onRefresh?: () => void;
 }
 
-export function PanelInstructor({ onNavigate, onShowToast, classes }: InstructorProps) {
+export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }: InstructorProps) {
   const [students, setStudents] = useState<any[]>([]);
   const [suggestedStudents, setSuggestedStudents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -177,7 +178,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       const { error } = await supabase.from('classes').insert(newClasses);
       if (error) throw error;
       onShowToast?.("Próxima semana generada con éxito");
-      window.location.reload();
+      onRefresh?.();
     } catch (err) {
       console.error(err);
       onShowToast?.("Error generando próxima semana");
@@ -197,7 +198,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       }).eq('id', selectedClassId);
       if (error) throw error;
       onShowToast?.("Clase cancelada");
-      window.location.reload();
+      onRefresh?.();
     } catch (err) {
       console.error(err);
       onShowToast?.("Error cancelando clase");
@@ -215,7 +216,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       }).eq('id', selectedClassId);
       if (error) throw error;
       onShowToast?.("Clase reactivada");
-      window.location.reload();
+      onRefresh?.();
     } catch (err) {
       console.error(err);
       onShowToast?.("Error reactivando clase");
@@ -234,7 +235,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes }: Instructor
       }).eq('id', selectedClassId);
       if (error) throw error;
       onShowToast?.("Clase confirmada manualmente");
-      window.location.reload();
+      onRefresh?.();
     } catch (err) {
       console.error(err);
       onShowToast?.("Error confirmando clase");

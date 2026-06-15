@@ -23,6 +23,25 @@
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
           appId: "6b5fa5f0-f321-47f6-8b06-1b43d539ebe2",
+          promptOptions: {
+            slidedown: {
+              prompts: [
+                {
+                  type: "push",
+                  autoPrompt: true,
+                  text: {
+                    actionMessage: "Nos gustaría enviarte notificaciones para recordarte tus clases y avisos importantes.",
+                    acceptButton: "Permitir",
+                    cancelButton: "No, gracias"
+                  },
+                  delay: {
+                    pageViews: 1,
+                    timeDelay: 2
+                  }
+                }
+              ]
+            }
+          }
         });
       });
     </script>

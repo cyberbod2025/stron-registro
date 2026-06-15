@@ -261,6 +261,7 @@ export default function App() {
             onNavigate={handleNavigate}
             onShowToast={onShowToast}
             classes={classes}
+            onRefresh={fetchClasses}
           />
         );
       case ScreenId.MisRegistros:
