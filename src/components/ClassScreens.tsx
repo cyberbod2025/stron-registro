@@ -6,6 +6,7 @@ import { generateGoogleCalendarUrl } from "../lib/calendar";
 import { formatDisplayDate, getWeekCategory } from "../lib/utils";
 import { useOneSignal } from "../hooks/useOneSignal";
 import confetti from "canvas-confetti";
+import { APP_URL } from "../constants";
 
 interface ClassScreensProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -466,7 +467,7 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
         <button
           onClick={async () => {
             const refParam = registration?.email ? `?ref=${encodeURIComponent(registration.email)}` : "";
-            const shareUrl = `https://stron-registro.vercel.app/${refParam}`;
+            const shareUrl = `${APP_URL}/${refParam}`;
             const whatsappText = `¡Hola! Ya confirmé mi asistencia a la clase de Strong Nation el ${formatDisplayDate(classSession)} a las ${classSession?.timeStr}. ¡Vamos juntos! 💪 ${shareUrl}`;
             
             if (navigator.share) {

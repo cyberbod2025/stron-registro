@@ -3,6 +3,8 @@ import { motion } from "motion/react";
 import { ArrowLeft, Users, CheckCircle, Clock, X, AlertTriangle, Info } from "lucide-react";
 import React, { useState } from "react";
 import { formatDisplayDate, getWeekCategory } from "../lib/utils";
+import { supabase } from "../lib/supabase";
+import { APP_URL } from "../constants";
 
 interface InstructorProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -270,7 +272,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
     if (!selectedClass) return "";
     const dateStr = formatDisplayDate(selectedClass);
     const missing = selectedClass.minRequired - selectedClass.confirmedCount;
-    return `Hola 👋 Solo faltan ${missing} lugares para confirmar la clase de Strong Nation del ${dateStr} a las ${selectedClass.timeStr} en ${selectedClass.location}.\n\nSi te animas, regístrate aquí:\nhttps://stron-registro.vercel.app\n\nLa clase se confirma con mínimo ${selectedClass.minRequired} alumnas. 💪`;
+    return `Hola 👋 Solo faltan ${missing} lugares para confirmar la clase de Strong Nation del ${dateStr} a las ${selectedClass.timeStr} en ${selectedClass.location}.\n\nSi te animas, regístrate aquí:\n${APP_URL}\n\nLa clase se confirma con mínimo ${selectedClass.minRequired} alumnas. 💪`;
   };
 
   const copyQuorumPushMessage = async () => {
