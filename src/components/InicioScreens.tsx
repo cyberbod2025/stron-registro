@@ -12,32 +12,40 @@ interface InicioProps {
 export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "confirmada": return "text-emerald-400";
-      case "suspendida": return "text-rose-400";
+      case "confirmada_por_quorum":
+      case "confirmada_manual": return "text-emerald-400";
+      case "cancelada": return "text-rose-400";
+      case "finalizada": return "text-slate-400";
       default: return "text-amber-400";
     }
   };
 
   const getStatusBg = (status: string) => {
     switch (status) {
-      case "confirmada": return "status-confirmed";
-      case "suspendida": return "status-cancelled";
+      case "confirmada_por_quorum":
+      case "confirmada_manual": return "status-confirmed";
+      case "cancelada": return "status-cancelled";
+      case "finalizada": return "bg-slate-500/10 border-slate-500/30";
       default: return "status-pending";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "confirmada": return <CheckCircle className="w-4 h-4 text-emerald-400" />;
-      case "suspendida": return <XCircle className="w-4 h-4 text-rose-400" />;
+      case "confirmada_por_quorum":
+      case "confirmada_manual": return <CheckCircle className="w-4 h-4 text-emerald-400" />;
+      case "cancelada": return <XCircle className="w-4 h-4 text-rose-400" />;
+      case "finalizada": return <CheckCircle className="w-4 h-4 text-slate-400" />;
       default: return <AlertTriangle className="w-4 h-4 text-amber-400 animate-pulse" />;
     }
   };
 
   const getHeaderTitle = (status: string) => {
     switch (status) {
-      case "confirmada": return "CONFIRMADA";
-      case "suspendida": return "CANCELADA";
+      case "confirmada_por_quorum": return "CONFIRMADA";
+      case "confirmada_manual": return "ACTIVA (MANUAL)";
+      case "cancelada": return "CANCELADA";
+      case "finalizada": return "FINALIZADA";
       default: return "PENDIENTE";
     }
   };
@@ -78,10 +86,10 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
 
       {/* Class Cards */}
       <div className="px-5 space-y-4">
-        {classes.filter(c => getWeekCategory(c.startsAt) !== "otro").map((c, index) => {
+        {classes.filter(c => getWeekCategory(c.startsAt) !== "otro" && c.status !== "finalizada").map((c, index) => {
           const isPending = c.status === "pendiente";
-          const isConfirmed = c.status === "confirmada";
-          const isSuspended = c.status === "suspendida";
+          const isConfirmed = c.status === "confirmada_por_quorum" || c.status === "confirmada_manual";
+          const isSuspended = c.status === "cancelada";
           const missing = Math.max(0, c.minRequired - c.confirmedCount);
           const needsHelp = isPending && missing <= 2 && missing > 0;
 

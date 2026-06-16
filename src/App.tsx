@@ -14,7 +14,8 @@ import { InviteScreen } from "./components/InviteScreens";
 import {
   RegistroDeClaseScreen,
   ConfirmadaScreen,
-  ClaseCanceladaIztacalcoScreen
+  ClaseCanceladaIztacalcoScreen,
+  YaRegistradaScreen
 } from "./components/ClassScreens";
 import { InicioScreen } from "./components/InicioScreens";
 import { PanelInstructor } from "./components/InstructorScreens";
@@ -93,7 +94,7 @@ export default function App() {
         location: c.location,
         address: c.address,
         isPrivateLocation: c.is_private_location,
-        status: c.status === 'cancelled' ? 'suspendida' : (c.manual_confirmed ? 'confirmada' : ((regCounts[c.id] || 0) >= c.min_required ? 'confirmada' : 'pendiente')),
+        status: c.status === 'cancelled' ? 'cancelada' : (c.starts_at && new Date(c.starts_at).getTime() < Date.now() ? 'finalizada' : (c.manual_confirmed ? 'confirmada_manual' : ((regCounts[c.id] || 0) >= c.min_required ? 'confirmada_por_quorum' : 'pendiente'))),
         confirmedCount: regCounts[c.id] || 0,
         minRequired: c.min_required,
         deadlineStr: c.deadline_str,
@@ -223,6 +224,15 @@ export default function App() {
       case ScreenId.Confirmada:
         return (
           <ConfirmadaScreen
+            onNavigate={handleNavigate}
+            onShowToast={onShowToast}
+            classSession={classes.find(c => c.id === registration.classId) || classes[0]}
+            registration={registration}
+          />
+        );
+      case ScreenId.YaRegistrada:
+        return (
+          <YaRegistradaScreen
             onNavigate={handleNavigate}
             onShowToast={onShowToast}
             classSession={classes.find(c => c.id === registration.classId) || classes[0]}

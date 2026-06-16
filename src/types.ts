@@ -11,7 +11,8 @@ export enum ScreenId {
   InvitarAmiga = "Salvar Quórum",
   PanelInstructor = "Panel Instructor",
   Reglas = "Reglas",
-  WelcomeCover = "Welcome Cover"
+  WelcomeCover = "Welcome Cover",
+  YaRegistrada = "Ya Registrada"
 }
 
 export type TransitionType = "slide_up" | "push" | "push_back" | "none";
@@ -21,7 +22,20 @@ export interface NavigationState {
   transitionType: TransitionType;
 }
 
-export type ClassStatus = "pendiente" | "confirmada" | "suspendida";
+export type ClassStatus = "pendiente" | "confirmada_por_quorum" | "confirmada_manual" | "cancelada" | "finalizada";
+
+export interface AttendanceRecord {
+  id: string;
+  class_id: string;
+  student_id?: string;
+  full_name?: string;
+  email?: string;
+  mobile?: string;
+  attendance_status: "present" | "absent";
+  was_registered: boolean;
+  notes?: string;
+  created_at: string;
+}
 
 export interface ClassSession {
   id: string;

@@ -160,7 +160,7 @@ export function RegistroDeClaseScreen({
             <div className="space-y-6">
               {["esta_semana", "proxima_semana"].map((weekCategory) => {
                 const weekClasses = classes.filter(
-                  c => c.status !== "suspendida" && getWeekCategory(c.startsAt) === weekCategory
+                  c => c.status !== "cancelada" && getWeekCategory(c.startsAt) === weekCategory
                 );
                 
                 if (weekClasses.length === 0) return null;
@@ -628,6 +628,98 @@ export function ClaseCanceladaIztacalcoScreen({ onNavigate, classSession }: Clas
       >
         VER PRÓXIMAS CLASES
       </button>
+    </motion.div>
+  );
+}
+
+export function YaRegistradaScreen({ onNavigate, classSession, registration, onShowToast }: ClassScreensProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0 }}
+      className="min-h-screen flex flex-col items-center px-6 pt-16 pb-24"
+    >
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
+        className="w-24 h-24 rounded-full bg-blue-500/15 border-2 border-blue-400 flex items-center justify-center mb-6"
+      >
+        <CheckCircle className="w-14 h-14 text-blue-400" />
+      </motion.div>
+
+      <h1 className="text-2xl font-black italic text-white uppercase tracking-tight text-center mb-2">
+        Ya estás registrada ✅
+      </h1>
+      <p className="text-sm text-[#e2bdc6] text-center mb-8">
+        Tu registro para esta clase ya existe.
+      </p>
+
+      {/* Class details card */}
+      <div className="w-full max-w-sm rounded-2xl p-5 glass-card border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)] space-y-4 mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center">
+            <Calendar className="w-5 h-5 text-blue-400" />
+          </div>
+          <div>
+            <p className="text-base font-extrabold text-white">
+              {formatDisplayDate(classSession)} {classSession?.timeStr}
+            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <MapPin className="w-3 h-3 text-blue-400" />
+              <span className="text-xs text-[#e2bdc6]">{classSession?.location}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-white/5 pt-4 space-y-3">
+          <div className="space-y-1">
+            <p className="text-xs text-[#e2bdc6]"><span className="font-bold text-white/60">Nombre:</span> <span className="text-white">{registration?.fullName}</span></p>
+            <p className="text-xs text-[#e2bdc6]"><span className="font-bold text-white/60">Correo:</span> <span className="text-white">{registration?.email}</span></p>
+            {registration?.mobile && (
+              <p className="text-xs text-[#e2bdc6]"><span className="font-bold text-white/60">Teléfono:</span> <span className="text-white">{registration?.mobile}</span></p>
+            )}
+            <p className="text-xs text-[#e2bdc6]"><span className="font-bold text-white/60">Estado de clase:</span> <span className="text-white uppercase tracking-wider">{classSession?.status === "confirmada_manual" || classSession?.status === "confirmada_por_quorum" ? "ACTIVA ✅" : classSession?.status === "cancelada" ? "CANCELADA" : "PENDIENTE"}</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full max-w-sm space-y-3">
+        <button
+          onClick={() => onNavigate(ScreenId.MisRegistros, "push")}
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F20F72] to-[#8E2DE2] text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(242,15,114,0.3)] active:scale-[0.97] transition-all cursor-pointer"
+        >
+          VER MIS CLASES
+        </button>
+
+        <button
+          onClick={async () => {
+            const APP_URL = window.location.origin;
+            const refParam = registration?.email ? `?ref=${encodeURIComponent(registration.email)}` : "";
+            const shareUrl = `${APP_URL}/${refParam}`;
+            const whatsappText = `¡Hola! Ya estoy registrada para la clase de Strong Nation el ${formatDisplayDate(classSession)} a las ${classSession?.timeStr}. ¡Vamos juntas! 💪 ${shareUrl}`;
+            if (navigator.share) {
+              try { await navigator.share({ title: 'Clase Strong Nation', text: whatsappText }); return; } catch (e) {}
+            }
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(whatsappText)}`;
+            try { window.open(waUrl, '_blank'); } catch (e) {
+              try { await navigator.clipboard.writeText(whatsappText); onShowToast?.("Enlace copiado al portapapeles"); } catch (err) {}
+            }
+          }}
+          className="w-full py-3.5 rounded-2xl bg-[#25D366]/15 border border-[#25D366]/30 text-white font-bold text-xs uppercase tracking-widest hover:bg-[#25D366]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <Share2 className="w-4 h-4 text-[#25D366]" />
+          COMPARTIR COMPROBANTE
+        </button>
+
+        <button
+          onClick={() => onNavigate(ScreenId.Splash, "push_back")}
+          className="w-full py-3.5 rounded-2xl bg-white/10 border border-white/20 text-white font-bold text-xs uppercase tracking-widest hover:bg-white/20 active:scale-[0.97] transition-all cursor-pointer"
+        >
+          REGISTRARME A OTRA CLASE
+        </button>
+      </div>
     </motion.div>
   );
 }

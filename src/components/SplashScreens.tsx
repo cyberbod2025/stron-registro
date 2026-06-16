@@ -19,16 +19,20 @@ interface HomeProps {
 export function HomeScreen({ onNavigate, classes, isLoading, onSelectClass }: HomeProps) {
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "confirmada": return "CONFIRMADA";
-      case "suspendida": return "CANCELADA";
+      case "confirmada_por_quorum": return "CONFIRMADA";
+      case "confirmada_manual": return "ACTIVA (MANUAL)";
+      case "cancelada": return "CANCELADA";
+      case "finalizada": return "FINALIZADA";
       default: return "PENDIENTE";
     }
   };
 
   const getStatusClass = (status: string) => {
     switch (status) {
-      case "confirmada": return "status-confirmed";
-      case "suspendida": return "status-cancelled";
+      case "confirmada_por_quorum":
+      case "confirmada_manual": return "status-confirmed";
+      case "cancelada": return "status-cancelled";
+      case "finalizada": return "bg-slate-500/10 border-slate-500/30 text-slate-400";
       default: return "status-pending";
     }
   };
@@ -117,7 +121,7 @@ export function HomeScreen({ onNavigate, classes, isLoading, onSelectClass }: Ho
               ))}
             </>
           ) : (
-            classes.filter(c => getWeekCategory(c.startsAt) !== "otro").map((c, index) => (
+            classes.filter(c => getWeekCategory(c.startsAt) !== "otro" && c.status !== "finalizada").map((c, index) => (
               <motion.button
                 key={c.id}
                 initial={{ opacity: 0, x: -20 }}
