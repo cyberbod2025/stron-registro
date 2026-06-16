@@ -1,9 +1,8 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { ArrowLeft, Users, CheckCircle, Clock, X, AlertTriangle, Info } from "lucide-react";
+import { ArrowLeft, Users, CheckCircle, Clock, X, AlertTriangle, Info, Plus, UserPlus } from "lucide-react";
 import React, { useState } from "react";
 import { formatDisplayDate, getWeekCategory } from "../lib/utils";
-import { supabase } from "../lib/supabase";
 import { APP_URL } from "../constants";
 
 interface InstructorProps {
@@ -18,136 +17,145 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
   const [suggestedStudents, setSuggestedStudents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+  
+  const [classTab, setClassTab] = useState<"proximas" | "historial">("proximas");
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [quickAddName, setQuickAddName] = useState("");
+  const [quickAddPhone, setQuickAddPhone] = useState("");
 
-  // Set initial selected class
-  React.useEffect(() => {
-    if (classes && classes.length > 0 && !selectedClassId) {
-      setSelectedClassId(classes[0].id);
+  const filteredClasses = classes?.filter(c => {
+    const isPast = c.status === "finalizada" || (c.startsAt && new Date(c.startsAt) < new Date() && c.status !== "cancelada");
+    if (classTab === "proximas") return !isPast;
+    return isPast;
+  }).sort((a, b) => {
+    if (classTab === "historial") {
+      return new Date(b.startsAt!).getTime() - new Date(a.startsAt!).getTime();
     }
-  }, [classes]);
+    return new Date(a.startsAt!).getTime() - new Date(b.startsAt!).getTime();
+  }) || [];
+
+  React.useEffect(() => {
+    if (filteredClasses && filteredClasses.length > 0 && !selectedClassId) {
+      setSelectedClassId(filteredClasses[0].id);
+    }
+  }, [filteredClasses, selectedClassId]);
 
   const selectedClass = classes?.find(c => c.id === selectedClassId);
 
-  React.useEffect(() => {
+  const fetchStudents = async () => {
     if (!selectedClassId) {
       setIsLoading(false);
       return;
     }
-    
-    const fetchStudents = async () => {
-      setIsLoading(true);
-      try {
-        const { supabase } = await import('../lib/supabase');
-        const { data, error } = await supabase
-          .from('registrations')
-          .select('*, students(full_name, mobile, whatsapp_opt_in)')
-          .eq('class_id', selectedClassId)
-          .order('created_at', { ascending: true });
+    setIsLoading(true);
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const { data: regsData, error: regError } = await supabase
+        .from('registrations')
+        .select('*, students(full_name, mobile, whatsapp_opt_in)')
+        .eq('class_id', selectedClassId)
+        .order('created_at', { ascending: true });
 
-        if (error) throw error;
+      if (regError) throw regError;
+
+      const { data: attData, error: attError } = await supabase
+        .from('attendance')
+        .select('*')
+        .eq('class_id', selectedClassId);
         
-        const mapped = data.map((s: any) => ({
-          id: s.id,
+      if (attError) throw attError;
+
+      const attendanceMap = new Map();
+      attData?.forEach((a: any) => {
+        if (a.student_id) attendanceMap.set(a.student_id, a);
+        else attendanceMap.set(a.id, a); // For walk-ins without student_id
+      });
+
+      const mapped: any[] = [];
+      
+      regsData?.forEach((s: any) => {
+        const att = attendanceMap.get(s.student_id);
+        mapped.push({
+          id: s.id, 
           studentId: s.student_id,
           name: s.students?.full_name || "Desconocido",
-          status: s.attended ? "Asistió" : (s.absent ? "No Asistió" : "Confirmada"),
           phone: s.students?.mobile || "",
           whatsappOptIn: s.students?.whatsapp_opt_in ?? true,
-          time: new Date(s.created_at).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
-        }));
-
-        mapped.forEach((student: any) => {
-          student.isSuspicious = mapped.some(
-            (other: any) => 
-              other.name.toLowerCase().trim() === student.name.toLowerCase().trim() && 
-              other.studentId !== student.studentId
-          );
+          time: new Date(s.created_at).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+          attendanceStatus: att ? att.attendance_status : "pendiente",
+          isWalkIn: false,
+          attendanceId: att ? att.id : null
         });
+        if (att) attendanceMap.delete(s.student_id);
+      });
 
-        setStudents(mapped);
-
-        // Fetch suggested students if pending
-        const currentSelected = classes?.find(c => c.id === selectedClassId);
-        if (currentSelected && currentSelected.status !== "suspendida" && (currentSelected.minRequired - currentSelected.confirmedCount) > 0) {
-          const registeredIds = mapped.map((m: any) => m.studentId);
-          const { data: allOpts } = await supabase
-            .from('students')
-            .select('id, full_name, mobile')
-            .eq('whatsapp_opt_in', true)
-            .neq('mobile', '');
-
-          if (allOpts) {
-            const uniquePhones = new Set();
-            const suggestions = allOpts.filter((opt: any) => {
-              if (registeredIds.includes(opt.id)) return false;
-              if (uniquePhones.has(opt.mobile)) return false;
-              uniquePhones.add(opt.mobile);
-              return true;
-            });
-            setSuggestedStudents(suggestions);
-          }
-        } else {
-          setSuggestedStudents([]);
+      attendanceMap.forEach((att: any) => {
+        if (att.was_registered === false || !att.student_id) {
+          mapped.push({
+            id: att.id,
+            studentId: att.student_id,
+            name: att.full_name || "Walk-in",
+            phone: att.mobile || "",
+            whatsappOptIn: false,
+            time: new Date(att.created_at).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+            attendanceStatus: att.attendance_status,
+            isWalkIn: true,
+            attendanceId: att.id
+          });
         }
-      } catch (err) {
-        console.error(err);
-        onShowToast?.("Error al cargar alumnas");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      });
 
+      mapped.forEach((student: any) => {
+        student.isSuspicious = mapped.some(
+          (other: any) => 
+            other.name.toLowerCase().trim() === student.name.toLowerCase().trim() && 
+            other.id !== student.id && !student.isWalkIn && !other.isWalkIn
+        );
+      });
+
+      setStudents(mapped);
+
+      // Fetch suggested students if pending
+      const currentSelected = classes?.find(c => c.id === selectedClassId);
+      if (currentSelected && currentSelected.status !== "cancelada" && (currentSelected.minRequired - currentSelected.confirmedCount) > 0) {
+        const registeredIds = mapped.map((m: any) => m.studentId).filter(Boolean);
+        const { data: allOpts } = await supabase
+          .from('students')
+          .select('id, full_name, mobile')
+          .eq('whatsapp_opt_in', true)
+          .neq('mobile', '');
+
+        if (allOpts) {
+          const uniquePhones = new Set();
+          const suggestions = allOpts.filter((opt: any) => {
+            if (registeredIds.includes(opt.id)) return false;
+            if (uniquePhones.has(opt.mobile)) return false;
+            uniquePhones.add(opt.mobile);
+            return true;
+          });
+          setSuggestedStudents(suggestions);
+        }
+      } else {
+        setSuggestedStudents([]);
+      }
+    } catch (err) {
+      console.error(err);
+      onShowToast?.("Error al cargar alumnas");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
     fetchStudents();
   }, [selectedClassId]);
-
-  const handleMarkAttendance = async (id: string, name: string) => {
-    try {
-      const { supabase } = await import('../lib/supabase');
-      const { error } = await supabase
-        .from('registrations')
-        .update({ attended: true, absent: false })
-        .eq('id', id);
-
-      if (error) throw error;
-      
-      setStudents(students.map(s => s.id === id ? { ...s, status: "Asistió" } : s));
-      onShowToast?.(`${name} marcada como Asistió.`);
-    } catch (err) {
-      console.error(err);
-      onShowToast?.("Error al marcar asistencia.");
-    }
-  };
-
-  const handleMarkAbsent = async (id: string, name: string) => {
-    try {
-      const { supabase } = await import('../lib/supabase');
-      const { error } = await supabase
-        .from('registrations')
-        .update({ attended: false, absent: true })
-        .eq('id', id);
-
-      if (error) throw error;
-      
-      setStudents(students.map(s => s.id === id ? { ...s, status: "No Asistió" } : s));
-      onShowToast?.(`${name} marcada como No Asistió.`);
-    } catch (err) {
-      console.error(err);
-      onShowToast?.("Error al marcar inasistencia.");
-    }
-  };
 
   const handleGenerateNextWeek = async () => {
     if (!classes || classes.length === 0) return;
     try {
       const { supabase } = await import('../lib/supabase');
-      // Find maximum starts_at currently in DB
-      const validStarts = classes.map(c => c.startsAt ? new Date(c.startsAt).getTime() : 0).filter(t => t > 0);
-      if (validStarts.length === 0) return;
+      const maxDate = new Date(Math.max(...classes.map(c => new Date(c.startsAt!).getTime())));
       
-      const maxTime = Math.max(...validStarts);
-      const maxDate = new Date(maxTime);
-      
-      // Get all classes that are within 6 days of the max date (so we clone the last week)
       const latestWeekClasses = classes.filter(c => {
         if (!c.startsAt) return false;
         const d = new Date(c.startsAt);
@@ -190,7 +198,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
   const handleCancelClass = async () => {
     if (!selectedClassId) return;
     const reason = window.prompt("Motivo de cancelación (ej. Lluvia, Enfermedad):", "Fuerza mayor");
-    if (reason === null) return; // User cancelled prompt
+    if (reason === null) return; 
     try {
       const { supabase } = await import('../lib/supabase');
       const { error } = await supabase.from('classes').update({
@@ -261,11 +269,16 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
     }
   };
 
-  const getWhatsAppLink = (phone: string) => {
-    const text = encodeURIComponent(getCancellationMessage());
+  const getWhatsAppLink = (phone: string, name: string) => {
+    let text = "";
+    if (selectedClass?.status === "cancelada") {
+       text = getCancellationMessage();
+    } else {
+       text = `Hola ${name}, te esperamos hoy en la clase de Strong Nation! 💪`;
+    }
     const formattedPhone = phone.replace(/\D/g, '');
     const finalPhone = formattedPhone.length === 10 ? `52${formattedPhone}` : formattedPhone;
-    return `https://wa.me/${finalPhone}?text=${text}`;
+    return `https://wa.me/${finalPhone}?text=${encodeURIComponent(text)}`;
   };
 
   const getQuorumPushMessage = () => {
@@ -294,24 +307,87 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "confirmada": return "text-emerald-400";
-      case "suspendida": return "text-rose-400";
+      case "confirmada_por_quorum": return "text-emerald-400";
+      case "cancelada": return "text-rose-400";
       default: return "text-amber-400";
     }
   };
 
   const getStatusBg = (status: string) => {
     switch (status) {
-      case "confirmada": return "bg-emerald-500/10 border-emerald-500/30";
-      case "suspendida": return "bg-rose-500/10 border-rose-500/30";
+      case "confirmada_por_quorum": return "bg-emerald-500/10 border-emerald-500/30";
+      case "cancelada": return "bg-rose-500/10 border-rose-500/30";
       default: return "bg-amber-500/10 border-amber-500/30";
+    }
+  };
+
+  const handleMarkAttendance = async (student: any, status: 'present' | 'absent') => {
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const payload = {
+        class_id: selectedClassId,
+        student_id: student.studentId || null,
+        full_name: student.name,
+        mobile: student.phone,
+        attendance_status: status,
+        was_registered: !student.isWalkIn,
+        marked_by: 'instructor'
+      };
+      
+      let newAttId = student.attendanceId;
+      if (student.attendanceId) {
+        await supabase.from('attendance').update(payload).eq('id', student.attendanceId);
+      } else {
+        const { data: newAtt, error } = await supabase.from('attendance').insert([payload]).select('id').single();
+        if (error) throw error;
+        newAttId = newAtt.id;
+      }
+      
+      onShowToast?.(`Asistencia actualizada: ${student.name}`);
+      
+      setStudents(prev => prev.map(s => {
+        if (s.id === student.id) {
+          return { ...s, attendanceStatus: status, attendanceId: newAttId };
+        }
+        return s;
+      }));
+    } catch (err) {
+      console.error(err);
+      onShowToast?.("Error al marcar asistencia");
+    }
+  };
+
+  const handleQuickAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickAddName.trim()) return;
+    
+    try {
+      setIsLoading(true);
+      const { supabase } = await import('../lib/supabase');
+      await supabase.from('attendance').insert([{
+        class_id: selectedClassId,
+        full_name: quickAddName,
+        mobile: quickAddPhone,
+        attendance_status: 'present',
+        was_registered: false,
+        marked_by: 'instructor'
+      }]);
+      onShowToast?.("Alumna agregada (Walk-in)");
+      setShowQuickAdd(false);
+      setQuickAddName("");
+      setQuickAddPhone("");
+      await fetchStudents();
+    } catch (err) {
+      console.error(err);
+      onShowToast?.("Error al agregar alumna");
+      setIsLoading(false);
     }
   };
 
   // Stats
   const totalRegistrations = classes?.reduce((sum, c) => sum + c.confirmedCount, 0) || 0;
-  const confirmedClasses = classes?.filter(c => c.status === "confirmada").length || 0;
-  const cancelledClasses = classes?.filter(c => c.status === "suspendida").length || 0;
+  const confirmedClasses = classes?.filter(c => c.status === "confirmada_por_quorum").length || 0;
+  const cancelledClasses = classes?.filter(c => c.status === "cancelada").length || 0;
   const totalClasses = classes?.length || 0;
   const attendanceRate = totalClasses > 0 ? Math.round((confirmedClasses / totalClasses) * 100) : 0;
 
@@ -324,57 +400,74 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
     >
       {/* Header */}
       <div className="px-5 pt-14 pb-4 flex items-center justify-between">
-        <div>
+        <button 
+          onClick={() => onNavigate(ScreenId.RoleSelection, "push_back")}
+          className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center cursor-pointer"
+        >
+          <ArrowLeft className="w-5 h-5 text-white/70" />
+        </button>
+        <div className="text-right">
           <p className="text-[10px] font-black text-[#F20F72] tracking-widest uppercase">Panel del Instructor</p>
           <h1 className="text-lg font-black italic text-white uppercase tracking-tight">Profe Hugo ✌️</h1>
         </div>
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#F20F72] to-[#8E2DE2] flex items-center justify-center">
-          <span className="text-sm font-black text-white">H</span>
+      </div>
+
+      {/* Tabs Próximas / Historial */}
+      <div className="px-5 mb-4">
+        <div className="flex bg-[#12080c] border border-white/5 p-1 rounded-xl">
+          <button
+            onClick={() => { setClassTab("proximas"); setSelectedClassId(null); }}
+            className={`flex-1 py-2 text-xs font-black rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+              classTab === "proximas" ? "bg-[#F20F72] text-white shadow-md" : "text-white/80 hover:text-white"
+            }`}
+          >
+            Próximas
+          </button>
+          <button
+            onClick={() => { setClassTab("historial"); setSelectedClassId(null); }}
+            className={`flex-1 py-2 text-xs font-black rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+              classTab === "historial" ? "bg-[#F20F72] text-white shadow-md" : "text-white/80 hover:text-white"
+            }`}
+          >
+            Historial
+          </button>
         </div>
       </div>
 
       {/* Class Cards Summary */}
       <div className="px-5 mb-6">
-        <h2 className="text-xs font-black text-[#C93CFF] uppercase tracking-widest mb-3">Tus próximas clases</h2>
         <div className="flex gap-3 overflow-x-auto pb-2 -mx-2 px-2 hide-scrollbar">
-          {classes?.filter(c => getWeekCategory(c.startsAt) !== "otro").map((c) => (
-            <motion.button
-              key={c.id}
-              onClick={() => setSelectedClassId(c.id)}
-              className={`shrink-0 w-32 rounded-2xl p-4 border transition-all cursor-pointer ${
-                selectedClassId === c.id
-                  ? "border-[#F20F72]/50 bg-[#F20F72]/10"
-                  : "border-white/5 bg-[#0a1020]/30"
-              }`}
-            >
-              <p className="text-[10px] font-bold text-[#e2bdc6] truncate">{formatDisplayDate(c)} {c.timeStr}</p>
-              <p className="text-white text-xs font-black truncate">{c.location}</p>
-              <div className="mt-3 flex items-end justify-between">
-                <span className="text-2xl font-black text-white leading-none">
-                  {c.confirmedCount}<span className="text-sm text-white/40">/{c.minRequired}</span>
-                </span>
-              </div>
-              <div className={`mt-2 flex items-center justify-center w-full px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider border ${getStatusBg(c.status)} ${getStatusColor(c.status)}`}>
-                {c.status === "confirmada" ? (c.manual_confirmed ? "CONFIRMADA (MANUAL)" : "CONFIRMADA ✅") : c.status === "suspendida" ? "CANCELADA" : "EN PROGRESO"}
-              </div>
-              <div className="mt-2 text-[9px] font-bold text-center text-[#C93CFF] bg-[#C93CFF]/10 py-1 rounded-md uppercase">
-                Ver registradas
-              </div>
-            </motion.button>
-          ))}
+          {filteredClasses.length === 0 ? (
+            <p className="text-xs text-white/50 italic">No hay clases en esta sección.</p>
+          ) : (
+            filteredClasses.map((c) => (
+              <motion.button
+                key={c.id}
+                onClick={() => setSelectedClassId(c.id)}
+                className={`shrink-0 w-32 rounded-2xl p-4 border transition-all cursor-pointer ${
+                  selectedClassId === c.id
+                    ? "border-[#F20F72]/50 bg-[#F20F72]/10"
+                    : "border-white/5 bg-[#0a1020]/30"
+                }`}
+              >
+                <p className="text-[10px] font-bold text-[#e2bdc6] truncate">{formatDisplayDate(c)} {c.timeStr}</p>
+                <p className="text-white text-xs font-black truncate">{c.location}</p>
+                <div className="mt-3 flex items-end justify-between">
+                  <span className="text-2xl font-black text-white leading-none">
+                    {c.confirmedCount}<span className="text-sm text-white/40">/{c.minRequired}</span>
+                  </span>
+                </div>
+                <div className={`mt-2 flex items-center justify-center w-full px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider border ${getStatusBg(c.status)} ${getStatusColor(c.status)}`}>
+                  {c.status === "confirmada_por_quorum" ? (c.manual_confirmed ? "CONFIRMADA (MANUAL)" : "CONFIRMADA ✅") : c.status === "cancelada" ? "CANCELADA" : "EN PROGRESO"}
+                </div>
+              </motion.button>
+            ))
+          )}
         </div>
       </div>
 
       {/* Instructor Actions */}
       <div className="px-5 mb-6">
-        <button
-          onClick={() => onShowToast?.("Mensaje de recordatorio preparado 📋")}
-          className="w-full py-4 rounded-2xl bg-[#F20F72]/10 border border-[#F20F72]/30 text-[#F20F72] font-black text-xs uppercase tracking-widest hover:bg-[#F20F72]/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 mb-3"
-        >
-          <span className="material-symbols-outlined text-lg">campaign</span>
-          Preparar recordatorio
-        </button>
-
         <button
           onClick={handleGenerateNextWeek}
           className="w-full py-4 rounded-2xl bg-[#8E2DE2]/10 border border-[#8E2DE2]/30 text-[#8E2DE2] font-black text-xs uppercase tracking-widest hover:bg-[#8E2DE2]/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
@@ -384,25 +477,15 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
         </button>
       </div>
 
-      {/* Declarative Warning */}
-      <div className="px-5 mb-6">
-        <div className="rounded-xl bg-blue-500/10 border border-blue-500/20 p-3 flex gap-3 items-start">
-          <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-          <p className="text-[10px] text-blue-200/70 leading-relaxed">
-            <strong>Identidad V1 (Declarativa):</strong> Las alumnas se registran libremente con su email y teléfono. El sistema no verifica identidad real (OTP/Passwords). Un ícono ⚠️ indica un posible registro duplicado o sospechoso (mismo nombre, diferente correo/teléfono).
-          </p>
-        </div>
-      </div>
-
       {/* Selected Class Detail */}
       {selectedClass && (
         <div className="px-5 mb-6">
           <div className="bg-[#12080c] px-4 py-3 flex items-center justify-between border-b border-white/5 flex-wrap gap-2">
             <span className="text-[10px] text-[#e2bdc6] font-bold uppercase tracking-wider">
-              Detalle de registros — {formatDisplayDate(selectedClass)} {selectedClass.timeStr}
+              Detalle de asistencia — {formatDisplayDate(selectedClass)} {selectedClass.timeStr}
             </span>
             <div className="flex gap-2">
-              {selectedClass.status !== "suspendida" && !selectedClass.manual_confirmed && selectedClass.status !== "confirmada" && (
+              {selectedClass.status !== "cancelada" && !selectedClass.manual_confirmed && selectedClass.status !== "confirmada_por_quorum" && (
                 <button
                   onClick={handleManualConfirm}
                   className="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-blue-500/30 transition-all cursor-pointer"
@@ -410,7 +493,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
                   Confirmar clase manualmente
                 </button>
               )}
-              {selectedClass.status === "suspendida" ? (
+              {selectedClass.status === "cancelada" ? (
                 <button
                   onClick={handleReactivateClass}
                   className="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-emerald-500/30 transition-all cursor-pointer"
@@ -429,243 +512,180 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
           </div>
 
           {/* Cancellation Notice Section */}
-          {selectedClass.status === "suspendida" && students.length > 0 && (
+          {selectedClass.status === "cancelada" && students.length > 0 && (
             <div className="glass-panel mx-4 mb-6 p-4 border border-rose-500/20">
               <h3 className="text-[10px] font-black text-rose-300 uppercase tracking-widest mb-2 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
-                Avisar a alumnas registradas
+                Avisos de cancelación
               </h3>
               <p className="text-[10px] text-rose-200/90 mb-3 italic">
                 "{getCancellationMessage()}"
               </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={copyCancellationMessage}
-                  className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-black text-[10px] uppercase tracking-wider hover:bg-white/10 transition-all cursor-pointer flex-1 text-center"
-                >
-                  Copiar mensaje general
-                </button>
-              </div>
-              {!students.some(s => s.phone) && (
-                <p className="mt-3 text-[10px] text-amber-200/70 italic">
-                  No hay teléfonos disponibles para esta sesión.
-                </p>
-              )}
+              <button
+                onClick={copyCancellationMessage}
+                className="w-full mb-3 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-black text-[10px] uppercase tracking-wider hover:bg-white/10 transition-all cursor-pointer text-center"
+              >
+                Copiar mensaje general
+              </button>
             </div>
           )}
 
-          {/* Quorum Push Section */}
-          {selectedClass.status !== "suspendida" && (selectedClass.minRequired - selectedClass.confirmedCount) > 0 && (
-            <div className="glass-panel mx-4 mb-6 p-4 border border-[#8E2DE2]/30 shadow-[0_0_20px_rgba(142,45,226,0.15)] relative overflow-hidden">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-[10px] font-black text-[#8E2DE2] uppercase tracking-widest flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px]">group_add</span>
-                  Empujón de quórum
-                </h3>
-                <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[9px] font-black uppercase tracking-wider border border-purple-500/30">
-                  Faltan {selectedClass.minRequired - selectedClass.confirmedCount} para confirmar
-                </span>
-              </div>
-              <p className="text-[10px] text-purple-200/90 mb-3 italic">
-                "{getQuorumPushMessage()}"
-              </p>
-              <div className="flex gap-2 mb-3">
-                <button
-                  onClick={copyQuorumPushMessage}
-                  className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-black text-[10px] uppercase tracking-wider hover:bg-white/10 transition-all cursor-pointer flex-1 text-center"
-                >
-                  Copiar mensaje de empujón
-                </button>
-              </div>
-              
-              {/* Suggested Students List */}
-              {suggestedStudents.length > 0 ? (
-                <div className="mt-4">
-                  <p className="text-[9px] font-bold text-white/80 uppercase tracking-widest mb-2">Alumnas Sugeridas</p>
-                  <div className="space-y-1">
-                    {suggestedStudents.map(student => (
-                      <div key={student.id} className="flex items-center justify-between bg-black/20 p-2 rounded-lg border border-white/5">
-                        <span className="text-[10px] text-white font-bold truncate pr-2">{student.full_name}</span>
-                        <a
-                          href={getQuorumWhatsAppLink(student.mobile)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="px-2 py-1.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-purple-500/20 transition-all cursor-pointer flex items-center gap-1 shrink-0"
-                        >
-                          <span className="material-symbols-outlined text-[12px]">chat</span>
-                          WA
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <p className="mt-3 text-[10px] text-amber-200/70 italic">
-                  No hay alumnas sugeridas disponibles en este momento.
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Students Table */}
-          <div className="glass-panel mx-4 mb-6 rounded-2xl overflow-hidden border border-white/10">
-            {/* Table Header */}
-            <div className="grid grid-cols-12 bg-[#030712]/80 px-4 py-2 text-[9px] font-bold text-white/80 uppercase tracking-wider">
-              <span className="col-span-4">Alumna</span>
-              <span className="col-span-2">Hora</span>
-              <span className="col-span-3">Registro</span>
-              <span className="col-span-3 text-right">Acción</span>
-            </div>
-
-            {/* Table Rows */}
+          {/* Registration List */}
+          <div className="bg-[#12080c] p-4 flex flex-col gap-3 min-h-[200px]">
             {isLoading ? (
-              <div className="p-6 text-center">
-                <span className="text-xs text-white/30">Cargando alumnas...</span>
+              <div className="flex flex-col items-center justify-center py-10">
+                <div className="w-6 h-6 border-2 border-[#F20F72] border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-xs text-[#e2bdc6] mt-4 font-bold uppercase tracking-widest animate-pulse">Cargando alumnas...</p>
               </div>
             ) : students.length === 0 ? (
-              <div className="p-6 text-center">
-                <span className="text-xs text-white/30 italic">Aún no hay alumnas confirmadas</span>
+              <div className="flex flex-col items-center justify-center py-10">
+                <Users className="w-8 h-8 text-white/20 mb-3" />
+                <p className="text-xs text-[#e2bdc6] font-bold uppercase tracking-widest text-center">Aún no hay registros</p>
               </div>
             ) : (
-              students.map((student, index) => (
-                <div
-                  key={student.id}
-                  className={`grid grid-cols-12 items-center px-4 py-3 text-xs border-t border-white/5 ${
-                    index % 2 === 0 ? "bg-transparent" : "bg-white/[0.02]"
-                  }`}
-                >
-                  <div className="col-span-4 flex items-center gap-1.5">
-                    <p className="font-bold text-white truncate text-[11px]">{student.name}</p>
-                    {student.isSuspicious && (
-                      <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0" title="Posible duplicado. Mismo nombre, diferente correo/teléfono." />
+              students.map((student) => (
+                <div key={student.id} className="flex flex-col gap-2 p-3 rounded-xl bg-[#0a1020]/50 border border-white/5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F20F72]/20 to-[#8E2DE2]/20 border border-white/10 flex items-center justify-center">
+                        <span className="text-xs font-black text-white">{student.name.charAt(0).toUpperCase()}</span>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs font-bold text-white">{student.name}</p>
+                          {student.isSuspicious && (
+                            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30">
+                              <AlertTriangle className="w-2.5 h-2.5 text-amber-400" />
+                              <span className="text-[8px] text-amber-400 font-bold uppercase tracking-wider">Mismo nombre</span>
+                            </span>
+                          )}
+                          {student.isWalkIn && (
+                            <span className="px-1.5 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-500/30">
+                              <span className="text-[8px] text-indigo-300 font-bold uppercase tracking-wider">Asistencia rápida (Walk-in)</span>
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-white/50">{student.phone || "Sin teléfono"}</p>
+                      </div>
+                    </div>
+                    {student.phone && (
+                      <a
+                        href={getWhatsAppLink(student.phone, student.name)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-7 h-7 rounded-full bg-[#25D366]/10 border border-[#25D366]/30 flex items-center justify-center"
+                      >
+                        <span className="material-symbols-outlined text-[#25D366] text-sm">chat</span>
+                      </a>
                     )}
                   </div>
-                  <div className="col-span-2">
-                    <p className="text-white/80 text-[10px] font-mono">{student.time}</p>
-                  </div>
-                  <div className="col-span-3">
-                    <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                      student.status === "Asistió"
-                        ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                        : student.status === "No Asistió"
-                        ? "bg-rose-500/15 text-rose-400 border border-rose-500/30"
-                        : "bg-[#F20F72]/15 text-[#F20F72] border border-[#F20F72]/30"
-                    }`}>
-                      {student.status}
-                    </span>
-                  </div>
-                  <div className="col-span-3 flex justify-end gap-1">
-                    {selectedClass.status === "suspendida" ? (
-                      student.phone ? (
-                        student.whatsappOptIn ? (
-                          <a
-                            href={getWhatsAppLink(student.phone)}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="px-2 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider hover:bg-emerald-500/20 transition-all cursor-pointer flex items-center gap-1"
-                          >
-                            <span className="material-symbols-outlined text-[12px]">chat</span>
-                            WA
-                          </a>
-                        ) : (
-                          <span className="text-[8px] text-rose-300/60 italic uppercase text-right leading-tight">No autorizó<br/>WhatsApp</span>
-                        )
-                      ) : (
-                        <span className="text-[9px] text-white/30 italic uppercase">Sin Tel.</span>
-                      )
-                    ) : (
-                      <>
-                        <button
-                          disabled={student.status === "Asistió"}
-                          onClick={() => handleMarkAttendance(student.id, student.name)}
-                          className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                            student.status === "Asistió"
-                              ? "text-emerald-400 bg-emerald-500/10"
-                              : "text-emerald-400/50 bg-emerald-500/5 hover:bg-emerald-500/20 hover:text-emerald-400"
-                          }`}
-                          title="Marcar Asistencia"
-                        >
-                          {student.status === "Asistió" ? (
-                            <CheckCircle className="w-4 h-4" />
-                          ) : (
-                            <span className="material-symbols-outlined text-base">how_to_reg</span>
-                          )}
-                        </button>
-                        <button
-                          disabled={student.status === "No Asistió"}
-                          onClick={() => handleMarkAbsent(student.id, student.name)}
-                          className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                            student.status === "No Asistió"
-                              ? "text-rose-400 bg-rose-500/10"
-                              : "text-rose-400/50 bg-rose-500/5 hover:bg-rose-500/20 hover:text-rose-400"
-                          }`}
-                          title="Marcar Falta"
-                        >
-                          {student.status === "No Asistió" ? (
-                            <X className="w-4 h-4" />
-                          ) : (
-                            <span className="material-symbols-outlined text-base">person_off</span>
-                          )}
-                        </button>
-                      </>
-                    )}
+                  
+                  {/* Attendance Controls */}
+                  <div className="flex gap-2 mt-1">
+                    <button
+                      onClick={() => handleMarkAttendance(student, 'present')}
+                      className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                        student.attendanceStatus === 'present'
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-white/5 text-emerald-400 border border-emerald-500/30'
+                      }`}
+                    >
+                      Presente ✅
+                    </button>
+                    <button
+                      onClick={() => handleMarkAttendance(student, 'absent')}
+                      className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                        student.attendanceStatus === 'absent'
+                          ? 'bg-rose-500 text-white'
+                          : 'bg-white/5 text-rose-400 border border-rose-500/30'
+                      }`}
+                    >
+                      Faltó ❌
+                    </button>
                   </div>
                 </div>
               ))
             )}
+
+            {/* Quick Add Button */}
+            {!isLoading && selectedClass.status !== "cancelada" && (
+              <div className="mt-2">
+                {!showQuickAdd ? (
+                  <button
+                    onClick={() => setShowQuickAdd(true)}
+                    className="w-full py-3 border border-dashed border-white/20 rounded-xl text-white/60 text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition-all flex items-center justify-center gap-2"
+                  >
+                    <UserPlus className="w-4 h-4" /> Agregar Asistencia Rápida (Walk-in)
+                  </button>
+                ) : (
+                  <form onSubmit={handleQuickAdd} className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/30 space-y-3">
+                    <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest mb-2">Asistencia sin registro previo</p>
+                    <input
+                      type="text"
+                      placeholder="Nombre de la alumna"
+                      value={quickAddName}
+                      onChange={e => setQuickAddName(e.target.value)}
+                      required
+                      className="w-full bg-[#030712]/80 border border-white/10 rounded-lg px-3 py-2 text-xs text-white"
+                    />
+                    <input
+                      type="tel"
+                      placeholder="Teléfono (Opcional)"
+                      value={quickAddPhone}
+                      onChange={e => setQuickAddPhone(e.target.value)}
+                      className="w-full bg-[#030712]/80 border border-white/10 rounded-lg px-3 py-2 text-xs text-white"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowQuickAdd(false)}
+                        className="flex-1 py-2 rounded-lg bg-white/5 text-white/60 text-[10px] font-black uppercase tracking-widest"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        className="flex-1 py-2 rounded-lg bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest"
+                      >
+                        Guardar
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Quorum Push Section */}
+          {selectedClass.status !== "cancelada" && (selectedClass.minRequired - selectedClass.confirmedCount) > 0 && suggestedStudents.length > 0 && (
+            <div className="bg-[#12080c] border-t border-white/5 p-4 rounded-b-2xl">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="material-symbols-outlined text-amber-400">group_add</span>
+                <div>
+                  <h3 className="text-xs font-black text-amber-400 uppercase tracking-widest">Empujón de quórum</h3>
+                  <p className="text-[10px] text-amber-200/70">Faltan {selectedClass.minRequired - selectedClass.confirmedCount} lugares</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {suggestedStudents.map(student => (
+                  <div key={student.id} className="flex items-center justify-between p-2 rounded-lg bg-white/5">
+                    <p className="text-xs text-white font-bold">{student.full_name}</p>
+                    <a
+                      href={getQuorumWhatsAppLink(student.mobile)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-1.5 rounded-lg bg-[#25D366]/20 text-[#25D366] text-[10px] font-black uppercase tracking-wider"
+                    >
+                      Invitar
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
-
-      {/* Statistics Panel */}
-      <div className="px-5">
-        <h2 className="text-xs font-black text-white uppercase tracking-widest mb-3">Estadísticas</h2>
-        <div className="rounded-2xl p-5 glass-card">
-          {/* Circular Chart Placeholder */}
-          <div className="flex items-center gap-6 mb-4">
-            <div className="relative w-24 h-24 shrink-0">
-              <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                <circle className="stroke-white/5" fill="transparent" strokeWidth="3" r="15.9" cx="18" cy="18" />
-                <circle 
-                  className="stroke-[#F20F72]" 
-                  fill="transparent" 
-                  strokeWidth="3" 
-                  strokeLinecap="round"
-                  strokeDasharray={`${attendanceRate}, 100`}
-                  r="15.9" cx="18" cy="18" 
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-lg font-black text-white">{totalRegistrations}</span>
-                <span className="text-[7px] font-bold text-white/40 uppercase">Registros</span>
-              </div>
-            </div>
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
-                  <span className="text-[11px] text-[#e2bdc6]">Clases confirmadas</span>
-                </div>
-                <span className="text-sm font-black text-white">{confirmedClasses}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-rose-400"></div>
-                  <span className="text-[11px] text-[#e2bdc6]">Clases canceladas</span>
-                </div>
-                <span className="text-sm font-black text-white">{cancelledClasses}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#F20F72]"></div>
-                  <span className="text-[11px] text-[#e2bdc6]">Asistencia promedio</span>
-                </div>
-                <span className="text-sm font-black text-white">{attendanceRate}%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </motion.div>
   );
 }
