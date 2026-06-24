@@ -145,6 +145,14 @@ export function HomeScreen({ onNavigate, classes, isLoading, onSelectClass }: Ho
                     <div className="flex items-center gap-1.5 mt-1">
                       <MapPin className="w-3 h-3 text-[#F20F72]" />
                       <span className="text-xs text-[#e2bdc6]">{c.location}</span>
+                      {c.mapsUrl && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); window.open(c.mapsUrl, '_blank'); }}
+                          className="ml-1 text-[9px] font-black text-emerald-400 uppercase tracking-wider hover:underline cursor-pointer"
+                        >
+                          Maps
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

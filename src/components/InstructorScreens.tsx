@@ -1,6 +1,6 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { ArrowLeft, Users, CheckCircle, Clock, X, AlertTriangle, Info, Plus, UserPlus } from "lucide-react";
+import { ArrowLeft, Users, CheckCircle, Clock, X, AlertTriangle, Info, Plus, UserPlus, Share2 } from "lucide-react";
 import React, { useState } from "react";
 import { formatDisplayDate, getWeekCategory } from "../lib/utils";
 import { APP_URL } from "../constants";
@@ -256,7 +256,8 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
     if (!selectedClass) return "";
     const dateStr = formatDisplayDate(selectedClass);
     const reason = selectedClass.cancellationReason || "Motivos de fuerza mayor";
-    return `Hola, chicas. Les aviso que la clase de Strong Nation del ${dateStr} a las ${selectedClass.timeStr} en ${selectedClass.location} queda cancelada por: ${reason}. Una disculpa por el inconveniente. Gracias por estar al pendiente. 💪`;
+    const mapsLine = selectedClass.mapsUrl ? `\n📍 ${selectedClass.mapsUrl}` : "";
+    return `Hola, chicas. Les aviso que la clase de Strong Nation del ${dateStr} a las ${selectedClass.timeStr} en ${selectedClass.location} queda cancelada por: ${reason}.${mapsLine}\nUna disculpa por el inconveniente. Gracias por estar al pendiente. 💪`;
   };
 
   const copyCancellationMessage = async () => {
@@ -285,7 +286,8 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
     if (!selectedClass) return "";
     const dateStr = formatDisplayDate(selectedClass);
     const missing = selectedClass.minRequired - selectedClass.confirmedCount;
-    return `Hola 👋 Solo faltan ${missing} lugares para confirmar la clase de Strong Nation del ${dateStr} a las ${selectedClass.timeStr} en ${selectedClass.location}.\n\nSi te animas, regístrate aquí:\n${APP_URL}\n\nLa clase se confirma con mínimo ${selectedClass.minRequired} alumnas. 💪`;
+    const mapsLine = selectedClass.mapsUrl ? `\n📍 Ubicación:\n${selectedClass.mapsUrl}` : `\n📍 Sede: ${selectedClass.location}`;
+    return `Hola 👋 Solo faltan ${missing} lugares para confirmar la clase de Strong Nation del ${dateStr} a las ${selectedClass.timeStr}.${mapsLine}\n\n📝 Regístrate aquí:\n${APP_URL}\n\n⏳ Cierre: ${selectedClass.deadlineStr || "9:00 p.m."}\nMínimo: ${selectedClass.minRequired} alumnas. 💪`;
   };
 
   const copyQuorumPushMessage = async () => {
@@ -303,6 +305,24 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
     const formattedPhone = phone.replace(/\D/g, '');
     const finalPhone = formattedPhone.length === 10 ? `52${formattedPhone}` : formattedPhone;
     return `https://wa.me/${finalPhone}?text=${text}`;
+  };
+
+  const getReminderMessage = () => {
+    if (!selectedClass) return "";
+    const dateStr = formatDisplayDate(selectedClass);
+    const mapsLine = selectedClass.mapsUrl ? `📍 Ubicación:\n${selectedClass.mapsUrl}` : `📍 Sede: ${selectedClass.location}`;
+    const studentsList = students.map(s => `✅ ${s.name}`).join("\n");
+    return `Chicas 💪💛\n\nRecuerden registrarse para la clase de mañana.\n\n🔥 ${selectedClass.title}\n📅 ${dateStr}\n⏰ ${selectedClass.timeStr}\n⏳ Registro cierra: ${selectedClass.deadlineStr || "9:00 p.m."}\n\nRegistradas hasta ahora (${selectedClass.confirmedCount}):\n${studentsList || "(aún sin registros)"}\n\n${mapsLine}\n\n📝 Regístrate aquí:\n${APP_URL}`;
+  };
+
+  const copyReminder = async () => {
+    const text = getReminderMessage();
+    try {
+      await navigator.clipboard.writeText(text);
+      onShowToast?.("Recordatorio copiado 📋");
+    } catch (err) {
+      onShowToast?.("No se pudo copiar el recordatorio");
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -682,6 +702,29 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Reminder Section */}
+          {selectedClass.status !== "cancelada" && selectedClass.status !== "finalizada" && students.length > 0 && (
+            <div className="bg-[#12080c] border-t border-white/5 p-4 rounded-b-2xl">
+              <div className="flex items-center gap-2 mb-3">
+                <Share2 className="w-4 h-4 text-[#C93CFF]" />
+                <div>
+                  <h3 className="text-xs font-black text-[#C93CFF] uppercase tracking-widest">Recordatorio pre-cierre</h3>
+                  <p className="text-[10px] text-[#C93CFF]/70">{selectedClass.confirmedCount} registrada(s) — cierre: {selectedClass.deadlineStr || "9:00 p.m."}</p>
+                </div>
+              </div>
+              <p className="text-[10px] text-white/70 mb-3 italic leading-relaxed bg-white/5 p-3 rounded-xl">
+                "{getReminderMessage()}"
+              </p>
+              <button
+                onClick={copyReminder}
+                className="w-full px-3 py-2.5 rounded-xl bg-[#C93CFF]/15 border border-[#C93CFF]/30 text-white font-black text-[10px] uppercase tracking-wider hover:bg-[#C93CFF]/25 transition-all cursor-pointer text-center flex items-center justify-center gap-2"
+              >
+                <Share2 className="w-3 h-3" />
+                Copiar recordatorio
+              </button>
             </div>
           )}
         </div>

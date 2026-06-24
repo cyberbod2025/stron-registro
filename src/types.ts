@@ -50,7 +50,7 @@ export interface ClassSession {
   status: ClassStatus;
   confirmedCount: number;
   minRequired: number;
-  deadlineStr: string; // e.g. "miércoles 8:00 p.m."
+  deadlineStr: string; // e.g. "miércoles 9:00 p.m."
   mapsUrl?: string;
   wazeUrl?: string;
   calendarUrl?: string;

@@ -17,7 +17,7 @@ export function ReglasScreen({ onNavigate }: ReglasProps) {
       icon: "schedule",
       text: "Fecha límite:",
       highlight: "un día antes",
-      suffix: " a las 8:00 PM."
+      suffix: " a las 9:00 PM."
     },
     {
       icon: "how_to_reg",

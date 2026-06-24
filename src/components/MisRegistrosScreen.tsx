@@ -196,6 +196,14 @@ export function MisRegistrosScreen({ onNavigate, classes, onSelectClass }: MisRe
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <MapPin className="w-3 h-3 text-white/30" />
                       <span className="text-xs text-[#e2bdc6]">{c.location}</span>
+                      {c.mapsUrl && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); window.open(c.mapsUrl, '_blank'); }}
+                          className="ml-1 text-[9px] font-black text-emerald-400 uppercase tracking-wider hover:underline cursor-pointer"
+                        >
+                          Maps
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

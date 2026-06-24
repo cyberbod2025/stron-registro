@@ -88,6 +88,6 @@ END $$;
 -- Opcional: Insertar las clases iniciales (mock)
 INSERT INTO public.classes (title, date_str, time_str, location, address, is_private_location, status, min_required, deadline_str, maps_url, waze_url)
 VALUES 
-('Strong Nation', 'Martes', '9:00 a.m.', 'Casa de Nidia', 'Ubicación compartida solo a alumnas registradas', true, 'scheduled', 5, 'lunes 8:00 p.m.', 'https://maps.app.goo.gl/DPtUq6P3PiWHNB5u7', 'WAZE_URL_CASA_DE_VIRI'),
-('Strong Nation', 'Jueves', '9:00 a.m.', 'Casa de Nidia', 'Ubicación compartida solo a alumnas registradas', true, 'scheduled', 5, 'miércoles 8:00 p.m.', 'https://maps.app.goo.gl/DPtUq6P3PiWHNB5u7', 'WAZE_URL_CASA_DE_VIRI'),
+('Strong Nation', 'Martes', '9:00 a.m.', 'Casa de Nidia', 'Ubicación compartida solo a alumnas registradas', true, 'scheduled', 5, 'lunes 9:00 p.m.', 'https://maps.app.goo.gl/DPtUq6P3PiWHNB5u7', 'WAZE_URL_CASA_DE_VIRI'),
+('Strong Nation', 'Jueves', '9:00 a.m.', 'Casa de Nidia', 'Ubicación compartida solo a alumnas registradas', true, 'scheduled', 5, 'miércoles 9:00 p.m.', 'https://maps.app.goo.gl/DPtUq6P3PiWHNB5u7', 'WAZE_URL_CASA_DE_VIRI'),
 ('Strong Nation', 'Domingo', '8:30 a.m.', 'Day Cardio', 'Dirección Pública Day Cardio', false, 'cancelled', 5, 'sábado 8:00 p.m.', 'https://maps.app.goo.gl/wDKZqsd9wULqMp5S6', 'WAZE_URL_DAY_CARDIO');

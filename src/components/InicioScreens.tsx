@@ -121,6 +121,14 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
               <div className="flex items-center gap-1.5 text-xs text-[#e2bdc6] mb-4">
                 <MapPin className="w-3.5 h-3.5 text-[#F20F72]" />
                 <span>{c.location}</span>
+                {c.mapsUrl && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); window.open(c.mapsUrl, '_blank'); }}
+                    className="ml-1 text-[9px] font-black text-emerald-400 uppercase tracking-wider hover:underline cursor-pointer"
+                  >
+                    Maps
+                  </button>
+                )}
               </div>
 
               {/* Progress Bar */}

@@ -34,7 +34,7 @@ export function generateGoogleCalendarUrl(
       let currentDay = now.getDay();
       let diff = targetDay - currentDay;
       if (diff < 0) diff += 7;
-      if (diff === 0 && now.getHours() > 20) {
+      if (diff === 0 && now.getHours() > 21) {
         diff += 7; // If it's the same day but too late, move to next week. (Approximation)
       }
       eventDate.setDate(now.getDate() + diff);

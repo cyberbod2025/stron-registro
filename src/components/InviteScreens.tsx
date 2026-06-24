@@ -52,7 +52,13 @@ export function InviteScreen({ onNavigate, onShowToast, classSession }: InvitePr
         <div className="space-y-3">
           <button
             onClick={() => {
-              const whatsappText = `Hola, estamos por confirmar la clase de Strong Nation.\nSolo falta ${missing} persona${missing !== 1 ? 's' : ''} para completar el mínimo de ${classSession?.minRequired || 5}.\nClase: ${formatDisplayDate(classSession)} ${classSession?.timeStr}\nSede: ${classSession?.location}.\n¿Te animas? 💪`;
+              const mapsLine = classSession?.mapsUrl ? `📍 Ubicación:\n${classSession.mapsUrl}\n` : `📍 Sede: ${classSession?.location || ""}\n`;
+              const titleLine = `🔥 ${classSession?.title || "Strong Nation"}`;
+              const dateLine = `📅 ${formatDisplayDate(classSession)}`;
+              const timeLine = `⏰ ${classSession?.timeStr || ""}`;
+              const deadlineLine = `⏳ Registro cierra: ${classSession?.deadlineStr || "9:00 p.m."}`;
+              const regLine = `📝 Registro:\n${window.location.origin}`;
+              const whatsappText = `${titleLine}\n\n${dateLine}\n${timeLine}\n${deadlineLine}\n\n${mapsLine}${regLine}\n\nFaltan ${missing} alumna${missing !== 1 ? 's' : ''} para confirmar. ¿Te animas? 💪`;
               window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, '_blank');
             }}
             className="w-full py-4 rounded-2xl bg-[#25D366] text-white font-black text-sm uppercase tracking-widest shadow-md hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer"

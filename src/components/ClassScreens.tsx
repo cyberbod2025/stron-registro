@@ -215,6 +215,27 @@ export function RegistroDeClaseScreen({
             </div>
           )}
 
+          {/* Quick class info + Maps when a class is selected */}
+          {selectedClass && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-[#F20F72]" />
+                  <span className="text-xs text-[#e2bdc6]">{selectedClass.location}</span>
+                </div>
+                {selectedClass.mapsUrl && (
+                  <button
+                    type="button"
+                    onClick={() => window.open(selectedClass.mapsUrl, '_blank')}
+                    className="text-[10px] font-black text-emerald-400 uppercase tracking-wider hover:underline cursor-pointer"
+                  >
+                    Maps
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Form Fields */}
           <div className="space-y-5">
             <p className="text-xs font-black text-[#C93CFF] uppercase tracking-widest">Tus datos</p>
@@ -422,7 +443,7 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
             <span>Fecha límite: <strong className="text-white">{classSession?.deadlineStr}</strong></span>
           </div>
           <p className="text-[11px] text-white/80 leading-relaxed pl-6">
-            Te avisaremos si la clase se CONFIRMA o se CANCELA después de las 8:00 PM.
+            Te avisaremos si la clase se CONFIRMA o se CANCELA después de las 9:00 PM.
           </p>
         </div>
       </div>
@@ -454,7 +475,7 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
               formatDisplayDate(classSession) || "",
               classSession?.timeStr || "",
               classSession?.location || "",
-              "Regla de cierre: Te avisaremos si la clase se CONFIRMA o se CANCELA a las 8:00 PM.\nQuórum mínimo: 3 personas."
+              "Regla de cierre: Te avisaremos si la clase se CONFIRMA o se CANCELA a las 9:00 PM.\nQuórum mínimo: " + (classSession?.minRequired || 5) + " personas."
             );
             window.open(calUrl, '_blank');
           }}
@@ -468,7 +489,13 @@ export function ConfirmadaScreen({ onNavigate, classSession, registration, onSho
           onClick={async () => {
             const refParam = registration?.email ? `?ref=${encodeURIComponent(registration.email)}` : "";
             const shareUrl = `${APP_URL}/${refParam}`;
-            const whatsappText = `¡Hola! Ya confirmé mi asistencia a la clase de Strong Nation el ${formatDisplayDate(classSession)} a las ${classSession?.timeStr}. ¡Vamos juntos! 💪 ${shareUrl}`;
+            const mapsLine = classSession?.mapsUrl ? `📍 Ubicación:\n${classSession.mapsUrl}\n` : "";
+            const titleLine = `🔥 ${classSession?.title || "Strong Nation"}`;
+            const dateLine = `📅 ${formatDisplayDate(classSession)}`;
+            const timeLine = `⏰ ${classSession?.timeStr || ""}`;
+            const deadlineLine = `⏳ Registro cierra: ${classSession?.deadlineStr || "9:00 p.m."}`;
+            const regLine = `📝 Registro:\n${shareUrl}`;
+            const whatsappText = `${titleLine}\n\n${dateLine}\n${timeLine}\n${deadlineLine}\n\n${mapsLine}${regLine}`;
             
             if (navigator.share) {
               try {
@@ -698,7 +725,13 @@ export function YaRegistradaScreen({ onNavigate, classSession, registration, onS
             const APP_URL = window.location.origin;
             const refParam = registration?.email ? `?ref=${encodeURIComponent(registration.email)}` : "";
             const shareUrl = `${APP_URL}/${refParam}`;
-            const whatsappText = `¡Hola! Ya estoy registrada para la clase de Strong Nation el ${formatDisplayDate(classSession)} a las ${classSession?.timeStr}. ¡Vamos juntas! 💪 ${shareUrl}`;
+            const mapsLine = classSession?.mapsUrl ? `📍 Ubicación:\n${classSession.mapsUrl}\n` : "";
+            const titleLine = `🔥 ${classSession?.title || "Strong Nation"}`;
+            const dateLine = `📅 ${formatDisplayDate(classSession)}`;
+            const timeLine = `⏰ ${classSession?.timeStr || ""}`;
+            const deadlineLine = `⏳ Registro cierra: ${classSession?.deadlineStr || "9:00 p.m."}`;
+            const regLine = `📝 Registro:\n${shareUrl}`;
+            const whatsappText = `${titleLine}\n\n${dateLine}\n${timeLine}\n${deadlineLine}\n\n${mapsLine}${regLine}`;
             if (navigator.share) {
               try { await navigator.share({ title: 'Clase Strong Nation', text: whatsappText }); return; } catch (e) {}
             }
