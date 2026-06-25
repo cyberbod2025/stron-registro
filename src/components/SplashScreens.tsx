@@ -1,7 +1,8 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { UserCircle, MapPin, ChevronRight } from "lucide-react";
+import { UserCircle, MapPin, ChevronRight, MessageCircle } from "lucide-react";
 import { formatDisplayDate, getWeekCategory } from "../lib/utils";
+import { useState } from "react";
 
 interface SplashProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -17,6 +18,43 @@ interface HomeProps {
 
 /* Full-featured Home Screen matching mockup */
 export function HomeScreen({ onNavigate, classes, isLoading, onSelectClass }: HomeProps) {
+  const [sharingClassId, setSharingClassId] = useState<string | null>(null);
+
+  const fetchRegisteredNames = async (classId: string): Promise<string[]> => {
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('students(full_name)')
+        .eq('class_id', classId);
+      if (error) throw error;
+      return (data || []).map((r: any) => r.students?.full_name).filter(Boolean);
+    } catch (err) {
+      console.error("Error fetching registered names:", err);
+      return [];
+    }
+  };
+
+  const handleShareReminder = async (c: ClassSession) => {
+    setSharingClassId(c.id);
+    try {
+      const names = await fetchRegisteredNames(c.id);
+      const mapsLine = c.mapsUrl ? `📍 Ubicación:\n${c.mapsUrl}` : `📍 Sede: ${c.location}`;
+      const studentsList = names.map(n => `✅ ${n}`).join("\n");
+      const titleLine = `🔥 ${c.title || "Strong Nation"}`;
+      const dateLine = `📅 ${formatDisplayDate(c)}`;
+      const timeLine = `⏰ ${c.timeStr || ""}`;
+      const deadlineLine = `⏳ Registro cierra: ${c.deadlineStr || "9:00 p.m."}`;
+      const regLine = `📝 Regístrate aquí:\n${window.location.origin}`;
+      const whatsappText = `${titleLine}\n\n${dateLine}\n${timeLine}\n${deadlineLine}\n\nRegistradas (${c.confirmedCount}):\n${studentsList || "(aún sin registros)"}\n\n${mapsLine}\n\n${regLine}`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, '_blank');
+    } catch (err) {
+      console.error("Error sharing reminder:", err);
+    } finally {
+      setSharingClassId(null);
+    }
+  };
+
   const getStatusLabel = (status: string) => {
     switch (status) {
       case "confirmada_por_quorum": return "CONFIRMADA";
@@ -122,47 +160,65 @@ export function HomeScreen({ onNavigate, classes, isLoading, onSelectClass }: Ho
             </>
           ) : (
             classes.filter(c => getWeekCategory(c.startsAt) !== "otro" && c.status !== "finalizada").map((c, index) => (
-              <motion.button
+              <motion.div
                 key={c.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                onClick={() => {
-                  if (onSelectClass) onSelectClass(c.id);
-                  onNavigate(ScreenId.RegistroDeClase, "push");
-                }}
-                className="class-card w-full text-left rounded-2xl p-4 glass-card hover:border-[#F20F72]/30 transition-all cursor-pointer group flex items-center justify-between"
+                className="class-card w-full rounded-2xl p-4 glass-card border border-white/10"
               >
-                <div className="flex items-center gap-4">
-                  {/* Day indicator */}
-                  <div className="w-12 h-12 rounded-xl bg-[#F20F72]/15 border border-[#F20F72]/25 flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[#F20F72] text-xl">event</span>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-black text-white uppercase tracking-wider mb-0.5">
-                      {formatDisplayDate(c)} {c.timeStr}
-                    </p>
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <MapPin className="w-3 h-3 text-[#F20F72]" />
-                      <span className="text-xs text-[#e2bdc6]">{c.location}</span>
-                      {c.mapsUrl && (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); window.open(c.mapsUrl, '_blank'); }}
-                          className="ml-1 text-[9px] font-black text-emerald-400 uppercase tracking-wider hover:underline cursor-pointer"
-                        >
-                          Maps
-                        </button>
-                      )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-[#F20F72]/15 border border-[#F20F72]/25 flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-[#F20F72] text-xl">event</span>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-black text-white uppercase tracking-wider mb-0.5">
+                        {formatDisplayDate(c)} {c.timeStr}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <MapPin className="w-3 h-3 text-[#F20F72]" />
+                        <span className="text-xs text-[#e2bdc6]">{c.location}</span>
+                        {c.mapsUrl && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); window.open(c.mapsUrl, '_blank'); }}
+                            className="ml-1 text-[9px] font-black text-emerald-400 uppercase tracking-wider hover:underline cursor-pointer"
+                          >
+                            Maps
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full ${getStatusClass(c.status)}`}>
+                      {getStatusLabel(c.status)}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-white/30" />
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full ${getStatusClass(c.status)}`}>
-                    {getStatusLabel(c.status)}
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-white/30 group-hover:text-[#F20F72] transition-colors" />
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={() => {
+                      if (onSelectClass) onSelectClass(c.id);
+                      onNavigate(ScreenId.RegistroDeClase, "push");
+                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-white text-[#1e0f14] font-black text-[10px] uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
+                  >
+                    Registrarme
+                  </button>
+                  {c.status === "pendiente" && (
+                    <button
+                      onClick={() => handleShareReminder(c)}
+                      disabled={sharingClassId === c.id}
+                      className="py-2.5 px-3 rounded-xl bg-[#25D366]/15 border border-[#25D366]/30 text-white font-black text-[9px] uppercase tracking-wider active:scale-95 transition-all cursor-pointer flex items-center gap-1 disabled:opacity-50"
+                    >
+                      <MessageCircle className="w-3 h-3 text-[#25D366]" />
+                      {sharingClassId === c.id ? "..." : "Recordatorio"}
+                    </button>
+                  )}
                 </div>
-              </motion.button>
+              </motion.div>
             ))
           )}
         </div>

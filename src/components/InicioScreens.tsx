@@ -1,7 +1,8 @@
 import { ScreenId, TransitionType, ClassSession } from "../types";
 import { motion } from "motion/react";
-import { Bell, User, MapPin, CheckCircle, AlertTriangle, XCircle, Share2 } from "lucide-react";
+import { Bell, User, MapPin, CheckCircle, AlertTriangle, XCircle, Share2, MessageCircle } from "lucide-react";
 import { formatDisplayDate, getWeekCategory } from "../lib/utils";
+import { useState } from "react";
 
 interface InicioProps {
   onNavigate: (screen: ScreenId, transition: TransitionType) => void;
@@ -10,6 +11,45 @@ interface InicioProps {
 }
 
 export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps) {
+  const [sharingClassId, setSharingClassId] = useState<string | null>(null);
+
+  const fetchRegisteredNames = async (classId: string): Promise<string[]> => {
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('students(full_name)')
+        .eq('class_id', classId);
+      if (error) throw error;
+      return (data || [])
+        .map((r: any) => r.students?.full_name)
+        .filter(Boolean);
+    } catch (err) {
+      console.error("Error fetching registered names:", err);
+      return [];
+    }
+  };
+
+  const handleShareReminder = async (c: ClassSession) => {
+    setSharingClassId(c.id);
+    try {
+      const names = await fetchRegisteredNames(c.id);
+      const mapsLine = c.mapsUrl ? `📍 Ubicación:\n${c.mapsUrl}` : `📍 Sede: ${c.location}`;
+      const studentsList = names.map(n => `✅ ${n}`).join("\n");
+      const titleLine = `🔥 ${c.title || "Strong Nation"}`;
+      const dateLine = `📅 ${formatDisplayDate(c)}`;
+      const timeLine = `⏰ ${c.timeStr || ""}`;
+      const deadlineLine = `⏳ Registro cierra: ${c.deadlineStr || "9:00 p.m."}`;
+      const regLine = `📝 Regístrate aquí:\n${window.location.origin}`;
+      const whatsappText = `${titleLine}\n\n${dateLine}\n${timeLine}\n${deadlineLine}\n\nRegistradas (${c.confirmedCount}):\n${studentsList || "(aún sin registros)"}\n\n${mapsLine}\n\n${regLine}`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, '_blank');
+    } catch (err) {
+      console.error("Error sharing reminder:", err);
+    } finally {
+      setSharingClassId(null);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmada_por_quorum":
@@ -163,6 +203,16 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
                     className="flex-1 py-3 rounded-xl bg-white text-[#1e0f14] font-black text-[11px] uppercase tracking-wider active:scale-95 transition-all text-center cursor-pointer"
                   >
                     Confirmar asistencia
+                  </button>
+                )}
+                {isPending && (
+                  <button
+                    onClick={() => handleShareReminder(c)}
+                    disabled={sharingClassId === c.id}
+                    className="py-3 px-3 rounded-xl bg-[#25D366]/15 border border-[#25D366]/30 text-white font-black text-[10px] uppercase tracking-wider active:scale-95 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                    {sharingClassId === c.id ? "..." : "Recordatorio"}
                   </button>
                 )}
                 {needsHelp && (
