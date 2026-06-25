@@ -12,6 +12,7 @@ interface InicioProps {
 
 export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps) {
   const [sharingClassId, setSharingClassId] = useState<string | null>(null);
+  const [isGeneratingReminder, setIsGeneratingReminder] = useState(false);
 
   const fetchRegisteredNames = async (classId: string): Promise<string[]> => {
     try {
@@ -47,6 +48,49 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
       console.error("Error sharing reminder:", err);
     } finally {
       setSharingClassId(null);
+    }
+  };
+
+  const shouldShowSmartReminder = (): boolean => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const isPast830 = hours > 20 || (hours === 20 && minutes >= 30);
+    if (!isPast830) return false;
+    return classes.some(
+      c => c.status === "pendiente"
+        && c.startsAt
+        && getWeekCategory(c.startsAt) !== "otro"
+    );
+  };
+
+  const getNearestPendingClass = (): ClassSession | null => {
+    const pending = classes
+      .filter(c => c.status === "pendiente" && c.startsAt)
+      .sort((a, b) => new Date(a.startsAt!).getTime() - new Date(b.startsAt!).getTime());
+    return pending[0] || null;
+  };
+
+  const handleGenerateReminder = async () => {
+    setIsGeneratingReminder(true);
+    try {
+      const nearest = getNearestPendingClass();
+      if (!nearest) return;
+      const names = await fetchRegisteredNames(nearest.id);
+      const mapsLine = nearest.mapsUrl ? `📍 Ubicación:\n${nearest.mapsUrl}` : `📍 Sede: ${nearest.location}`;
+      const studentsList = names.map(n => `✅ ${n}`).join("\n");
+      const titleLine = `🔥 ${nearest.title || "Strong Nation"}`;
+      const dateLine = `📅 ${formatDisplayDate(nearest)}`;
+      const timeLine = `⏰ ${nearest.timeStr || ""}`;
+      const deadlineLine = `⏳ Registro cierra: ${nearest.deadlineStr || "9:00 p.m."}`;
+      const regLine = `📝 Regístrate aquí:\n${window.location.origin}`;
+      const message = `${titleLine}\n\n${dateLine}\n${timeLine}\n${deadlineLine}\n\nRegistradas (${nearest.confirmedCount}):\n${studentsList || "(aún sin registros)"}\n\n${mapsLine}\n\n${regLine}`;
+      await navigator.clipboard.writeText(message);
+      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    } catch (err) {
+      console.error("Error generating reminder:", err);
+    } finally {
+      setIsGeneratingReminder(false);
     }
   };
 
@@ -123,6 +167,20 @@ export function InicioScreen({ onNavigate, classes, onSelectClass }: InicioProps
           <User className="w-5 h-5 text-[#d3bbff]" />
         </button>
       </div>
+
+      {/* Smart Reminder Button */}
+      {shouldShowSmartReminder() && (
+        <div className="px-5 mb-4">
+          <button
+            onClick={handleGenerateReminder}
+            disabled={isGeneratingReminder}
+            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600/20 to-emerald-500/10 border border-emerald-500/30 text-white font-black text-xs uppercase tracking-wider active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+            {isGeneratingReminder ? "Generando..." : "GENERAR RECORDATORIO AUTOMÁTICO"}
+          </button>
+        </div>
+      )}
 
       {/* Class Cards */}
       <div className="px-5 space-y-4">
