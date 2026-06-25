@@ -25,9 +25,11 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
   const [quickAddPhone, setQuickAddPhone] = useState("");
 
   const filteredClasses = classes?.filter(c => {
-    const isPast = c.status === "finalizada" || (c.startsAt && new Date(c.startsAt) < new Date() && c.status !== "cancelada");
-    if (classTab === "proximas") return !isPast;
-    return isPast;
+    const cat = getWeekCategory(c.startsAt);
+    if (classTab === "proximas") {
+      return cat !== "otro" && c.status !== "finalizada" && c.status !== "cancelada";
+    }
+    return c.status === "finalizada" || c.status === "cancelada" || cat === "otro";
   }).sort((a, b) => {
     if (classTab === "historial") {
       return new Date(b.startsAt!).getTime() - new Date(a.startsAt!).getTime();
@@ -36,10 +38,13 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
   }) || [];
 
   React.useEffect(() => {
-    if (filteredClasses && filteredClasses.length > 0 && !selectedClassId) {
-      setSelectedClassId(filteredClasses[0].id);
+    if (classTab === "proximas" && filteredClasses.length > 0 && !selectedClassId) {
+      const firstPending = filteredClasses.find(c => c.status === "pendiente");
+      setSelectedClassId(firstPending?.id || filteredClasses[0].id);
+    } else if (classTab === "proximas" && filteredClasses.length === 0) {
+      setSelectedClassId(null);
     }
-  }, [filteredClasses, selectedClassId]);
+  }, [filteredClasses, selectedClassId, classTab]);
 
   const selectedClass = classes?.find(c => c.id === selectedClassId);
 
@@ -155,7 +160,9 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
     if (!classes || classes.length === 0) return;
     try {
       const { supabase } = await import('../lib/supabase');
-      const maxDate = new Date(Math.max(...classes.map(c => new Date(c.startsAt!).getTime())));
+      const validDates = classes.filter(c => c.startsAt).map(c => new Date(c.startsAt!).getTime());
+      if (validDates.length === 0) return;
+      const maxDate = new Date(Math.max(...validDates));
       
       const latestWeekClasses = classes.filter(c => {
         if (!c.startsAt) return false;
@@ -481,7 +488,7 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
       <div className="px-5 mb-6">
         <div className="flex gap-3 overflow-x-auto pb-2 -mx-2 px-2 hide-scrollbar">
           {filteredClasses.length === 0 ? (
-            <p className="text-xs text-white/50 italic">No hay clases en esta sección.</p>
+            <p className="text-xs text-white/50 italic">{classTab === "proximas" ? "No hay clases próximas pendientes." : "No hay clases en el historial."}</p>
           ) : (
             filteredClasses.map((c) => (
               <motion.button
