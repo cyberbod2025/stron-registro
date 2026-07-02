@@ -4,84 +4,116 @@ const supabaseUrl = 'https://xdtjebvfoueubortsxre.supabase.co';
 const supabaseKey = 'sb_publishable_U1kRWqhblC_HYqMAt1dV2Q_eYNbx5oG';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+async function tryDirectDelete(ids) {
+  const { error } = await supabase.from('attendance').delete().in('id', ids);
+  if (error) throw new Error(`Direct delete failed (RLS): ${error.message}`);
+  // Verify deletion
+  const { data: check } = await supabase.from('attendance').select('id').in('id', ids);
+  return check?.length === 0;
+}
+
+async function tryRpcDelete() {
+  try {
+    const { error } = await supabase.rpc('delete_test_data');
+    if (error) throw error;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function main() {
   console.log("🔍 Buscando registros de prueba...");
 
-  // 1. Find attendance with test names
-  const { data: testAttendance, error: err1 } = await supabase
+  const { data: testAtt, error: e1 } = await supabase
     .from('attendance')
     .select('id, full_name, mobile, class_id')
     .or('full_name.ilike.%test%,full_name.ilike.%demo%,full_name.ilike.%walk-in%');
+  if (e1) { console.error("Error:", e1); return; }
+  console.log(`\n📋 Attendance de prueba (${testAtt?.length || 0}):`);
+  testAtt?.forEach(a => console.log(`  - ${a.full_name} | ${a.mobile} | ${a.class_id} | ${a.id}`));
 
-  if (err1) { console.error("Error querying attendance:", err1); return; }
-  console.log(`\n📋 Attendance de prueba (${testAttendance?.length || 0}):`);
-  testAttendance?.forEach(a => console.log(`  - ${a.full_name} | ${a.mobile} | class: ${a.class_id} | id: ${a.id}`));
-
-  // 2. Find attendance with phone 5551234567
-  const { data: phoneAttendance, error: err1b } = await supabase
+  const { data: phoneAtt } = await supabase
     .from('attendance')
     .select('id, full_name, mobile, class_id')
     .eq('mobile', '5551234567');
-
-  if (err1b) { console.error("Error querying attendance by phone:", err1b); return; }
-  if (phoneAttendance?.length) {
-    console.log(`\n📋 Attendance con teléfono 5551234567 (${phoneAttendance.length}):`);
-    phoneAttendance.forEach(a => console.log(`  - ${a.full_name} | ${a.mobile} | class: ${a.class_id} | id: ${a.id}`));
+  if (phoneAtt?.length) {
+    console.log(`\n📋 Attendance con teléfono 5551234567 (${phoneAtt.length}):`);
+    phoneAtt.forEach(a => console.log(`  - ${a.full_name} | ${a.mobile} | ${a.class_id} | ${a.id}`));
   }
 
-  // Combine and deduplicate
-  const allTestAttIds = new Set();
-  testAttendance?.forEach(a => allTestAttIds.add(a.id));
-  phoneAttendance?.forEach(a => allTestAttIds.add(a.id));
-  const testAttIds = [...allTestAttIds];
+  const allIds = new Set();
+  testAtt?.forEach(a => allIds.add(a.id));
+  phoneAtt?.forEach(a => allIds.add(a.id));
+  const attIds = [...allIds];
 
-  // 3. Find students with test names/emails
-  const { data: testStudents, error: err2 } = await supabase
+  const { data: testStudents } = await supabase
     .from('students')
     .select('id, full_name, email, mobile')
     .or('full_name.ilike.%test%,email.ilike.%test%');
-
-  if (err2) { console.error("Error querying students:", err2); return; }
   console.log(`\n📋 Students de prueba (${testStudents?.length || 0}):`);
-  testStudents?.forEach(s => console.log(`  - ${s.full_name} | ${s.email} | ${s.mobile} | id: ${s.id}`));
+  testStudents?.forEach(s => console.log(`  - ${s.full_name} | ${s.email} | ${s.mobile} | ${s.id}`));
 
-  // 4. Find registrations linked to test students
   if (testStudents?.length) {
-    const studentIds = testStudents.map(s => s.id);
-    const { data: testRegs, error: err3 } = await supabase
+    const { data: testRegs } = await supabase
       .from('registrations')
       .select('id, class_id, student_id')
-      .in('student_id', studentIds);
-    if (err3) { console.error("Error querying registrations:", err3); return; }
-    console.log(`\n📋 Registrations de prueba (${testRegs?.length || 0}):`);
+      .in('student_id', testStudents.map(s => s.id));
+    console.log(`\n📋 Registrations (${testRegs?.length || 0}):`);
     testRegs?.forEach(r => console.log(`  - student: ${r.student_id} | class: ${r.class_id} | id: ${r.id}`));
   }
 
-  // Delete if any found
   const confirm = process.argv.includes('--delete');
   if (!confirm) {
     console.log("\n⚠️  Para eliminar, ejecuta con --delete");
     return;
   }
 
-  if (testAttIds.length > 0) {
-    const { error } = await supabase.from('attendance').delete().in('id', testAttIds);
-    if (error) { console.error("Error deleting attendance:", error); return; }
-    console.log(`\n✅ ${testAttIds.length} attendance(s) eliminadas`);
+  if (attIds.length === 0 && (!testStudents || testStudents.length === 0)) {
+    console.log("\n✅ No hay datos de prueba que eliminar");
+    return;
   }
 
-  const testStudentIds = testStudents?.map(s => s.id) || [];
-  if (testStudentIds.length > 0) {
-    const { error: errReg } = await supabase.from('registrations').delete().in('student_id', testStudentIds);
-    if (errReg) { console.error("Error deleting registrations:", errReg); return; }
-    console.log(`✅ ${testStudentIds.length} registration(s) eliminadas`);
-
-    const { error: errDel } = await supabase.from('students').delete().in('id', testStudentIds);
-    if (errDel) { console.error("Error deleting students:", errDel); return; }
-    console.log(`✅ ${testStudentIds.length} student(s) eliminadas`);
+  // Try RPC first (bypasses RLS)
+  console.log("\n🔄 Intentando vía RPC...");
+  const rpcOk = await tryRpcDelete();
+  if (rpcOk) {
+    // Verify
+    const { data: check } = await supabase
+      .from('students')
+      .select('id')
+      .or('full_name.ilike.%test%,email.ilike.%test%');
+    if (!check?.length) {
+      console.log("✅ Datos eliminados vía RPC");
+      return;
+    }
+    console.log("⚠️  RPC no eliminó todo, intentando directo...");
   }
 
-  console.log("\n🎉 Limpieza completada");
+  // Try direct (may fail due to RLS)
+  if (attIds.length > 0) {
+    try {
+      const ok = await tryDirectDelete(attIds);
+      if (ok) console.log(`✅ ${attIds.length} attendance(s) eliminadas`);
+      else console.log("⚠️  No se pudieron eliminar las attendances (RLS)");
+    } catch (err) {
+      console.log(`⚠️  ${err.message}`);
+    }
+  }
+
+  const studentIds = testStudents?.map(s => s.id) || [];
+  if (studentIds.length > 0) {
+    const { error: er } = await supabase.from('registrations').delete().in('student_id', studentIds);
+    if (er) console.log(`⚠️  No se pudieron eliminar registrations (RLS): ${er.message}`);
+    else console.log(`✅ registrations eliminadas`);
+
+    const { error: es } = await supabase.from('students').delete().in('id', studentIds);
+    if (es) console.log(`⚠️  No se pudieron eliminar students (RLS): ${es.message}`);
+    else console.log(`✅ students eliminadas`);
+  }
+
+  console.log("\n⚠️  Si no se eliminaron, ejecuta en Supabase SQL Editor:");
+  console.log("   scripts/delete-test-data.sql");
 }
 
 main();

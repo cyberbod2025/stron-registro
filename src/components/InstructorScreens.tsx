@@ -461,15 +461,41 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
     try {
       setIsLoading(true);
       const { supabase } = await import('../lib/supabase');
+
+      const { data: existing } = await supabase
+        .from('students')
+        .select('id, full_name, mobile')
+        .ilike('full_name', quickAddName.trim());
+
+      let studentId: string | null = null;
+      let mobile = quickAddPhone;
+
+      if (existing && existing.length > 0) {
+        const match = existing[0];
+        studentId = match.id;
+        if (!mobile) mobile = match.mobile || "";
+        onShowToast?.(`Alumna encontrada: ${match.full_name}`);
+      } else {
+        const { data: newStudent, error: insertError } = await supabase
+          .from('students')
+          .insert([{ full_name: quickAddName.trim(), email: `${quickAddName.trim().toLowerCase().replace(/\s+/g, '.')}@walkin.strong`, mobile: mobile || "0000000000" }])
+          .select('id')
+          .single();
+        if (insertError) throw insertError;
+        studentId = newStudent.id;
+      }
+
       await supabase.from('attendance').insert([{
         class_id: selectedClassId,
-        full_name: quickAddName,
-        mobile: quickAddPhone,
+        student_id: studentId,
+        full_name: quickAddName.trim(),
+        mobile: mobile,
         attendance_status: 'present',
         was_registered: false,
         marked_by: 'instructor'
       }]);
-      onShowToast?.("Alumna agregada (Walk-in)");
+
+      onShowToast?.("Asistencia agregada");
       setShowQuickAdd(false);
       setQuickAddName("");
       setQuickAddPhone("");

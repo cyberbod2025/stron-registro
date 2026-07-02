@@ -116,15 +116,15 @@ export function RegistroDeClaseScreen({
 
       if (regError) {
         if (regError.code === '23505') {
-          onShowToast?.("Ya tienes un lugar reservado en esta clase.");
+          onChangeRegistration?.(formData);
           setIsSubmitting(false);
+          onNavigate(ScreenId.YaRegistrada, "push");
           return;
         }
         throw regError;
       }
 
       onChangeRegistration?.(formData);
-      onShowToast?.("¡Registro realizado con éxito!");
       onNavigate(ScreenId.Confirmada, "push");
     } catch (err) {
       console.error(err);
