@@ -193,7 +193,21 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
 
       if (newClasses.length === 0) return;
 
-      const { error } = await supabase.from('classes').insert(newClasses);
+      const newStartsAts = newClasses.map(c => c.starts_at);
+      const { data: existing } = await supabase
+        .from('classes')
+        .select('starts_at')
+        .in('starts_at', newStartsAts);
+
+      const existingSet = new Set(existing?.map((e: any) => e.starts_at) || []);
+      const toInsert = newClasses.filter(c => !existingSet.has(c.starts_at));
+
+      if (toInsert.length === 0) {
+        onShowToast?.("La próxima semana ya está generada");
+        return;
+      }
+
+      const { error } = await supabase.from('classes').insert(toInsert);
       if (error) throw error;
       onShowToast?.("Próxima semana generada con éxito");
       onRefresh?.();
@@ -352,6 +366,39 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
       onShowToast?.("Recordatorio copiado 📋");
     } catch (err) {
       onShowToast?.("No se pudo copiar el recordatorio");
+    }
+  };
+
+  const getConfirmationMessage = () => {
+    if (!selectedClass) return "";
+    const dateStr = formatDisplayDate(selectedClass);
+    const mapsLine = selectedClass.mapsUrl ? `📍 Ubicación:\n${selectedClass.mapsUrl}` : `📍 Sede: ${selectedClass.location}`;
+    return `¡Clase confirmada! 💪🔥\n\n🔥 ${selectedClass.title}\n📅 ${dateStr}\n⏰ ${selectedClass.timeStr}\n📍 ${selectedClass.location}\n${mapsLine}\n\nNos vemos en clase. Llegar 10 min antes. 🕐`;
+  };
+
+  const copyConfirmationMessage = async () => {
+    const text = getConfirmationMessage();
+    try {
+      await navigator.clipboard.writeText(text);
+      onShowToast?.("Mensaje de confirmación copiado 📋");
+    } catch (err) {
+      onShowToast?.("No se pudo copiar el mensaje");
+    }
+  };
+
+  const getNoQuorumMessage = () => {
+    if (!selectedClass) return "";
+    const dateStr = formatDisplayDate(selectedClass);
+    return `Hola, chicas. Les aviso que la clase de Strong Nation del ${dateStr} a las ${selectedClass.timeStr} en ${selectedClass.location} queda cancelada porque no se alcanzó el mínimo de ${selectedClass.minRequired} alumnas registradas.\n\n¡Esperamos contar con su apoyo la próxima semana! 💪`;
+  };
+
+  const copyNoQuorumMessage = async () => {
+    const text = getNoQuorumMessage();
+    try {
+      await navigator.clipboard.writeText(text);
+      onShowToast?.("Mensaje de cancelación copiado 📋");
+    } catch (err) {
+      onShowToast?.("No se pudo copiar el mensaje");
     }
   };
 
@@ -571,6 +618,44 @@ export function PanelInstructor({ onNavigate, onShowToast, classes, onRefresh }:
               >
                 <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
                 {isGeneratingReminder ? "Generando..." : "GENERAR RECORDATORIO AUTOMÁTICO"}
+              </button>
+            </div>
+          )}
+
+          {/* Confirmation Message Section */}
+          {(selectedClass.status === "confirmada_por_quorum" || selectedClass.status === "confirmada_manual") && (
+            <div className="glass-panel mx-4 mb-4 p-4 border border-emerald-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-[10px] font-black text-emerald-300 uppercase tracking-widest">Clase confirmada</h3>
+              </div>
+              <p className="text-[10px] text-emerald-200/90 mb-3 italic leading-relaxed bg-white/5 p-3 rounded-xl">
+                "{getConfirmationMessage()}"
+              </p>
+              <button
+                onClick={copyConfirmationMessage}
+                className="w-full px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-white font-black text-[10px] uppercase tracking-wider hover:bg-emerald-500/25 transition-all cursor-pointer text-center"
+              >
+                Copiar mensaje de confirmación
+              </button>
+            </div>
+          )}
+
+          {/* No Quorum Section */}
+          {selectedClass.status === "pendiente" && selectedClass.confirmedCount < selectedClass.minRequired && (
+            <div className="glass-panel mx-4 mb-4 p-4 border border-rose-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="w-4 h-4 text-rose-400" />
+                <h3 className="text-[10px] font-black text-rose-300 uppercase tracking-widest">Cancelar por falta de quórum</h3>
+              </div>
+              <p className="text-[10px] text-rose-200/90 mb-3 italic leading-relaxed bg-white/5 p-3 rounded-xl">
+                "{getNoQuorumMessage()}"
+              </p>
+              <button
+                onClick={copyNoQuorumMessage}
+                className="w-full px-3 py-2 rounded-xl bg-rose-500/15 border border-rose-500/30 text-white font-black text-[10px] uppercase tracking-wider hover:bg-rose-500/25 transition-all cursor-pointer text-center"
+              >
+                Copiar mensaje de cancelación
               </button>
             </div>
           )}
